@@ -29,9 +29,7 @@ I didn't get the dispatch(asm "svc 0") works now as it may hardfaut, so it can o
 
 # 2. Set up environment on windows
 
-This is a struggling processs for some new beginners who are totally not familiar with shell commands as most of people working with IDE. So you can choose to skip this section 2 by downloading the portable asenv.zip file and run the Console.bat(if encounter mklink permission error, run it as administrator) inside it, then start from section 3.2.
-
-* [pan.baidu.com asenv.zip](https://pan.baidu.com/s/1NNNiSBCyYsdsvSknBKe3JQ)
+This is a struggling processs for some new beginners who are totally not familiar with shell commands as most of people working with IDE. 
 
 ## 2.1 install [Anaconda3 64bit](https://www.anaconda.com/download/) as C:\Anaconda3
 
@@ -42,9 +40,11 @@ This is a struggling processs for some new beginners who are totally not familia
 ```sh
 set PATH=C:\Anaconda3;C:\Anaconda3\Scripts;C:\msys64\usr\bin;C:\msys64\mingw64\bin;%PATH%
 pacman -Syuu
-pacman -S unzip wget curl git mingw-w64-x86_64-gcc mingw-w64-x86_64-glib2 mingw-w64-x86_64-gtk3
-pacman -S ncurses-devel gperf curl make cmake automake-wrapper libtool
-pacman -S unrar mingw-w64-x86_64-pkg-config
+pacman -S unzip wget git mingw-w64-x86_64-gcc mingw-w64-x86_64-glib2 mingw-w64-x86_64-gtk3
+pacman -S mingw32/mingw-w64-i686-gcc mingw-w64-x86_64-diffutils
+pacman -S ncurses-devel gperf scons curl make cmake automake-wrapper libtool
+pacman -S unrar mingw-w64-x86_64-pkg-config mingw-w64-x86_64-binutils
+pacman -S msys2-runtime-devel
 conda install scons pyserial
 ```
 
@@ -149,38 +149,21 @@ Then click the button "Debug" to start debug.
 
 The as.one.py is a very powerful python tool has integrated a lot features, such as BOOTLOADER, Diagnostic Communication Control(UDS iso14229) on CAN, DoIP(ethernet) or XCP(Universal Calibration Protocol).
 
-For the purpose to use it, it must compiles the aslua firstly to build out the necessary library AS.pyd(this is generally for CAN).
+For the purpose to use it, it must compiles the astool/aslib firstly to build out the necessary library AS.pyd(this is generally for CAN).
 
-But first of all, the third party CAN library should be downloaded, such as the [peak-can pcan-basic.zip](https://www.peak-system.com/fileadmin/media/files/pcan-basic.zip) and [zlg-can CAN_lib.rar](http://www.zlg.cn/data/upload/software/Can/CAN_lib.rar). But this 2 libraries maybe updated in the future by the vendor maybe for the purpuse to add new features or fix some bugs, it may result that the automaticlly downlowded one by the aslua/Makefile will not be usable if the CAN library file structure changed, or even download failed. I am not going to fix those issues resulted by the third party CAN library file structure changed in time, so you should generally make sure the CAN library located at the as/release/download folder as below file structure.
+```sh
+set BOARD=any
+set ANY=pyas
+scons --menuconfig
+scons
+```
+
+## 4.1 notes if menuconfig pyas to enable peak CAN and ZLG CAN
+The third party CAN library should be downloaded, such as the [peak-can pcan-basic.zip](https://www.peak-system.com/fileadmin/media/files/pcan-basic.zip) and [zlg-can CAN_lib.rar](http://www.zlg.cn/data/upload/software/Can/CAN_lib.rar). But this 2 libraries maybe updated in the future by the vendor maybe for the purpuse to add new features or fix some bugs, it may result that the automaticlly downlowded one by the aslua/Makefile will not be usable if the CAN library file structure changed, or even download failed. I am not going to fix those issues resulted by the third party CAN library file structure changed in time, so you should generally make sure the CAN library located at the as/release/download folder as below file structure.
 
 And for the zlg can, the [VC 2008 Runtime X64](https://www.microsoft.com/en-us/download/details.aspx?id=15336)  or the [VC 2008 Runtime X86](https://www.microsoft.com/en-us/download/details.aspx?id=29) should be installed.
 
 ![third-party-can-folder-structure.png](/as/images/rewoa/third-party-can-folder-structure.png)
-
-Run command "make clean && make aslua" in the panel of aslua of the Console, but as the issue of msys2, you will encounter below error maybe.
-
-```sh
-D:\repository\as\release\aslua>make aslua
-....
-D:/repository/as/release/aslua/out/libaws.a(random_seed.o): In function `GetCurrentFiber':
-C:/msys64/mingw64/x86_64-w64-mingw32/include/winnt.h:8604: multiple definition of `GetCurrentFiber'
-D:/repository/as/release/aslua/out/libaws.a(asocket.o):C:/msys64/mingw64/x86_64-w64-mingw32/include/winnt.h:8604: first defined
-here
-D:/repository/as/release/aslua/out/libaws.a(random_seed.o): In function `GetFiberData':
-C:/msys64/mingw64/x86_64-w64-mingw32/include/winnt.h:8605: multiple definition of `GetFiberData'
-D:/repository/as/release/aslua/out/libaws.a(asocket.o):C:/msys64/mingw64/x86_64-w64-mingw32/include/winnt.h:8605: first defined
-here
-collect2.exe: error: ld returned 1 exit status
-make[1]: *** [/d/repository/as//com/as.tool/lua/pyas/Makefile:46: AS.pyd] Error 1
-make[1]: Leaving directory '/d/repository/as/release/aslua/out'
-make: *** [Makefile:409: 82] Error 2
-```
-
-This issue is very easy to be fixed, for example for "multiple definition of `GetFiberData'", just open file "C:/msys64/mingw64/x86_64-w64-mingw32/include/winnt.h", goto line 8605, do the modification as below picture shows:
-
-![msys2-aslua-build-issue-fix](/as/images/rewoa/msys2-aslua-build-issue-fix.png)
-
-Adter fix all those kind of issues, the aslua can be built sucesfully by "make clean && make aslua".
 
 Then in the panel of "ascore", run the command "scons run asone" to run with the tool as.one.py also started or just in the panel of "as.one.py", run command "python main.py".
 
@@ -213,8 +196,4 @@ First of all, the 32 bit Anaconda should be installed
 
 ```sh
 pacman -S mingw32/mingw-w64-i686-gcc
-
-# build of aslua
-set PATH=c:\msys64\mingw32\bin;%PATH%
-make aslua
 ```

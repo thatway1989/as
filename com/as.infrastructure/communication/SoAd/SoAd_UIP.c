@@ -38,8 +38,8 @@ static uint8  tcpBufTx[SOAD_TCP_SOCKET_NUM][SOAD_TX_BUFFER_SIZE];
 static uint32 tcpSocketFlag = 0;
 static uint32 tcpSocketConnectFlag = 0;
 static uint32 tcpSocketErrorFlag = 0;
-static const uint8* tcpSocketDatatPtr[SOAD_TCP_SOCKET_NUM];
-static int          tcpSocketDatatLen[SOAD_TCP_SOCKET_NUM];
+static const uint8* volatile tcpSocketDatatPtr[SOAD_TCP_SOCKET_NUM];
+static int volatile tcpSocketDatatLen[SOAD_TCP_SOCKET_NUM];
 /* ============================ [ LOCALS] ====================================================== */
 /* Note: for this implementation, a socket frame should fit into a signle MTU(1500) frame */
 int tcp_socket_data_callback(struct tcp_socket *s,
@@ -71,7 +71,7 @@ int tcp_socket_data_callback(struct tcp_socket *s,
 			tcpSocketDatatPtr[slot] = NULL;
 			ASLOG(SOADE, ("%s(%d) message %d@%p is not fully consumed, "
 				  " maybe UIP buffer is too small,"
-				  " or upper layer has some erros\n",
+				  " or upper layer has some errors\n",
 				  __func__, slot, input_data_len, input_data_ptr));
 		}
 	}

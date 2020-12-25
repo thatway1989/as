@@ -1188,10 +1188,13 @@ void DoIp_HandleTcpRx(uint16 sockNr)
 							createAndSendNack(sockNr, DOIP_E_UNKNOWN_PAYLOAD_TYPE);
 							break;
 						}
+					} else {
+						createAndSendNack(sockNr, DOIP_E_INVALID_PAYLOAD_LENGTH);
+						discardIpMessage(SocketAdminList[sockNr].ConnectionHandle, nBytes, rxBuffer);
 					}
 				} else {
 					createAndSendNack(sockNr, DOIP_E_MESSAGE_TO_LARGE);
-					discardIpMessage(SocketAdminList[sockNr].ConnectionHandle, payloadLength + 8, rxBuffer);
+					discardIpMessage(SocketAdminList[sockNr].ConnectionHandle, nBytes, rxBuffer);
 				}
 			} else {
 				createAndSendNack(sockNr, DOIP_E_INCORRECT_PATTERN_FORMAT);

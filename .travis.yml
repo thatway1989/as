@@ -17,6 +17,7 @@ before_script:
   - "sudo apt-get install -qq qemu scons nasm || true"
   - "sudo apt-get install -qq libstdc++6:i386 || true"
   - "sudo apt-get install -qq lib32stdc++6 || true"
+  - "sudo apt-get install -qq python3-sip || true"
 
 script:
   - export RELEASE=ascore

@@ -11,7 +11,10 @@ objs = []
 
 if('PYAS' in MODULES):
     src = '%s/pyas/pyas.sip'%(cwd)
-    cmd = '%s %s/pyas/configure.py %s %s'%(sys.executable, cwd, src, bdir)
+    python = sys.executable
+    if(not IsPlatformWindows()):
+        python = 'python3'
+    cmd = '%s %s/pyas/configure.py %s %s'%(python, cwd, src, bdir)
     tgt = '%s/sipAScmodule.cpp'%(bdir)
     MKObject([src], tgt, cmd)
     objs += Glob('%s/*.cpp'%(bdir))

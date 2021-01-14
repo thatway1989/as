@@ -18,6 +18,16 @@ config LUA_DEV_RS232
 	depends on LUA_DEV
 	default y
 
+config LUA_DEV_LIN
+	bool "as LIN device"
+	depends on LUA_DEV
+	default y
+
+config LUA_DEV_LIN_SOCKET
+	bool "as LIN BUS on socket"
+	depends on LUA_DEV_LIN
+	default y
+
 config LUA_CAN
 	bool "as CAN library"
 	default y

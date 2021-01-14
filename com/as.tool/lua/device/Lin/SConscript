@@ -1,0 +1,17 @@
+from building import *
+
+cwd = GetCurrentDir()
+
+Import('asenv')
+MODULES=asenv['MODULES']
+
+objs = []
+
+asenv.Append(CPPPATH=[cwd])
+
+objs += Glob('laslinlib.c')
+
+if('LUA_DEV_LIN_SOCKET' in MODULES):
+    objs +=  Glob('socket_lin.c')
+
+Return('objs')

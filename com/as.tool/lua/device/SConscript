@@ -15,4 +15,7 @@ objs += Glob('lasdevlib.c')
 if('LUA_DEV_RS232' in MODULES):
     objs +=  Glob('lasdev_rs232.c')
 
+if('LUA_DEV_LIN' in MODULES):
+    objs +=  SConscript('Lin/SConscript')
+
 Return('objs')

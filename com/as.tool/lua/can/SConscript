@@ -76,7 +76,7 @@ if(IsPlatformWindows()):
 
 src = '%s/socketwin_can_driver.c'%(cwd)
 tgt = '%s/../script/socketwin_can_driver.exe'%(cwd)
-cmd = 'gcc %s -D__SOCKET_WIN_CAN_DRIVER__ -I%s/com/as.infrastructure/include -o %s'%(src,asenv['ASROOT'],tgt)
+cmd = 'gcc %s -I%s/com/as.infrastructure/include -o %s'%(src,asenv['ASROOT'],tgt)
 if(IsPlatformWindows()):
     cmd += ' -D__WINDOWS__ -lwsock32'
 else:

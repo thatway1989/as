@@ -1,4 +1,3 @@
-#ifdef __SOCKET_WIN_CAN_DRIVER__
 /**
  * AS - the open source Automotive Software on https://github.com/parai
  *
@@ -466,4 +465,3 @@ int main(int argc,char* argv[])
 
 	return 0;
 }
-#endif

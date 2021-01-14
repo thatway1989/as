@@ -22,7 +22,7 @@
 #include "lauxlib.h"
 #endif
 /* ============================ [ MACROS    ] ====================================================== */
-#define LAS_DEVICE_NAME_SIZE 32
+#define LAS_DEVICE_NAME_SIZE 256
 /* ============================ [ TYPES     ] ====================================================== */
 /* device: RS232 - COM1 COM2 .... */
 typedef int (*lasdev_open_t)  (const char* device, const char* option, void** param);
@@ -42,7 +42,12 @@ typedef struct
 }LAS_DeviceOpsType;
 
 /* ============================ [ DECLARES  ] ====================================================== */
+#ifdef USE_LUA_DEV_LIN
+extern const LAS_DeviceOpsType lin_dev_ops;
+#endif
+#ifdef USE_LUA_DEV_RS232
 extern const LAS_DeviceOpsType rs232_dev_ops;
+#endif
 #ifdef USE_AWS
 extern const LAS_DeviceOpsType websock_dev_ops;
 #endif

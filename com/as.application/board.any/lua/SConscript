@@ -15,6 +15,7 @@ asenv.Append(CPPDEFINES=['__AS_BY_PARAI__', 'LUA_COMPAT_5_2', 'LUA_COMPAT_5_1'])
 MODULES = ['LUA',
            'LUA_ASLIB',
            'LUA_DEV','LUA_DEV_RS232',
+           'LUA_DEV_LIN','LUA_DEV_LIN_SOCKET',
            'LUA_CAN','LUA_SERIAL_CAN','LUA_SOCKET_CAN',
            'DET','SHELL',
            ]

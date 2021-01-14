@@ -40,7 +40,12 @@ struct LAS_DevList_s {
 /* ============================ [ DATAS     ] ====================================================== */
 static const LAS_DeviceOpsType* devOps [] =
 {
+#ifdef USE_LUA_DEV_LIN
+	&lin_dev_ops,
+#endif
+#ifdef USE_LUA_DEV_RS232
 	&rs232_dev_ops,
+#endif
 #ifdef USE_AWS
 	&websock_dev_ops,
 #endif
@@ -163,7 +168,7 @@ int luai_as_open  (lua_State *L)
 		}
 
 		option = lua_tolstring(L, 2, &ls);
-		if(0 == ls)
+		if(option == NULL)
 		{
 			 return luaL_error(L,"incorrect argument device option to function '%s'",__func__);
 		}
@@ -184,7 +189,7 @@ int luai_as_open  (lua_State *L)
 
 				rv = ops->open(device_name,option,&d->param);
 
-				if(rv)
+				if(rv >= 0)
 				{
 					d->fd = _fd++;
 					d->ops = ops;
@@ -234,7 +239,7 @@ int luai_as_read  (lua_State *L)
 		}
 		if(d->ops->read != NULL)
 		{
-			char* data;
+			char* data = NULL;;
 			int len = d->ops->read(d->param,&data);
 
 			lua_pushinteger(L,len);
@@ -517,7 +522,7 @@ int asdev_open(const char* device_name, const char* option)
 
 			rv = ops->open(device_name,option,&d->param);
 
-			if(rv)
+			if(rv >= 0)
 			{
 				d->fd = _fd++;
 				d->ops = ops;

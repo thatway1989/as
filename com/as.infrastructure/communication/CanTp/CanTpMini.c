@@ -95,7 +95,7 @@
 
 #define N_PCI_SN   0x0F
 
-#define N_SF_MAX_LENGTH   ((CANTP_LL_DL>8)?(CANTP_LL_DL-1):7)
+#define N_SF_MAX_LENGTH   ((CANTP_LL_DL>8)?(CANTP_LL_DL-2):7)
 #define N_FF_MAX_LENGTH   ((CANTP_LL_DL>8)?(CANTP_LL_DL-6):6)
 
 #define CANTP_RTE canTpRTE[Instance]
@@ -405,13 +405,20 @@ static void SendSF(PduIdType Instance)
 {
 	Std_ReturnType ercd;
 	PduInfoType pdu;
+	PduLengthType llLen;
 	uint8 data[CANTP_LL_DL];
 	uint8* pData;
 
 	ASLOG(CANTP, ("[%d]SendSF\n",  Instance));
 	memset(data, CANTP_PADDING_VALUE, CANTP_LL_DL);
 
-	if(CANTP_LL_DL > 8)
+	if(CANTP_RTE.SduLength <= 7) {
+		llLen = 8;
+	} else {
+		llLen = CANTP_LL_DL;
+	}
+
+	if(llLen > 8)
 	{
 		data[0] = N_PCI_SF;
 		data[1] = CANTP_RTE.SduLength;
@@ -424,7 +431,7 @@ static void SendSF(PduIdType Instance)
 	}
 	memcpy(pData, CANTP_RTE.pdu->SduDataPtr, CANTP_RTE.SduLength);
 	pdu.SduDataPtr = data;
-	pdu.SduLength  = CANTP_LL_DL;
+	pdu.SduLength  = llLen;
 
 	ercd = CanIf_Transmit(CANIF_CANTP_TXPDUID,&pdu);
 	if(E_OK == ercd)
@@ -447,7 +454,6 @@ static void SendFF(PduIdType Instance)
 	uint8 i;
 
 	ASLOG(CANTP, ("[%d]SendFF\n",  Instance));
-	memset(data, CANTP_PADDING_VALUE, CANTP_LL_DL);
 
 	if(CANTP_LL_DL > 8)
 	{

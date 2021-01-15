@@ -14,4 +14,13 @@ objs += Glob('laslinlib.c')
 if('LUA_DEV_LIN_SOCKET' in MODULES):
     objs +=  Glob('socket_lin.c')
 
+src = '%s/socket_lin_driver.c'%(cwd)
+tgt = '%s/build/%s/socket_lin_driver'%(asenv['ASROOT'], os.name)
+cmd = 'gcc %s -I%s/com/as.infrastructure/include -o %s'%(src,asenv['ASROOT'],tgt)
+if(IsPlatformWindows()):
+    cmd += ' -D__WINDOWS__ -lwsock32'
+else:
+    cmd += ' -D__LINUX__'
+MKObject([src], tgt, cmd)
+
 Return('objs')

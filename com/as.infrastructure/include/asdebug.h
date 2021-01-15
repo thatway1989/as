@@ -63,7 +63,7 @@
 #define ASWARNING(msg) 										\
 	do {													\
 			printf("%-8s:","WARNING");						\
-			printf msg ;										\
+			printf msg ;									\
 	}while(0)
 
 #define ASMEM(level,prefix,p,len)							\

@@ -826,9 +826,9 @@ class Qemu():
 
     def LocateASQemu(self):
         ASROOT = Env['ASROOT']
-        candrvsrc = '%s/com/as.tool/lua/can/socketwin_can_driver.c'%(ASROOT)
-        candrvtgt = '%s/com/as.tool/lua/script/socketwin_can_driver.exe'%(ASROOT)
-        cmd = '%s -I%s/com/as.infrastructure/include -D__SOCKET_WIN_CAN_DRIVER__ %s -o %s'%(Env['CC'], ASROOT, candrvsrc, candrvtgt)
+        candrvsrc = '%s/com/as.tool/lua/can/socket_can_driver.c'%(ASROOT)
+        candrvtgt = '%s/build/%s/socket_can_driver'%(ASROOT, os.name)
+        cmd = '%s -I%s/com/as.infrastructure/include %s -o %s'%(Env['CC'], ASROOT, candrvsrc, candrvtgt)
         if(IsPlatformWindows()):
             cmd += ' -D__WINDOWS__ -lwsock32'
         else:
@@ -868,8 +868,8 @@ class Qemu():
             RunCommand('cd %s/com/as.tool/as.one.py && %s'%(ASROOT,cmd))
         if(IsPlatformWindows()):
             if(self.isAsQemu and ('CAN' in MODULES)):
-                RunCommand('start %s/com/as.tool/lua/script/socketwin_can_driver.exe 0'%(ASROOT))
-                RunCommand('start %s/com/as.tool/lua/script/socketwin_can_driver.exe 1'%(ASROOT))
+                RunCommand('start %s/build/%s/socket_can_driver 0'%(ASROOT, os.name))
+                RunCommand('start %s/build/%s/socket_can_driver 1'%(ASROOT, os.name))
             RunCommand('cd %s && start cmd /C %s %s %s'%(where, self.qemu, params, self.params))
             RunCommand('sleep 2 && telnet 127.0.0.1 %s'%(self.port))
         else:

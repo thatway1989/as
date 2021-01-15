@@ -488,6 +488,10 @@ int luai_as_close  (lua_State *L)
 		if(d->ops->close != NULL)
 		{
 			d->ops->close(d->param);
+			pthread_mutex_lock(&devListH.q_lock);
+			STAILQ_REMOVE(&devListH.head,d,LAS_Dev_s,entry);
+			pthread_mutex_unlock(&devListH.q_lock);
+			free(d);
 		}
 		else
 		{
@@ -648,6 +652,10 @@ int asdev_close(int fd)
 	else if(d->ops->close != NULL)
 	{
 		d->ops->close(d->param);
+		pthread_mutex_lock(&devListH.q_lock);
+		STAILQ_REMOVE(&devListH.head,d,LAS_Dev_s,entry);
+		pthread_mutex_unlock(&devListH.q_lock);
+		free(d);
 		rv = 1;
 	}
 	else

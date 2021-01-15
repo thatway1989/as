@@ -102,6 +102,7 @@ struct can_frame {
 struct Can_SocketHandle_s
 {
 	int s; /* can raw socket: accept */
+	int error_counter;
 	STAILQ_ENTRY(Can_SocketHandle_s) entry;
 };
 struct Can_SocketHandleList_s
@@ -215,6 +216,7 @@ static void try_accept(void)
 		handle = malloc(sizeof(struct Can_SocketHandle_s));
 		assert(handle);
 		handle->s = s;
+		handle->error_counter = 0;
 		#ifdef __WINDOWS__
 		/* Set Timeout for recv call */
 		/*
@@ -346,6 +348,7 @@ static void try_recv_forward(void)
 			}
 
 			log_msg(&frame,rtim);
+			h->error_counter = 0;
 
 			STAILQ_FOREACH(h2,&socketH->head,entry)
 			{
@@ -381,8 +384,15 @@ static void try_recv_forward(void)
 			#ifdef __LINUX__
 			printf("recv failed with error: %d, remove this node %X!\n", WSAGetLastError(),h->s);
 			remove_socket(h);
+			break;
+			#else
+			h->error_counter ++;
+			if(h->error_counter > 10) {
+				printf("recv failed with error: %d, remove this node %X!\n", WSAGetLastError(),h->s);
+				remove_socket(h);
+				break;
+			}
 			#endif
-			printf("timeout recv... len=%d\n",len);
 		}
 	}
 	#ifdef USE_RX_DAEMON

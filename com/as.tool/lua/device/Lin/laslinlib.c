@@ -73,7 +73,7 @@ static int lasdev_open  (const char* device, const char* option, void** param)
 
 	ops = search_ops(&device[4]);
 	if(NULL == ops) {
-		ASLOG(ERROR, ("LIN device(%s:%s) is not found\n", device, option));
+		ASLOG(ERROR, ("LIN device(%s) is not found\n", device));
 		r = -1;
 	}
 
@@ -112,20 +112,24 @@ static int lasdev_read  (void* param,char** data)
 
 static int lasdev_write (void* param,const char* data,size_t size)
 {
-	int len = 0;
+	int len;
 	Lin_DeviceType* dev = (Lin_DeviceType*)param;
+
+	len = dev->ops->write(dev, data, size);
 
 	return len;
 }
 
 static void lasdev_close(void* param)
 {
-
+	Lin_DeviceType* dev = (Lin_DeviceType*)param;
+	dev->ops->close(dev);
+	free(dev);
 }
 
 static int lasdev_ioctl (void* param,int type, const char* data,size_t size,char** rdata)
 {
-	int r = 0;
+	int r = ENOTSUP;
 
 	return r;
 }

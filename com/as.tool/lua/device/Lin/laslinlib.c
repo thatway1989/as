@@ -29,6 +29,7 @@ static int lasdev_read  (void* param,char** data);
 static int lasdev_write (void* param,const char* data,size_t size);
 static void lasdev_close(void* param);
 static int lasdev_ioctl (void* param,int type, const char* data,size_t size,char** rdata);
+static void* rx_daemon(void* param);
 /* ============================ [ DATAS     ] ====================================================== */
 const LAS_DeviceOpsType lin_dev_ops = {
 	.name = "lin/",
@@ -90,8 +91,17 @@ static int lasdev_open  (const char* device, const char* option, void** param)
 		dev->param = NULL;
 		dev->size = 0;
 		STAILQ_INIT(&dev->head);
+		pthread_mutex_init(&dev->q_lock, NULL);
+		dev->killed = FALSE;
 
 		r = ops->open(dev, option);
+
+		if(0 == r) {
+			if(0 != pthread_create(&(dev->rx_thread),NULL,rx_daemon,(void*)dev)) {
+				r = -3;
+				ops->close(dev);
+			}
+		}
 
 		if(0 == r) {
 			*param = (void*) dev;
@@ -106,23 +116,58 @@ static int lasdev_read  (void* param,char** data)
 {
 	int len = 0;
 	Lin_DeviceType* dev = (Lin_DeviceType*)param;
-
+	struct Lin_Frame_s* frame;
+	(void)pthread_mutex_lock(&dev->q_lock);
+	while(FALSE == STAILQ_EMPTY(&dev->head))
+	{
+		frame = STAILQ_FIRST(&dev->head);
+		STAILQ_REMOVE_HEAD(&dev->head,entry);
+		*data = (char*)frame->data;
+		len = frame->size;
+	}
+	(void)pthread_mutex_unlock(&dev->q_lock);
 	return len;
 }
 
 static int lasdev_write (void* param,const char* data,size_t size)
 {
-	int len;
+	int len = LIN_MTU;
 	Lin_DeviceType* dev = (Lin_DeviceType*)param;
+	Lin_FrameType frame;
 
-	len = dev->ops->write(dev, data, size);
+	memset(&frame, 0, LIN_MTU);
+	if(((uint8_t)data[0] == LIN_TYPE_HEADER) && (size == 2)) {
+		frame.type = LIN_TYPE_HEADER;
+		frame.pid = (uint8_t)data[1];
+	} else if(((uint8_t)data[0] == LIN_TYPE_DATA) && (size > 2)) {
+		frame.type = LIN_TYPE_DATA;
+		frame.dlc = size - 2;
+		memcpy(&frame.data, &data[1], frame.dlc);
+		frame.checksum = data[size-1];
+	} else if(((uint8_t)data[0] == LIN_TYPE_HEADER_AND_DATA) && (size > 3)) {
+		frame.type = LIN_TYPE_HEADER_AND_DATA;
+		frame.pid = (uint8_t)data[1];
+		frame.dlc = size - 3;
+		memcpy(&frame.data, &data[2], frame.dlc);
+		frame.checksum = data[size-1];
+	} else {
+		ASLOG(ERROR,("Invalid data format for %s\n", dev->name));
+		len = -EINVAL;
+	}
+
+	if(LIN_MTU == len) {
+		len = dev->ops->write(dev, &frame);
+	}
 
 	return len;
 }
 
 static void lasdev_close(void* param)
 {
+	void* thread_return;
 	Lin_DeviceType* dev = (Lin_DeviceType*)param;
+	dev->killed = TRUE;
+	pthread_join(dev->rx_thread, &thread_return);
 	dev->ops->close(dev);
 	free(dev);
 }
@@ -134,3 +179,43 @@ static int lasdev_ioctl (void* param,int type, const char* data,size_t size,char
 	return r;
 }
 
+void* rx_daemon(void* param)
+{
+	Lin_DeviceType* dev = (Lin_DeviceType*)param;
+	Lin_FrameType frame;
+	struct Lin_Frame_s* pframe;
+	int r;
+
+	while(FALSE == dev->killed) {
+		r = dev->ops->read(dev, &frame);
+		if(LIN_MTU == r) {
+			pframe = malloc(sizeof(struct Lin_Frame_s));
+			if(NULL != pframe) {
+				if(frame.type == LIN_TYPE_HEADER) {
+					pframe->data[0] = LIN_TYPE_HEADER;
+					pframe->data[1] = frame.pid;
+					pframe->size = 2;
+				} else if(frame.type == LIN_TYPE_DATA) {
+					pframe->data[0] = LIN_TYPE_HEADER;
+					memcpy(&pframe->data[1], frame.data, frame.dlc);
+					pframe->data[1+frame.dlc] = frame.checksum;
+					pframe->size = 2+frame.dlc;
+				} else if(frame.type == LIN_TYPE_HEADER_AND_DATA) {
+					pframe->data[0] = LIN_TYPE_HEADER;
+					pframe->data[1] = frame.pid;
+					memcpy(&pframe->data[2], frame.data, frame.dlc);
+					pframe->data[2+frame.dlc] = frame.checksum;
+					pframe->size = 3+frame.dlc;
+				} else {
+					ASLOG(ERROR, ("invalid frame from %s\n", dev->name));
+					continue;
+				}
+				(void)pthread_mutex_lock(&dev->q_lock);
+				STAILQ_INSERT_TAIL(&dev->head, pframe, entry);
+				(void)pthread_mutex_unlock(&dev->q_lock);
+			}
+		}
+	}
+
+	return NULL;
+}

@@ -247,6 +247,7 @@ int luai_as_read  (lua_State *L)
 			if(len > 0)
 			{
 				lua_pushlstring(L,data,len);
+				free(data);
 			}
 			else
 			{

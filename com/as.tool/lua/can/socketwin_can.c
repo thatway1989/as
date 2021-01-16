@@ -248,6 +248,17 @@ static boolean socket_probe(uint32_t busid,uint32_t port,uint32_t baudrate,can_d
 			}
 		}
 #endif
+		if( rv ) {
+			#ifdef __WINDOWS__
+			/* set to non blocking mode */
+			u_long iMode = 1;
+			ioctlsocket(s, FIONBIO, &iMode);
+			#else
+			int iMode = 1;
+			ioctl(s, FIONBIO, (char *)&iMode);
+			#endif
+		}
+
 		if( rv )
 		{	/* open port OK */
 			handle = malloc(sizeof(struct Can_SocketHandle_s));

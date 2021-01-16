@@ -75,7 +75,7 @@ if(IsPlatformWindows()):
     asenv.Append(LIBPATH=[BDIR])
 
 src = '%s/socket_can_driver.c'%(cwd)
-tgt = '%s/build/%s/socket_can_driver'%(asenv['ASROOT'], os.name)
+tgt = '%s/build/%s/socket_can_driver.exe'%(asenv['ASROOT'], os.name)
 cmd = 'gcc %s -I%s/com/as.infrastructure/include -o %s'%(src,asenv['ASROOT'],tgt)
 if(IsPlatformWindows()):
     cmd += ' -D__WINDOWS__ -lwsock32'

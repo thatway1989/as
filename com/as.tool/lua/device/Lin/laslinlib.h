@@ -18,37 +18,49 @@
 #include "Std_Types.h"
 #include <sys/queue.h>
 #include "lasdevlib.h"
+#include <pthread.h>
 /* ============================ [ MACROS    ] ====================================================== */
-/* ============================ [ TYPES     ] ====================================================== */
-typedef enum
-{
-	LIN_MESSAGE_HEADER,
-	LIN_MESSAGE_DATA,
-	LIN_MESSAGE_HEADER_AND_DATA
-} Lin_MessageTypeType;
+#define LIN_TYPE_INVALID          ((uint8_t)'I')
+#define LIN_TYPE_BREAK            ((uint8_t)'B')
+#define LIN_TYPE_SYNC             ((uint8_t)'S')
+#define LIN_TYPE_HEADER           ((uint8_t)'H')
+#define LIN_TYPE_DATA             ((uint8_t)'D')
+#define LIN_TYPE_HEADER_AND_DATA  ((uint8_t)'F')
 
+#define LIN_MTU sizeof(Lin_FrameType)
+/* ============================ [ TYPES     ] ====================================================== */
 typedef struct
 {
-	Lin_MessageTypeType type;
-	uint8_t dlc;
+	uint8_t type;
 	uint8_t pid;
+	uint8_t dlc;
 	uint8_t data[8];
 	uint8_t checksum;
-} Lin_MessageType;
+} Lin_FrameType;
+
+struct Lin_Frame_s {
+	uint8_t data[11];
+	int size;
+	STAILQ_ENTRY(Lin_Frame_s) entry;
+};
 
 typedef struct Lin_DeviceOps_s Lin_DeviceOpsType;
 
 typedef struct Lin_Device_s {
 	char name[LAS_DEVICE_NAME_SIZE];
 	const Lin_DeviceOpsType* ops;
+	pthread_t rx_thread;
+	pthread_mutex_t q_lock;
+	int killed;
 	void* param;
-	STAILQ_HEAD(,Lin_MessageTypeType) head;
+	STAILQ_HEAD(,Lin_Frame_s) head;
 	uint32_t                size;
 	STAILQ_ENTRY(Lin_Device_s) entry;
 } Lin_DeviceType;
 
 typedef int (*lin_device_open_t)(Lin_DeviceType* dev, const char* option);
-typedef int (*lin_device_write_t)(Lin_DeviceType* dev, const char* data, size_t size);
+typedef int (*lin_device_write_t)(Lin_DeviceType* dev, Lin_FrameType* frame);
+typedef int (*lin_device_read_t)(Lin_DeviceType* dev, Lin_FrameType* frame);
 typedef void (*lin_device_close_t)(Lin_DeviceType* dev);
 
 struct Lin_DeviceOps_s
@@ -57,6 +69,7 @@ struct Lin_DeviceOps_s
 	lin_device_open_t open;
 	lin_device_close_t close;
 	lin_device_write_t write;
+	lin_device_read_t read;
 };
 /* ============================ [ DECLARES  ] ====================================================== */
 #ifdef USE_LUA_DEV_LIN_SOCKET

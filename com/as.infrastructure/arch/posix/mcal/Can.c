@@ -305,7 +305,7 @@ void Can_Init( const Can_ConfigType *config ) {
 				"sudo ip link add dev can%d type vcan\n\t"
 				"sudo ip link set up can%d\n\t"
 				"sudo ip link set can%d mtu 72\n", ctlrId, ctlrId, ctlrId));
-		ASLOG(STDOUT, ("for device <socketwin> please start the windows socket can bus driver /com/as.tool/lua/script/socketwin_can_driver.exe %d\n", ctlrId));
+		ASLOG(STDOUT, ("for device <socketwin> please start the windows socket can bus driver build/nt/socket_can_driver.exe %d\n", ctlrId));
 		asAssert(0);
 	}
 	#endif

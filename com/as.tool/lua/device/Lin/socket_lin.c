@@ -46,34 +46,17 @@
 #endif
 /* ============================ [ MACROS    ] ====================================================== */
 #define LIN_PORT_MIN  100
-
-#define LIN_MTU sizeof(struct lin_frame)
-
-#define LIN_TYPE_INVALID          ((uint8_t)'I')
-#define LIN_TYPE_BREAK            ((uint8_t)'B')
-#define LIN_TYPE_SYNC             ((uint8_t)'S')
-#define LIN_TYPE_HEADER           ((uint8_t)'H')
-#define LIN_TYPE_DATA             ((uint8_t)'D')
-#define LIN_TYPE_HEADER_AND_DATA  ((uint8_t)'F')
 /* ============================ [ TYPES     ] ====================================================== */
 typedef struct
 {
 	uint32_t busid;
 	int s;
 } Lin_SocketBusType;
-
-struct lin_frame {
-	uint8_t type;
-	uint8_t pid;
-	uint8_t dlc;
-	uint8_t data[8];
-	uint8_t checksum;
-};
 /* ============================ [ DECLARES  ] ====================================================== */
 static int socket_open(Lin_DeviceType* dev, const char* option);
-static int socket_write(Lin_DeviceType* dev, const char* data, size_t size);
+static int socket_write(Lin_DeviceType* dev, Lin_FrameType* frame);
+static int socket_read(Lin_DeviceType* dev, Lin_FrameType* frame);
 static void socket_close(Lin_DeviceType* dev);
-static void * rx_daemon(Lin_DeviceType* dev);
 /* ============================ [ DATAS     ] ====================================================== */
 const Lin_DeviceOpsType lin_socket_ops =
 {
@@ -81,8 +64,14 @@ const Lin_DeviceOpsType lin_socket_ops =
 	.open = socket_open,
 	.close = socket_close,
 	.write = socket_write,
+	.read = socket_read,
 };
 /* ============================ [ LOCALS    ] ====================================================== */
+#ifdef __WINDOWS__
+#else
+static int WSAGetLastError(void) { perror(""); return errno; }
+static int closesocket(int s) { return close(s); }
+#endif
 static int socket_open(Lin_DeviceType* dev, const char* option)
 {
 	int r = 0;
@@ -117,6 +106,17 @@ static int socket_open(Lin_DeviceType* dev, const char* option)
 	}
 
 	if(0 == r) {
+		#ifdef __WINDOWS__
+		/* set to non blocking mode */
+		u_long iMode = 1;
+		ioctlsocket(s, FIONBIO, &iMode);
+		#else
+		int iMode = 1;
+		ioctl(s, FIONBIO, (char *)&iMode);
+		#endif
+	}
+
+	if(0 == r) {
 		bus = malloc(sizeof(Lin_SocketBusType));
 		if(bus != NULL) {
 			bus->busid = busid;
@@ -130,37 +130,46 @@ static int socket_open(Lin_DeviceType* dev, const char* option)
 	return r;
 }
 
-static int socket_write(Lin_DeviceType* dev, const char* data, size_t size)
+static int socket_write(Lin_DeviceType* dev, Lin_FrameType* frame)
 {
-	int r = size;
+	int r;
 	Lin_SocketBusType* bus = dev->param;
-	struct lin_frame frame;
 
-	memset(&frame, 0, LIN_MTU);
-	if(((uint8_t)data[0] == LIN_TYPE_HEADER) && (size == 2)) {
-		frame.type = LIN_TYPE_HEADER;
-		frame.pid = (uint8_t)data[1];
-	} else if(((uint8_t)data[0] == LIN_TYPE_DATA) && (size > 2)) {
-		frame.type = LIN_TYPE_DATA;
-		frame.dlc = size - 2;
-		memcpy(&frame.data, &data[1], frame.dlc);
-		frame.checksum = data[size-1];
-	} else if(((uint8_t)data[0] == LIN_TYPE_HEADER_AND_DATA) && (size > 3)) {
-		frame.type = LIN_TYPE_HEADER_AND_DATA;
-		frame.pid = (uint8_t)data[1];
-		frame.dlc = size - 3;
-		memcpy(&frame.data, &data[2], frame.dlc);
-		frame.checksum = data[size-1];
-	} else {
-		r = -1;
+	r = send(bus->s, (const char*)frame, LIN_MTU, 0);
+	if(r != LIN_MTU) {
+		perror("LIN socket write");
+		ASWARNING(("LIN Socket %s send message failed with error %d!\n", dev->name, WSAGetLastError()));
 	}
 
-	if(r == size) {
-		if (send(bus->s, (const char*)&frame, LIN_MTU,0) != LIN_MTU) {
-			perror("LIN socket write");
-			ASWARNING(("LIN Socket %s send message failed!\n", dev->name));
-			r = -2;
+	return r;
+}
+
+static int socket_read(Lin_DeviceType* dev, Lin_FrameType* frame)
+{
+	int r = 0;
+	Lin_SocketBusType* bus = dev->param;
+	int nbytes,len = sizeof(struct sockaddr_in);
+	struct sockaddr_in addr;
+
+	nbytes = recvfrom(bus->s, (char*)frame, LIN_MTU, 0, (struct sockaddr*)&addr, &len);
+	if(nbytes == LIN_MTU) {
+		r = nbytes;
+	} else if(-1 == nbytes) {
+		#ifdef __WINDOWS__
+		if(10035!= WSAGetLastError()) {
+		#else
+		if(EAGAIN != errno) {
+		#endif
+			r = -3;
+		} else {
+			/* Resource temporarily unavailable. */
 		}
+	} else {
+		r = -2;
+	}
+
+	if( r < 0) {
+		ASWARNING(("LIN Socket %s read message failed with error %d!\n", dev->name, WSAGetLastError()));
 	}
 
 	return r;
@@ -171,11 +180,6 @@ static void socket_close(Lin_DeviceType* dev)
 	Lin_SocketBusType* bus = dev->param;
 	closesocket(bus->s);
 	free(bus);
-}
-
-static void * rx_daemon(Lin_DeviceType* dev)
-{
-
 }
 /* ============================ [ FUNCTIONS ] ====================================================== */
 

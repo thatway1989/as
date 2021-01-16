@@ -56,7 +56,7 @@
 #define FALSE 0
 #endif
 
-#define LIN_MTU sizeof(struct lin_frame)
+#define LIN_MTU sizeof(Lin_FrameType)
 #define mLINID(frame)  (frame->pid)
 #define mLINDLC(frame) (frame->dlc)
 
@@ -67,13 +67,14 @@
 #define LIN_TYPE_DATA             ((uint8_t)'D')
 #define LIN_TYPE_HEADER_AND_DATA  ((uint8_t)'F')
 /* ============================ [ TYPES     ] ====================================================== */
-struct lin_frame {
+typedef struct
+{
 	uint8_t type;
 	uint8_t pid;
 	uint8_t dlc;
 	uint8_t data[8];
 	uint8_t checksum;
-};
+} Lin_FrameType;
 
 struct Lin_SocketHandle_s
 {
@@ -84,7 +85,7 @@ struct Lin_SocketHandle_s
 struct Lin_SocketHandleList_s
 {
 	int s; /* lin raw socket: listen */
-	struct lin_frame frame;
+	Lin_FrameType frame;
 	struct timeval tmv;
 	STAILQ_HEAD(,Lin_SocketHandle_s) head;
 };
@@ -209,7 +210,7 @@ static void remove_socket(struct Lin_SocketHandle_s* h)
 	closesocket(h->s);
 	free(h);
 }
-static void log_msg(struct lin_frame* frame,float rtim)
+static void log_msg(Lin_FrameType* frame,float rtim)
 {
 	int bOut = FALSE;
 
@@ -236,7 +237,7 @@ static void log_msg(struct lin_frame* frame,float rtim)
 		int dlc;
 		printf("pid=%02X,dlc=%02d,data=[",mLINID(frame),mLINDLC(frame));
 		dlc = mLINDLC(frame);
-		if(dlc < 8)
+		if((dlc < 8) || (dlc > 8))
 		{
 			dlc = 8;
 		}
@@ -266,7 +267,7 @@ static void log_msg(struct lin_frame* frame,float rtim)
 static void try_recv_forward(void)
 {
 	int len;
-	struct lin_frame frame;
+	Lin_FrameType frame;
 	struct Lin_SocketHandle_s* h;
 	struct Lin_SocketHandle_s* h2;
 	STAILQ_FOREACH(h,&socketH->head,entry)

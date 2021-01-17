@@ -168,7 +168,7 @@ static int socket_read(Lin_DeviceType* dev, Lin_FrameType* frame)
 		r = -2;
 	}
 
-	if( r < 0) {
+	if(r < 0) {
 		ASWARNING(("LIN Socket %s read message failed with error %d!\n", dev->name, WSAGetLastError()));
 	}
 

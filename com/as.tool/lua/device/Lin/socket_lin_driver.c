@@ -435,6 +435,7 @@ int main(int argc,char* argv[])
 	for(;;)
 	{
 		schedule();
+		usleep(100);
 	}
 
 	return 0;

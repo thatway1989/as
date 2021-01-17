@@ -210,7 +210,7 @@ void LinIf_MainFunction()
 		if(LinIfChannelStatus[chIndex] == LINIF_CHANNEL_OPERATIONAL) {
 			//Check if NULL schedule is present otherwise check status of last sent
 			if(!(currentSchedule[chIndex] == 0 || currentSchedule[chIndex]->LinIfEntry == 0)){
-				LinIfEntryType *ptrEntry = (LinIfEntryType *)&currentSchedule[chIndex]->LinIfEntry[currentIndex[chIndex]];
+				LinIf_EntryType *ptrEntry = (LinIf_EntryType *)&currentSchedule[chIndex]->LinIfEntry[currentIndex[chIndex]];
 			    LinIf_FrameType *ptrFrame = (LinIf_FrameType *)&LinIfFrameCfg[ptrEntry->LinIfFrameRef];
 
 				// Handle received and sent frames
@@ -221,7 +221,7 @@ void LinIf_MainFunction()
 						outgoingPdu.SduLength = ptrFrame->LinIfLength;
 						PduR_LinIfRxIndication(ptrFrame->LinIfTxTargetPduId,&outgoingPdu);
 					}else{// RX_ERROR or BUSY
-#if defined(USE_DEM)
+#if defined(LINIF_USE_DEM)
 				        Dem_ReportErrorStatus(LINIF_E_RESPONSE, DEM_EVENT_STATUS_FAILED);
 #endif
 					}
@@ -230,7 +230,7 @@ void LinIf_MainFunction()
 					if(status == LIN_TX_OK){
 						PduR_LinIfTxConfirmation(ptrFrame->LinIfTxTargetPduId);
 					}else{// TX_ERROR or BUSY
-#if defined(USE_DEM)
+#if defined(LINIF_USE_DEM)
 				        Dem_ReportErrorStatus(LINIF_E_RESPONSE, DEM_EVENT_STATUS_FAILED);
 #endif
 					}
@@ -251,7 +251,7 @@ void LinIf_MainFunction()
 		    // Handle new transmissions
 			if(!(currentSchedule[chIndex] == 0 || currentSchedule[chIndex]->LinIfEntry == 0)){
 				Lin_PduType PduInfo;
-				LinIfEntryType *ptrEntry = (LinIfEntryType *)&currentSchedule[chIndex]->LinIfEntry[currentIndex[chIndex]];
+				LinIf_EntryType *ptrEntry = (LinIf_EntryType *)&currentSchedule[chIndex]->LinIfEntry[currentIndex[chIndex]];
 			    LinIf_FrameType *ptrFrame = (LinIf_FrameType *)&LinIfFrameCfg[ptrEntry->LinIfFrameRef];
 
 				// Only UNCONDITIONAL frames is supported in first version
@@ -289,7 +289,7 @@ void LinIf_MainFunction()
 				}
 
 				// Set new delay
-				uint16 temp = (ptrEntry->LinIfDelay / LinIfGlobalConfig.LinIfTimeBase) ;
+				uint16 temp = ptrEntry->LinIfDelay;
 				currentDelayInTicks[chIndex] = (temp>0) ? (temp - 1):0; //LinIfDelay can be zero for the first frame on the table
 			}
 		}

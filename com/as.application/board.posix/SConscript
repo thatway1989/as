@@ -20,9 +20,12 @@ if('run' in COMMAND_LINE_TARGETS):
             lwext4mkfs = '%s/release/download/lwext4/build_generic/fs_test/lwext4-mkfs.exe'%(ASROOT)
             RunCommand('echo "0" > %s && truncate -s 33554432 %s'%(extfs,extfs))
             RunCommand('%s -i %s -b 4096 -e 4'%(lwext4mkfs,extfs))
-        candrvtgt = '%s/build/%s/socket_can_driver'%(ASROOT, os.name)
+        candrvtgt = '%s/build/%s/socket_can_driver.exe'%(ASROOT, os.name)
         RunCommand('start %s 0'%(candrvtgt))
         RunCommand('start %s 1'%(candrvtgt))
+    lindrvtgt = '%s/build/%s/socket_lin_driver.exe'%(ASROOT, os.name)
+    RunCommand('start %s 0'%(lindrvtgt))
+    RunCommand('start %s 1'%(lindrvtgt))
     
     if('asone' in COMMAND_LINE_TARGETS):
         if(IsPlatformWindows()):
@@ -56,6 +59,7 @@ if('run' in COMMAND_LINE_TARGETS):
 MODULES = ['ECUM','SCHM','MCU',
            'DET','DEM','SHELL',
            'CAN','CANIF','PDUR','COM','COMM','CANTP',
+           'LIN','LINIF','LINSM',
            'DCM','CANNM','CANSM','NM','OSEKNM','XCP',
            'PORT','DIO','EEP','FLS','STMO',
            'EA','FEE','MEMIF','NVM',
@@ -129,6 +133,9 @@ if(not IsPlatformWindows()):
 
 if('CAN' in MODULES):
     MODULES.extend(['LUA_CAN','LUA_SOCKET_CAN'])
+
+if('LIN' in MODULES):
+    MODULES.extend(['LUA_DEV','LUA_DEV_LIN', 'LUA_DEV_LIN_SOCKET'])
 
 asenv['ARCH'] = ARCH
 asenv['arch'] = arch

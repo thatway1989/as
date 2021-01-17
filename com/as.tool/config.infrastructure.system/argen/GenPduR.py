@@ -73,7 +73,11 @@ def GenH():
 #endif
 #define PDUR_FRIF_SUPPORT STD_OFF  /* Not supported */
 #define PDUR_FRTP_SUPPORT STD_OFF  /* Not supported */
+#ifdef USE_LINIF
 #define PDUR_LINIF_SUPPORT STD_%s
+#else
+#define PDUR_LINIF_SUPPORT STD_OFF
+#endif
 #define PDUR_LINTP_SUPPORT STD_OFF  /* Not supported */
 #ifdef USE_COM
 #define PDUR_COM_SUPPORT STD_%s

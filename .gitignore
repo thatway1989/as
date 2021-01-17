@@ -311,7 +311,7 @@ com/as.tool/kconfig-frontends/libs/parser/yconf.h
 com/as.tool/kconfig-frontends/libs/parser/yconf.output
 core
 ncscope.out
-posix
+com/as.infrastructure/arch/posix/WpdPack
 qemu.sh
 telnet.sh
 versatilepb

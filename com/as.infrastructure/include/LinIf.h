@@ -35,7 +35,6 @@
 
 #include "Std_Types.h"
 #include "LinIf_Cfg.h"
-#include "LinIf_Types.h"
 #include "ComStack_Types.h"
 #include "ComM_Types.h"
 

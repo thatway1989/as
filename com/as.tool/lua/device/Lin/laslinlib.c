@@ -215,6 +215,7 @@ void* rx_daemon(void* param)
 				(void)pthread_mutex_unlock(&dev->q_lock);
 			}
 		}
+		usleep(100);
 	}
 
 	return NULL;

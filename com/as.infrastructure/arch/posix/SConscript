@@ -11,9 +11,14 @@ objs = []
 
 if('CAN' in MODULES):
     objs += Glob('mcal/Can.c')
+    asenv.Append(CPPDEFINES='__AS_CAN_BUS__')
     asenv.Append(CPPDEFINES=['CAN_LL_DL=64'])
     if(IsPlatformWSL()):
         asenv.Append(CPPDEFINES='CAN_DEV_NAME=\'"socketwin"\'')
+
+if('LIN' in MODULES):
+    objs += Glob('mcal/Lin.c')
+    asenv.Append(CPPDEFINES='__AS_PY_DEV__')
 
 if('DIO' in MODULES):
     objs += Glob('mcal/Dio.c')
@@ -76,7 +81,6 @@ if('UIP' in MODULES):
         objs += Glob('%s/cpu/native/net/tapdev.c'%(uip))
         objs += Glob('%s/cpu/native/net/tapdev-drv.c'%(uip))
 
-asenv.Append(CPPDEFINES='__AS_CAN_BUS__')
 asenv.Append(CPPPATH=['%s/com/as.infrastructure/communication/RPmsg'%(asenv['ASROOT'])])
 
 if('GTK' in MODULES):

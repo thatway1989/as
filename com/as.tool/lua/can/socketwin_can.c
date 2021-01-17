@@ -346,17 +346,25 @@ static void rx_notifiy(struct Can_SocketHandle_s* handle)
 	struct can_frame frame;
 	struct sockaddr_in addr;
 	nbytes = recvfrom(handle->s, (char*)&frame, sizeof(frame), 0, (struct sockaddr*)&addr, &len);
-	if (nbytes < 0) {
-		perror("CAN socket read");
-		ASWARNING(("CAN Socket port=%d read message failed!\n",handle->port));
-	}
-	else if(nbytes==sizeof(frame))
-	{
+	if(nbytes==sizeof(frame)) {
 		handle->rx_notification(handle->busid,mCANID(frame),mCANDLC(frame),frame.data);
+	} else if(-1 == nbytes) {
+		#ifdef __WINDOWS__
+		if(10035!= WSAGetLastError()) {
+		#else
+		if(EAGAIN != errno) {
+		#endif
+			nbytes = -3;
+		} else {
+			/* Resource temporarily unavailable. */
+			nbytes = 0;
+		}
+	} else {
+		nbytes = -2;
 	}
-	else
-	{
-		/* read failed with invalid length if the remote set to non-blocking */
+
+	if(nbytes < 0) {
+		ASWARNING(("CAN Socket port=%d read message failed with error %d!\n", handle->port, WSAGetLastError()));
 	}
 
 }
@@ -370,6 +378,7 @@ static void * rx_daemon(void * param)
 		{
 			rx_notifiy(handle);
 		}
+		usleep(100);
 	}
 
 	return NULL;

@@ -61,9 +61,9 @@
 
 #define INVALID_COM_GROUP 0xFFFF
 
-static uint8 ScheduleRequestTimer[LINIF_CONTROLLER_CNT];
-static uint8 GoToSleepTimer[LINIF_CONTROLLER_CNT];
-static uint8 WakeUpTimer[LINIF_CONTROLLER_CNT];
+static uint16 ScheduleRequestTimer[LINIF_CONTROLLER_CNT];
+static uint16 GoToSleepTimer[LINIF_CONTROLLER_CNT];
+static uint16 WakeUpTimer[LINIF_CONTROLLER_CNT];
 static uint32 comRxPduIdGrp[LINIF_CONTROLLER_CNT], comTxPduIdGrp[LINIF_CONTROLLER_CNT];
 
 static LinSM_StatusType LinSMStatus = LINSM_UNINIT;

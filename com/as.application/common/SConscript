@@ -16,6 +16,15 @@ if('COMMONXML' in MODULES):
 if(('LWIP' in MODULES) and ('RTTHREAD' not in MODULES)):
     objs += Glob('config/lwip.xml')
 
+if('LIN' in MODULES):
+    objs += Glob('config/Lin_*.c')
+
+if('LINIF' in MODULES):
+    objs += Glob('config/LinIf_*.c')
+
+if('LINSM' in MODULES):
+    objs += Glob('config/LinSM*.c')
+
 if('CANNM' in MODULES):
     objs += Glob('config/CanNm*.c')
 

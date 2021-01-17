@@ -205,7 +205,7 @@ CPU_CORE_NUMBER="1"
 </TxSduList>
 </CanTp>
 <PduR>
-<General CanIfUsed="True" CanTpUsed="True" ComUsed="True" Comment="*" DcmUsed="True" DevelopmentErrorDetection="ON" J1939TpUsed="True" LinIfUsed="False" LinTpUsed="False" VersionInfoApi="OFF" ZeroCostIf="CanIf" ZeroCostOperationMode="OFF" ZeroCostTp="CanTp" />
+<General CanIfUsed="True" CanTpUsed="True" ComUsed="True" Comment="*" DcmUsed="True" DevelopmentErrorDetection="ON" J1939TpUsed="True" LinIfUsed="True" LinTpUsed="False" VersionInfoApi="OFF" ZeroCostIf="CanIf" ZeroCostOperationMode="OFF" ZeroCostTp="CanTp" />
 <RoutineList Max="TBD">
 #ifdef USE_DCM
 <Source Comment="*" Module="Dcm" Name="DcmP2P" PduRef="TxDiagP2P">

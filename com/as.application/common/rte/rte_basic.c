@@ -27,6 +27,10 @@ extern void Telltale_run(void);
 #ifdef USE_RTE_SWC_GAUGE
 extern void Gauge_Run(void);
 #endif
+
+#ifdef USE_RTE_SWC_LINAPP
+extern void LinApp_Init(void);
+#endif
 /* ============================ [ DATAS     ] ====================================================== */
 #ifdef USE_RTE_SWC_TELLTALE
 TimerType timerTelltaleRun = 0u;
@@ -60,6 +64,9 @@ KSM(RteIdle,Init)
 }
 KSM(RteIdle,Start)
 {
+	#ifdef USE_RTE_SWC_LINAPP
+	LinApp_Init();
+	#endif
 	OsSetRelAlarm(Alarm_Rte_Runnable, 1, MS2TICKS(10));
 	KGS(RteIdle,Running);
 }

@@ -347,8 +347,8 @@ def GenC():
                 fp.write('static const %s %s_InitValue = %s;\n'%(GAGet(sig,'Type'),GAGet(sig,'Name'),
                                                            GAGet(sig,'InitialValue')))
             else:
-                fp.write('static const %s %s_InitValue[%s] = {%s};\n'%(GAGet(sig,'Type'),GAGet(sig,'Name'),
-                                                                 (Interger(GAGet(sig,'Size'))+7)/8,
+                fp.write('static const %s %s_InitValue[%s] = {%s};\n'%(GAGet(sig,'Type')[:-1]+'t',GAGet(sig,'Name'),
+                                                                 int((Integer(GAGet(sig,'Size'))+7)/8),
                                                                  GAGet(sig,'InitialValue')))
         for gsig in GLGet(pdu,'GroupSignalList'):
             mask,init = toGSignalMaskAndInitValue(gsig, int(GAGet(pdu,'PduSize')))
@@ -360,8 +360,8 @@ def GenC():
                     fp.write('static const %s %s_InitValue = %s;\n'%(GAGet(sig,'Type'),GAGet(sig,'Name'),
                                                                GAGet(sig,'InitialValue')))
                 else:
-                    fp.write('static const %s %s_InitValue[%s] = {%s};\n'%(GAGet(sig,'Type'),GAGet(sig,'Name'),
-                                                                 (Interger(GAGet(sig,'Size'))+7)/8,
+                    fp.write('static const %s %s_InitValue[%s] = {%s};\n'%(GAGet(sig,'Type')[:-1]+'t',GAGet(sig,'Name'),
+                                                                 int((Integer(GAGet(sig,'Size'))+7)/8),
                                                                  GAGet(sig,'InitialValue')))
     sigNbr=sigGrpNbr=0
     for pdu in GetPduList():

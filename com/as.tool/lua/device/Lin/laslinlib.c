@@ -159,6 +159,10 @@ static int lasdev_write (void* param,const char* data,size_t size)
 		len = dev->ops->write(dev, &frame);
 	}
 
+	if(LIN_MTU == len) {
+		len = size;
+	}
+
 	return len;
 }
 
@@ -196,12 +200,12 @@ void* rx_daemon(void* param)
 					pframe->data[1] = frame.pid;
 					pframe->size = 2;
 				} else if(frame.type == LIN_TYPE_DATA) {
-					pframe->data[0] = LIN_TYPE_HEADER;
+					pframe->data[0] = LIN_TYPE_DATA;
 					memcpy(&pframe->data[1], frame.data, frame.dlc);
 					pframe->data[1+frame.dlc] = frame.checksum;
 					pframe->size = 2+frame.dlc;
 				} else if(frame.type == LIN_TYPE_HEADER_AND_DATA) {
-					pframe->data[0] = LIN_TYPE_HEADER;
+					pframe->data[0] = LIN_TYPE_HEADER_AND_DATA;
 					pframe->data[1] = frame.pid;
 					memcpy(&pframe->data[2], frame.data, frame.dlc);
 					pframe->data[2+frame.dlc] = frame.checksum;

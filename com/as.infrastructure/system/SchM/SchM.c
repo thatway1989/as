@@ -128,6 +128,13 @@
 #include "Gpt.h"
 #endif
 
+#if defined(USE_CANIF)
+#include "LinIf.h"
+#define	SCHM_MAINFUNCTION_LINIF() SCHM_MAINFUNCTION(LINIF,LinIf_MainFunction())
+#else
+#define	SCHM_MAINFUNCTION_LINIF()
+#endif
+
 #if defined(USE_CAN)
 #include "Can.h"
 #include "SchM_Can.h"
@@ -357,6 +364,7 @@ SCHM_DECLARE(XCP);
 SCHM_DECLARE(SOAD);
 SCHM_DECLARE(SD);
 SCHM_DECLARE(J1939TP);
+SCHM_DECLARE(LINIF);
 
 void SchM_Init( void ) {
 
@@ -460,7 +468,7 @@ TASK(SchM_Startup){
 #if defined(USE_COMM)
 	for(i=0;i<COMM_CHANNEL_COUNT;i++)
 	{
-		ComM_RequestComMode(COMM_LS_USER,COMM_FULL_COMMUNICATION);
+		ComM_RequestComMode(i,COMM_FULL_COMMUNICATION);
 	}
 #endif
 
@@ -493,6 +501,8 @@ TASK(SchM_BswService) {
 
 		SCHM_MAINFUNCTION_ECUM();
 
+		SCHM_MAINFUNCTION_LINIF();
+
 		SCHM_MAINFUNCTION_CAN_WRITE();
 		SCHM_MAINFUNCTION_CAN_READ();
 		SCHM_MAINFUNCTION_CAN_BUSOFF();
@@ -521,7 +531,6 @@ TASK(SchM_BswService) {
 		SCHM_MAINFUNCTION_SOAD();
 
 		SCHM_MAINFUNCTION_SD();
-
 
 		#ifdef __AS_BOOTLOADER__
 		BL_MainFunction();

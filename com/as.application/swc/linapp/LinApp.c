@@ -13,33 +13,26 @@
  * for more details.
  */
 /* ============================ [ INCLUDES  ] ====================================================== */
+#include "asdebug.h"
 #include "LinIf.h"
-#include "Lin.h"
-#include "PduR.h"
+#include "Rte_LinApp.h"
 /* ============================ [ MACROS    ] ====================================================== */
 /* ============================ [ TYPES     ] ====================================================== */
 /* ============================ [ DECLARES  ] ====================================================== */
 /* ============================ [ DATAS     ] ====================================================== */
-const LinIf_ChannelConfigType LinIfChannelCfg[LINIF_CONTROLLER_CNT] = {
-		LIN_CHANNEL_0,
-		&LinChannelConfig[LIN_CHANNEL_0]
-};
-
-const LinIf_FrameType LinIfFrameCfg[] = {
-	{ UNCONDITIONAL, ENHANCED, LinIfTxPdu, 0x10, 8, PDUR_ID2_LIN_TX_MSG1 },
-	{ UNCONDITIONAL, ENHANCED, LinIfRxPdu, 0x20, 8, PDUR_ID_LIN_RX_MSG1 },
-};
-
-static const LinIf_EntryType LinIfEntryTable1[] = {
-	{ LINIF_ID_LIN_TX_MSG1, LINIF_CONVERT_MS_TO_MAIN_CYCLES(1000) },
-	{ LINIF_ID_LIN_RX_MSG1, LINIF_CONVERT_MS_TO_MAIN_CYCLES(1000) },
-};
-
-const LinIf_ScheduleTableType LinIfScheduleTableCfg[] = {
-	{
-		LinIfEntryTable1,
-		sizeof(LinIfEntryTable1)/sizeof(LinIf_EntryType)
-	},
-};
 /* ============================ [ LOCALS    ] ====================================================== */
 /* ============================ [ FUNCTIONS ] ====================================================== */
+void LinApp_Init(void)
+{
+	LinIf_ScheduleRequest(0, 0);
+}
+
+void LinApp_Exit(void)
+{
+
+}
+
+void LinApp_Run(void)
+{
+
+}

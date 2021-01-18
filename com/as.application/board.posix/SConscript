@@ -26,7 +26,7 @@ if('run' in COMMAND_LINE_TARGETS):
     lindrvtgt = '%s/build/%s/socket_lin_driver.exe'%(ASROOT, os.name)
     RunCommand('start %s 0'%(lindrvtgt))
     RunCommand('start %s 1'%(lindrvtgt))
-    
+
     if('asone' in COMMAND_LINE_TARGETS):
         if(IsPlatformWindows()):
             RunCommand('cd %s/com/as.tool/as.one.py && %s main.py'%(ASROOT,python))
@@ -53,7 +53,10 @@ if('run' in COMMAND_LINE_TARGETS):
             tgt = bin+os.path.basename(src)
             MKObject(src, tgt, 'cp -f %s %s'%(src, tgt))
         target = bin+'posix.exe'
-    RunCommand('cd %s && %s'%(build,target))
+    if('gdb' in COMMAND_LINE_TARGETS):
+        RunCommand('cd %s && gdb --args %s'%(build,target))
+    else:
+        RunCommand('cd %s && %s'%(build,target))
     exit(0)
 
 MODULES = ['ECUM','SCHM','MCU',
@@ -107,7 +110,7 @@ else:
         MODULES.append('GTK')
 
     MODULES.append('SG')
-    MODULES += ['RTE_SWC_TELLTALE','RTE_SWC_GAUGE','SG_DEMO_CLUSTER']
+    MODULES += ['RTE_SWC_TELLTALE','RTE_SWC_GAUGE','SG_DEMO_CLUSTER','RTE_SWC_LINAPP']
 
 # post special process for asboot release
 if(asenv['RELEASE']=='asboot'):

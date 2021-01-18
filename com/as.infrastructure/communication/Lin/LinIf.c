@@ -26,7 +26,9 @@
 #include "LinIf_Cbk.h"
 #include "LinIf_Cfg.h"
 #include "Lin.h"
+#ifdef USE_LINSM
 #include "LinSM_Cbk.h"
+#endif
 #if defined(USE_PDUR)
 #include "PduR_LinIf.h"
 #endif
@@ -36,6 +38,10 @@
 #if defined(USE_DEM)
 #include "Dem.h"
 #endif
+
+#include "asdebug.h"
+
+#define AS_LOG_LINIFE 2
 
 /* Development error macros. */
 #if ( LINIF_DEV_ERROR_DETECT == STD_ON )
@@ -158,7 +164,9 @@ Std_ReturnType LinIf_WakeUp(NetworkHandleType Channel)
   // referenced channel is not in the sleep state.
 	else{
 		LinIfChannelStatus[Channel] = LINIF_CHANNEL_OPERATIONAL;
+#ifdef USE_LINSM
 		LinSM_WakeUp_Confirmation(Channel, TRUE);
+#endif
 	}
 	return E_OK;
 }
@@ -168,6 +176,7 @@ void LinIf_MainFunction()
 	uint8 chIndex;
 	uint8 buf[8];
 	uint8 *Lin_SduPtr;
+	Std_ReturnType ercd;
 
 	if (LinIfStatus == LINIF_UNINIT) {
 		return;
@@ -183,7 +192,9 @@ void LinIf_MainFunction()
 			else
 			{
 				LinIfChannelStatus[chIndex] = LINIF_CHANNEL_SLEEP;
+#ifdef USE_LINSM
 				LinSM_GotoSleep_Confirmation(chIndex, TRUE);
+#endif
 			}
 			// Set NULL schedule at sleep
 			currentIndex[chIndex] = 0;
@@ -196,7 +207,9 @@ void LinIf_MainFunction()
 		if ((LinIfChannelStatus[chIndex] == LINIF_CHANNEL_SLEEP) &&
         (Lin_GetStatus(LinIfChannelCfg[chIndex].LinIfChannelId, &Lin_SduPtr) != LIN_CH_SLEEP)) {
 			LinIfChannelStatus[chIndex] = LINIF_CHANNEL_OPERATIONAL;
+#ifdef USE_LINSM
 			LinSM_WakeUp_Confirmation(chIndex, TRUE);
+#endif
 		}
 
 		// Normal scheduling
@@ -222,8 +235,9 @@ void LinIf_MainFunction()
 						PduR_LinIfRxIndication(ptrFrame->LinIfTxTargetPduId,&outgoingPdu);
 					}else{// RX_ERROR or BUSY
 #if defined(LINIF_USE_DEM)
-				        Dem_ReportErrorStatus(LINIF_E_RESPONSE, DEM_EVENT_STATUS_FAILED);
+						Dem_ReportErrorStatus(LINIF_E_RESPONSE, DEM_EVENT_STATUS_FAILED);
 #endif
+						ASLOG(LINIFE,("Rx FAILED\n"));
 					}
 				} else if(ptrFrame->LinIfPduDirection == LinIfTxPdu){
 					Lin_StatusType status = Lin_GetStatus(LinIfChannelCfg[chIndex].LinIfChannelId, &Lin_SduPtr);
@@ -231,8 +245,9 @@ void LinIf_MainFunction()
 						PduR_LinIfTxConfirmation(ptrFrame->LinIfTxTargetPduId);
 					}else{// TX_ERROR or BUSY
 #if defined(LINIF_USE_DEM)
-				        Dem_ReportErrorStatus(LINIF_E_RESPONSE, DEM_EVENT_STATUS_FAILED);
+						Dem_ReportErrorStatus(LINIF_E_RESPONSE, DEM_EVENT_STATUS_FAILED);
 #endif
+						ASLOG(LINIFE,("Tx FAILED\n"));
 					}
 				}
 				// Update index after getting status of last frame
@@ -245,7 +260,9 @@ void LinIf_MainFunction()
 		    	currentSchedule[chIndex] = (LinIf_ScheduleTableType *)&LinIfScheduleTableCfg[newSchedule[chIndex]];
 		    	currentIndex[chIndex] = 0;
 		    	newScheduleRequest[chIndex]=FALSE;
+#ifdef USE_LINSM
 		    	LinSM_ScheduleRequest_Confirmation(chIndex);
+#endif
 		    }
 
 		    // Handle new transmissions
@@ -278,9 +295,21 @@ void LinIf_MainFunction()
 						outgoingPdu.SduDataPtr = PduInfo.SduPtr;
 						outgoingPdu.SduLength = PduInfo.DI;
 						//TX
-					    PduR_LinIfTriggerTransmit(ptrFrame->LinIfTxTargetPduId, &outgoingPdu);
-					    Lin_SendHeader(LinIfChannelCfg[chIndex].LinIfChannelId,  &PduInfo);
-						Lin_SendResponse(LinIfChannelCfg[chIndex].LinIfChannelId,  &PduInfo);
+						ercd = PduR_LinIfTriggerTransmit(ptrFrame->LinIfTxTargetPduId, &outgoingPdu);
+						if(E_OK == ercd) {
+							ercd = Lin_SendHeader(LinIfChannelCfg[chIndex].LinIfChannelId,  &PduInfo);
+							if(E_OK == ercd) {
+								ercd = Lin_SendResponse(LinIfChannelCfg[chIndex].LinIfChannelId,  &PduInfo);
+								if(E_OK != ercd) {
+									ASLOG(LINIFE, ("failed to send response\n"));
+								}
+							} else {
+								ASLOG(LINIFE, ("failed to send header\n"));
+							}
+						} else {
+							ASLOG(LINIFE, ("failed to get PDU data\n"));
+						}
+
 					}
 					else {
 						//RX
@@ -294,7 +323,9 @@ void LinIf_MainFunction()
 			}
 		}
 	}
+#ifdef USE_LINSM
 	LinSM_TimerTick();
+#endif
 }
 
 

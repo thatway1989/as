@@ -64,6 +64,12 @@ static struct LAS_Dev_s* getDev(const char* name)
 	handle = NULL;
 
 	(void)pthread_mutex_lock(&devListH.q_lock);
+#ifdef __AS_PY_DEV__
+	if(FALSE == devListH.initialized) {
+		devListH.initialized = TRUE;
+		STAILQ_INIT(&devListH.head);
+	}
+#endif
 	STAILQ_FOREACH(h,&devListH.head,entry)
 	{
 		if(0u == strcmp(h->name,name))
@@ -83,6 +89,12 @@ static struct LAS_Dev_s* getDev2(int fd)
 	handle = NULL;
 
 	(void)pthread_mutex_lock(&devListH.q_lock);
+#ifdef __AS_PY_DEV__
+	if(FALSE == devListH.initialized) {
+		devListH.initialized = TRUE;
+		STAILQ_INIT(&devListH.head);
+	}
+#endif
 	STAILQ_FOREACH(h,&devListH.head,entry)
 	{
 		if(fd == h->fd)

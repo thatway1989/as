@@ -343,6 +343,9 @@ void EcuM_AL_DriverInitTwo(const EcuM_ConfigType* ConfigPtr)
 	NO_DRIVER(NvM_ReadAll());
 #endif
 
+#if defined(USE_LINIF)
+	LinIf_Init(NULL);
+#endif
 	// Setup CAN tranceiver
 	// TODO
 

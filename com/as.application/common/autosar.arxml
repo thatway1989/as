@@ -98,6 +98,10 @@ CPU_CORE_NUMBER="1"
 <Pdu Comment="*" Name="TxMsgFD" Size="512" />
 #endif
 #endif
+#ifdef USE_LINIF
+<Pdu Comment="*" Name="LIN_RX_MSG1" Size="64" />
+<Pdu Comment="*" Name="LIN_TX_MSG1" Size="64" />
+#endif
 </PduList>
 </EcuC>
 <Can>
@@ -281,6 +285,18 @@ CPU_CORE_NUMBER="1"
 </Source>
 #endif
 #endif
+#ifdef USE_LINIF
+<Source Comment="*" Module="LinIf" Name="LIN_RX_MSG1" PduRef="LIN_RX_MSG1">
+<DestinationList Max="TBD">
+<Destination Comment="*" Module="Com" Name="Destination1" PduRef="LIN_RX_MSG1" />
+</DestinationList>
+</Source>
+<Source Comment="*" Module="Com" Name="LIN_TX_MSG1" PduRef="LIN_TX_MSG1">
+<DestinationList Max="TBD">
+<Destination Comment="*" Module="LinIf" Name="Destination1" PduRef="LIN_TX_MSG1" />
+</DestinationList>
+</Source>
+#endif
 </RoutineList>
 </PduR>
 <Com>
@@ -327,6 +343,18 @@ CPU_CORE_NUMBER="1"
 <Signal Comment="*" Endianess="BIG_ENDIAN" FirstTimeoutFactor="500" InitialValue="0xabcd" Name="TxMsgFD_Signal2" ReceivedNotification="NULL" Size="16" StartBit="95" TimeoutAction="REPLACE" TimeoutFactor="200" TimeoutNotification="NULL" TransferProperty="PENDING" Type="uint16" UpdateBitPosition="TBD" UpdateBitUsed="False" />
 <Signal Comment="*" Endianess="BIG_ENDIAN" FirstTimeoutFactor="500" InitialValue="0xef" Name="TxMsgFD_Signal3" ReceivedNotification="NULL" Size="8" StartBit="111" TimeoutAction="REPLACE" TimeoutFactor="200" TimeoutNotification="NULL" TransferProperty="PENDING" Type="uint8" UpdateBitPosition="TBD" UpdateBitUsed="False" />
 <Signal Comment="*" Endianess="BIG_ENDIAN" FirstTimeoutFactor="500" InitialValue="0xdb" Name="TxMsgFD_Signal4" ReceivedNotification="NULL" Size="8" StartBit="511" TimeoutAction="REPLACE" TimeoutFactor="200" TimeoutNotification="NULL" TransferProperty="PENDING" Type="uint8" UpdateBitPosition="TBD" UpdateBitUsed="False" />
+</SignalList>
+</IPdu>
+#endif
+#ifdef USE_LINIF
+<IPdu Callout="NULL" Comment="*" DefaultValueForUnusedArea="0x5A" Direction="SEND" Name="LIN_TX_MSG1" NumberOfRepetions="0" PduGroupRef="PduGroup1" PduRef="LIN_TX_MSG1" PduSize="8" RepetionsPeriodFactor="10" RxSignalProcessing="DEFERRED" TimeOffsetFactor="0" TimePeriodFactor="100" TxMinimumDelayFactor="1" TxMode="PERIODIC">
+<SignalList Max="TBD">
+<Signal Comment="*" Endianess="BIG_ENDIAN" FirstTimeoutFactor="500" InitialValue="0" Name="LIN_TX_MSG1_DATA" ReceivedNotification="NULL" Size="64" StartBit="7" TimeoutAction="REPLACE" TimeoutFactor="200" TimeoutNotification="NULL" TransferProperty="PENDING" Type="uint8_n" UpdateBitPosition="TBD" UpdateBitUsed="False" />
+</SignalList>
+</IPdu>
+<IPdu Callout="NULL" Comment="*" DefaultValueForUnusedArea="0x5A" Direction="RECEIVE" Name="LIN_RX_MSG1" NumberOfRepetions="0" PduGroupRef="PduGroup1" PduRef="LIN_RX_MSG1" PduSize="8" RepetionsPeriodFactor="100" RxSignalProcessing="DEFERRED" TimeOffsetFactor="0" TimePeriodFactor="100" TxMinimumDelayFactor="1" TxMode="PERIODIC">
+<SignalList Max="TBD">
+<Signal Comment="*" Endianess="BIG_ENDIAN" FirstTimeoutFactor="500" InitialValue="0" Name="LIN_RX_MSG1_DATA" ReceivedNotification="NULL" Size="64" StartBit="7" TimeoutAction="NONE" TimeoutFactor="200" TimeoutNotification="NULL" TransferProperty="PENDING" Type="uint8_n" UpdateBitPosition="TBD" UpdateBitUsed="False" />
 </SignalList>
 </IPdu>
 #endif

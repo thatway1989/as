@@ -20,6 +20,11 @@ config RTE_SWC_GAUGE
 	default y if ARCH_POSIX && STMO
 	depends on RTE
 
+config RTE_SWC_LINAPP
+	bool "demo Lin App software component"
+	default y
+	depends on RTE && LINIF
+
 config COMMONXML
 	bool "default as config arxml"
 	default y

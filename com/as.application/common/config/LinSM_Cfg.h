@@ -18,6 +18,7 @@
 #include "SchM_cfg.h"
 
 /* ============================ [ MACROS    ] ====================================================== */
+#define LINSM_DEV_ERROR_DETECT STD_ON
 #define LINSM_CONVERT_MS_TO_MAIN_CYCLES(x)     MIAN_FUNCTION_MS2TICKS(LINSM,x)
 #define LINSM_WAKEUP_TIMEOUT LINSM_CONVERT_MS_TO_MAIN_CYCLES(1000)
 #define LINSM_SCHEDULE_REQUEST_TIMEOUT LINSM_CONVERT_MS_TO_MAIN_CYCLES(10000)

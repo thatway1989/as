@@ -102,6 +102,14 @@ CPU_CORE_NUMBER="1"
 <Pdu Comment="*" Name="LIN_RX_MSG1" Size="64" />
 <Pdu Comment="*" Name="LIN_TX_MSG1" Size="64" />
 #endif
+#ifdef USE_LINTP
+#ifdef USE_CANTP
+<Pdu Comment="*" Name="RxCan2LinDiag" Size="64" />
+<Pdu Comment="*" Name="TxCan2LinDiag" Size="64" />
+#endif
+<Pdu Comment="*" Name="RxLinDiag" Size="64" />
+<Pdu Comment="*" Name="TxLinDiag" Size="64" />
+#endif
 </PduList>
 </EcuC>
 <Can>
@@ -155,6 +163,9 @@ CPU_CORE_NUMBER="1"
 <Pdu Comment="*" DataLengthCode="64" EcuCPduRef="TxMsgFD" HthRef="LS_Hth" Identifier="0x103" Name="TxMsgFD" TransmitNotifier="PduR" UserNotification="CanIf_User" />
 #endif
 #endif
+#ifdef USE_LINTP
+<Pdu Comment="*" DataLengthCode="8" EcuCPduRef="TxCan2LinDiag" HthRef="LS_Hth" Identifier="0x782" Name="TxCan2LinDiag" TransmitNotifier="CanTp" UserNotification="CanIf_User" />
+#endif
 </TxPduList>
 <HrhList Max="TBD">
 <Hrh Comment="*" HrhRef="Can0Hrh" Name="LS_Hrh" SoftwareFilterUsed="True" />
@@ -189,6 +200,9 @@ CPU_CORE_NUMBER="1"
 <Pdu Comment="*" DataLengthCode="64" EcuCPduRef="RxMsgFD" FilterMask="0x7FF" HrhRef="LS_Hrh" Identifier="0x104" Name="RxMsgCanFD" ReceivedNotifier="PduR" UserNotification="CanIf_UserRxIndication" />
 #endif
 #endif
+#ifdef USE_LINTP
+<Pdu Comment="*" DataLengthCode="8" EcuCPduRef="RxCan2LinDiag" FilterMask="0x7FF" HrhRef="LS_Hrh" Identifier="0x781" Name="RxCan2LinDiag" ReceivedNotifier="CanTp" UserNotification="CanIf_UserRxIndication" />
+#endif
 </RxPduList>
 </Channel>
 </ChannelList>
@@ -200,11 +214,17 @@ CPU_CORE_NUMBER="1"
 #ifndef USE_DCM_MINI
 <Sdu BS="8" Comment="*" CommunicationType="PHYSICAL" MaxBusyTransmission="10" Name="SduP2A" Nar="100" Nbr="100" Ncr="100" Padding="ON" RxPduRef="RxDiagP2A" STmin="1" TxFcPduRef="TxDiagP2A" ll_dl="64" />
 #endif
+#ifdef USE_LINTP
+<Sdu BS="8" Comment="*" CommunicationType="PHYSICAL" MaxBusyTransmission="10" Name="RxCan2LinDiag" Nar="100" Nbr="100" Ncr="100" Padding="ON" RxPduRef="RxCan2LinDiag" STmin="1" TxFcPduRef="TxCan2LinDiag" ll_dl="8" />
+#endif
 </RxSduList>
 <TxSduList Max="TBD">
 <Sdu Comment="*" CommunicationType="PHYSICAL" Name="SduP2P" Nas="100" Nbs="100" Ncs="100" Padding="ON" RxFcPduRef="RxDiagP2P" TxPduRef="TxDiagP2P" ll_dl="64" />
 #ifndef USE_DCM_MINI
 <Sdu Comment="*" CommunicationType="PHYSICAL" Name="SduP2A" Nas="100" Nbs="100" Ncs="100" Padding="ON" RxFcPduRef="RxDiagP2A" TxPduRef="TxDiagP2A" ll_dl="64" />
+#endif
+#ifdef USE_LINTP
+<Sdu Comment="*" CommunicationType="PHYSICAL" Name="TxCan2LinDiag" Nas="100" Nbs="100" Ncs="100" Padding="ON" RxFcPduRef="RxCan2LinDiag" TxPduRef="TxCan2LinDiag" ll_dl="8" />
 #endif
 </TxSduList>
 </CanTp>
@@ -234,6 +254,18 @@ CPU_CORE_NUMBER="1"
 </DestinationList>
 </Source>
 #endif
+#endif
+#ifdef USE_LINTP
+<Source Comment="*" Module="LinTpGw" Name="TxCan2LinDiag" PduRef="TxCan2LinDiag">
+<DestinationList Max="TBD">
+<Destination Comment="*" Module="CanTp" Name="TxCan2LinDiag" PduRef="TxCan2LinDiag" />
+</DestinationList>
+</Source>
+<Source Comment="*" Module="CanTp" Name="RxCan2LinDiag" PduRef="RxCan2LinDiag">
+<DestinationList Max="TBD">
+<Destination Comment="*" Module="LinTpGw" Name="RxCan2LinDiag" PduRef="RxCan2LinDiag" />
+</DestinationList>
+</Source>
 #endif
 #ifdef USE_COM
 <Source Comment="*" Module="Com" Name="ComMsgTime" PduRef="TxMsgTime">

@@ -36,13 +36,12 @@ def GenPduR(root,dir):
     print("    >>> Gen PduR DONE <<<")
 
 def isUpperLayer(layer):
-    if(layer=='Com' or layer=='Dcm'):
+    if(layer in ['Com', 'Dcm', 'LinTpGw']):
         return True
     return False
 
 def isLowerLayer(layer):
-    if(layer=='CanTp' or layer=='CanIf' or 
-       layer=='LinTp' or layer=='LinIf'):
+    if(layer in ['CanTp', 'CanIf', 'LinTp', 'LinIf']):
         return True
     return False
 
@@ -246,6 +245,9 @@ def GenH():
 #endif
 #if defined(USE_SOAD)
 #include "SoAd.h"
+#endif
+#if defined(USE_LINTP)
+#include "LinTp.h"
 #endif
 
 extern const PduR_PBConfigType PduR_Config;

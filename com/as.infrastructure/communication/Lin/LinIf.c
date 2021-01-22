@@ -297,14 +297,9 @@ void LinIf_MainFunction()
 						//TX
 						ercd = PduR_LinIfTriggerTransmit(ptrFrame->LinIfTxTargetPduId, &outgoingPdu);
 						if(E_OK == ercd) {
-							ercd = Lin_SendHeader(LinIfChannelCfg[chIndex].LinIfChannelId,  &PduInfo);
-							if(E_OK == ercd) {
-								ercd = Lin_SendResponse(LinIfChannelCfg[chIndex].LinIfChannelId,  &PduInfo);
-								if(E_OK != ercd) {
-									ASLOG(LINIFE, ("failed to send response\n"));
-								}
-							} else {
-								ASLOG(LINIFE, ("failed to send header\n"));
+							ercd = Lin_SendFrame(LinIfChannelCfg[chIndex].LinIfChannelId,  &PduInfo);
+							if(E_OK != ercd) {
+								ASLOG(LINIFE, ("failed to send frame\n"));
 							}
 						} else {
 							ASLOG(LINIFE, ("failed to get PDU data\n"));
@@ -313,7 +308,7 @@ void LinIf_MainFunction()
 					}
 					else {
 						//RX
-					    Lin_SendHeader(LinIfChannelCfg[chIndex].LinIfChannelId,  &PduInfo);
+						Lin_SendFrame(LinIfChannelCfg[chIndex].LinIfChannelId,  &PduInfo);
 					}
 				}
 

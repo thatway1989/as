@@ -68,7 +68,8 @@ typedef enum {
 	/** Response is generated from one slave to another slave,
 	 *  for the master the response will be anonymous, it does not
 	 *  have to receive the response. */
-	IN_SLAVE_TO_SLAVE,
+	LIN_SLAVE_TO_SLAVE,
+	LIN_RESPONSE_DATA
 
 } Lin_FrameResponseType;
 
@@ -189,9 +190,7 @@ void Lin_InitChannel(  uint8 Channel,   const Lin_ChannelConfigType* Config );
 
 void Lin_DeInitChannel( uint8 Channel );
 
-Std_ReturnType Lin_SendHeader(  uint8 Channel,  Lin_PduType* PduInfoPtr );
-
-Std_ReturnType Lin_SendResponse(  uint8 Channel,   Lin_PduType* PduInfoPtr );
+Std_ReturnType Lin_SendFrame(  uint8 Channel,  Lin_PduType* PduInfoPtr );
 
 Std_ReturnType Lin_GoToSleep(  uint8 Channel );
 

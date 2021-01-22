@@ -25,13 +25,15 @@
 typedef enum {
 	LIN_STATE_IDLE,
 	LIN_STATE_ONLINE,
+	LIN_STATE_ONLY_HEADER_TRANSMITTING,
 	LIN_STATE_HEADER_TRANSMITTING,
-	LIN_STATE_WAITING_SLAVE_RESPONSE,
-	LIN_STATE_WAITING_MASTER_RESPONSE,
-	LIN_STATE_HEADER_TRANSMITTED,
-	LIN_STATE_DATA_TRANSMITTING,
-	LIN_STATE_DATA_TRANSMITTED,
-	LIN_STATE_DATA_RECEIVED,
+	LIN_STATE_RESPONSE_TRANSMITTING,
+	LIN_STATE_FULL_TRANSMITTING,
+	LIN_STATE_WAITING_RESPONSE,
+	LIN_STATE_ONLY_HEADER_TRANSMITTED,
+	LIN_STATE_RESPONSE_TRANSMITTED,
+	LIN_STATE_FULL_TRANSMITTED,
+	LIN_STATE_RESPONSE_RECEIVED,
 } Lin_StateType;
 /* ============================ [ DECLARES  ] ====================================================== */
 /* ============================ [ DATAS     ] ====================================================== */
@@ -65,7 +67,7 @@ static void Lin_GetData(Lin_PduType* PduInfoPtr, uint8_t* data, uint8_t* p_check
 		checksum += PduInfoPtr->SduPtr[i];
 	}
 
-	*p_checksum = checksum;
+	*p_checksum = ~checksum;
 }
 /* ============================ [ FUNCTIONS ] ====================================================== */
 void Lin_SimulatorRunning(void)
@@ -88,11 +90,12 @@ void Lin_SimulatorRunning(void)
 			memcpy(linFrame[i].data, &data[1], size - 2);
 			linFrame[i].checksum = data[size-1];
 			// TODO: check checksum
-			if(linState[i] == LIN_STATE_HEADER_TRANSMITTING) {
+			if(linState[i] == LIN_STATE_ONLY_HEADER_TRANSMITTING) {
 				/* slave to slave response */
-				linState[i] = LIN_STATE_HEADER_TRANSMITTED;
-			} else if(linState[i] == LIN_STATE_WAITING_SLAVE_RESPONSE) {
-				linState[i] = LIN_STATE_DATA_RECEIVED;
+				linState[i] = LIN_STATE_ONLY_HEADER_TRANSMITTED;
+			} else if((linState[i] == LIN_STATE_WAITING_RESPONSE) ||
+					  (linState[i] == LIN_STATE_HEADER_TRANSMITTING)) {
+				linState[i] = LIN_STATE_RESPONSE_RECEIVED;
 			}
 		} else {
 			if(size > 0) {
@@ -104,8 +107,17 @@ void Lin_SimulatorRunning(void)
 			free(data);
 		}
 		switch(linState[i]) {
-			case LIN_STATE_DATA_TRANSMITTING:
-				linState[i] = LIN_STATE_DATA_TRANSMITTED;
+			case LIN_STATE_ONLY_HEADER_TRANSMITTING:
+				linState[i] = LIN_STATE_ONLY_HEADER_TRANSMITTED;
+				break;
+			case LIN_STATE_HEADER_TRANSMITTING:
+				linState[i] = LIN_STATE_WAITING_RESPONSE;
+				break;
+			case LIN_STATE_RESPONSE_TRANSMITTING:
+				linState[i] = LIN_STATE_RESPONSE_TRANSMITTED;
+				break;
+			case LIN_STATE_FULL_TRANSMITTING:
+				linState[i] = LIN_STATE_FULL_TRANSMITTED;
 				break;
 			default:
 				break;
@@ -182,55 +194,50 @@ void Lin_WakeupValidation( void )
 
 }
 
-
-
-Std_ReturnType Lin_SendHeader( uint8 Channel,  Lin_PduType* PduInfoPtr )
+Std_ReturnType Lin_SendFrame( uint8 Channel,  Lin_PduType* PduInfoPtr )
 {
-	int r, fd;
+	int r=-1, fd;
 	Std_ReturnType ercd = E_OK;
-	uint8_t data[2];
+	uint8_t data[12];
+	int len = 0;
+	Lin_StateType state;
 	fd = linChannelToFdMap[Channel];
 	if(fd >= 0) {
-		data[0] = LIN_TYPE_HEADER;
-		data[1] = Lin_GetPid(PduInfoPtr);
-		r = asdev_write(fd, data, 2);
-		if(2 != r) {
-			ercd = E_NOT_OK;
-		} else {
-			if(LIN_MASTER_RESPONSE == PduInfoPtr->Drc) {
-				linState[Channel] = LIN_STATE_WAITING_MASTER_RESPONSE;
-			} else if(LIN_SLAVE_RESPONSE == PduInfoPtr->Drc) {
-				linState[Channel] = LIN_STATE_WAITING_SLAVE_RESPONSE;
+		if(LIN_MASTER_RESPONSE == PduInfoPtr->Drc) {
+			data[0] = LIN_TYPE_HEADER_AND_DATA;
+			data[1] = Lin_GetPid(PduInfoPtr);
+			Lin_GetData(PduInfoPtr, &data[2], &data[2+PduInfoPtr->DI]);
+			len = 3+PduInfoPtr->DI;
+			state = LIN_STATE_FULL_TRANSMITTING;
+		} else if((LIN_SLAVE_RESPONSE == PduInfoPtr->Drc) ||
+				  (LIN_SLAVE_TO_SLAVE ==  PduInfoPtr->Drc)) {
+			data[0] = LIN_TYPE_HEADER;
+			data[1] = Lin_GetPid(PduInfoPtr);
+			len = 2;
+			if(LIN_SLAVE_RESPONSE == PduInfoPtr->Drc) {
+				state = LIN_STATE_HEADER_TRANSMITTING;
 			} else {
-				linState[Channel] = LIN_STATE_HEADER_TRANSMITTING;
+				state = LIN_STATE_ONLY_HEADER_TRANSMITTING;
+			}
+		} else if(LIN_RESPONSE_DATA == PduInfoPtr->Drc) {
+			data[0] = LIN_TYPE_DATA;
+			Lin_GetData(PduInfoPtr, &data[1], &data[1+PduInfoPtr->DI]);
+			len = 2+PduInfoPtr->DI;
+			state = LIN_STATE_RESPONSE_TRANSMITTING;
+		} else {
+			ercd = E_NOT_OK;
+		}
+
+		if(E_OK == ercd) {
+			r = asdev_write(fd, data, len);
+			if(len != r) {
+				ercd = E_NOT_OK;
+			} else {
+				linState[Channel] = state;
 			}
 		}
 	} else {
 		ercd = E_NOT_OK;
-	}
-	return ercd;
-}
-
-Std_ReturnType Lin_SendResponse( uint8 Channel,   Lin_PduType* PduInfoPtr )
-{
-	int r, fd, len;
-	Std_ReturnType ercd = E_OK;
-	uint8_t data[10];
-	fd = linChannelToFdMap[Channel];
-	if(fd < 0) {
-		ercd = E_NOT_OK;
-	} else if(linState[Channel] != LIN_STATE_WAITING_MASTER_RESPONSE) {
-		ercd = E_NOT_OK;
-	}else {
-		data[0] = LIN_TYPE_DATA;
-		len = PduInfoPtr->DI;
-		Lin_GetData(PduInfoPtr, &data[1], &data[1+len]);
-		r = asdev_write(fd, data, len+2);
-		if((len+2) != r) {
-			ercd = E_NOT_OK;
-		} else {
-			linState[Channel] = LIN_STATE_DATA_TRANSMITTING;
-		}
 	}
 	return ercd;
 }
@@ -261,25 +268,20 @@ Lin_StatusType Lin_GetStatus( uint8 Channel, uint8** Lin_SduPtr )
 			status = LIN_CH_OPERATIONAL;
 			break;
 		case LIN_STATE_HEADER_TRANSMITTING:
+		case LIN_STATE_WAITING_RESPONSE:
 			status = LIN_RX_NO_RESPONSE;
 			break;
-		case LIN_STATE_WAITING_SLAVE_RESPONSE:
-			status = LIN_RX_NO_RESPONSE;
-			break;
-		case LIN_STATE_WAITING_MASTER_RESPONSE:
+		case LIN_STATE_ONLY_HEADER_TRANSMITTING:
+		case LIN_STATE_RESPONSE_TRANSMITTING:
+		case LIN_STATE_FULL_TRANSMITTING:
 			status = LIN_TX_BUSY;
 			break;
-		case LIN_STATE_HEADER_TRANSMITTED:
+		case LIN_STATE_ONLY_HEADER_TRANSMITTED:
+		case LIN_STATE_RESPONSE_TRANSMITTED:
+		case LIN_STATE_FULL_TRANSMITTED:
 			status = LIN_TX_OK;
 			break;
-		case LIN_STATE_DATA_TRANSMITTING:
-			status = LIN_TX_BUSY;
-			break;
-		case LIN_STATE_DATA_TRANSMITTED:
-			status = LIN_TX_OK;
-			break;
-		case LIN_STATE_DATA_RECEIVED:
-			*Lin_SduPtr = linFrame[Channel].data;
+		case LIN_STATE_RESPONSE_RECEIVED:
 			status = LIN_RX_OK;
 			break;
 	}

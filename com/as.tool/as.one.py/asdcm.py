@@ -71,7 +71,7 @@ def str2int(sstr):
     else:
         return int(sstr,10)
 
-__dcm__ = dcm(DFTBUS,0x732,0x731)
+__dcm__ = dcm(protocal='CAN',busid=DFTBUS,rxid=0x732,txid=0x731)
 
 def switch_to_protocol(protocol):
     global __dcm__
@@ -81,7 +81,7 @@ def switch_to_protocol(protocol):
             ip = os.getenv('DOIP_IP')
         else:
             ip = '172.18.0.200'
-        __dcm__ = dcm(ip,8989)
+        __dcm__ = dcm(protocal='DOIP',ip=ip,port=8989)
         print("switch to UDS on DoIP mode on %s:8989"%(ip))
     elif(protocol == 'J1939TP'):
         config = {'busid':0,
@@ -95,14 +95,13 @@ def switch_to_protocol(protocol):
                   'RXDirectNPdu':0x764,
                   'STmin':10, # 10ms delay
                   }
-        __dcm__ = dcm(config)
+        __dcm__ = dcm(protocal='J1939TP', **config)
         print("switch to UDS on J1939TP mode")
     elif(protocol == 'CANFD'):
-        __dcm__ = dcm(DFTBUS,0x732,0x731)
-        __dcm__.set_ll_dl(64)
+        __dcm__ = dcm(protocal='CAN',busid=DFTBUS,rxid=0x732,txid=0x731,ll_dl=64)
         print("switch to UDS on CANFD mode")
     else:
-        __dcm__ = dcm(DFTBUS,0x732,0x731)
+        __dcm__ = dcm(protocal='CAN',busid=DFTBUS,rxid=0x732,txid=0x731)
         print("switch to UDS on CAN mode")
 
 def Dcm_TransmitMessage(req):

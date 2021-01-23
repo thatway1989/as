@@ -93,18 +93,35 @@ static const CanTp_GeneralType CanTpGeneralConfig =
 {
     /*.main_function_period =*/ 10,
 };
-//NSa TODO:
-static const CanTp_NSaType CanTpNSaConfig =
+\n\n""")
+    NSA = []
+    NTA = []
+    for obj in [s for s in GLGet('RxSduList')]+[s for s in GLGet('TxSduList')]:
+        if(GAGet(obj,'AddressingMode') == 'EXTENDED'):
+            sa = eval(GAGet(obj,'N_SA'))
+            ta = eval(GAGet(obj,'N_TA'))
+            if(sa not in NSA):
+                NSA.append(sa)
+            if(ta not in NTA):
+                NTA.append(ta)
+    for sa in NSA:
+        fp.write('''static const CanTp_NSaType CanTpNSaConfig_%s =
 {
-    /*.CanTpNSa =*/  0,
-};
-
-static const CanTp_NTaType CanTpNTaConfig =
+    /*.CanTpNSa =*/  %s,
+};\n'''%(hex(sa), hex(sa)))
+    for ta in NTA:
+        fp.write('''static const CanTp_NTaType CanTpNTaConfig_%s =
 {
-    /*.CanTpNTa =*/  0,
-};\n\n""")
+    /*.CanTpNTa =*/  %s,
+};\n'''%(hex(ta), hex(ta)))
     cstr = 'const CanTp_NSduType CanTpNSduConfigList[] =\n{\n'
     for obj in GLGet('RxSduList'):
+        if(GAGet(obj,'AddressingMode') == 'EXTENDED'):
+            sa = '&CanTpNSaConfig_%s'%(hex(eval(GAGet(obj,'N_SA'))))
+            ta = '&CanTpNTaConfig_%s'%(hex(eval(GAGet(obj,'N_TA'))))
+        else:
+            sa = 'NULL'
+            ta = 'NULL'
         cstr +="""
     {
         /*.direction =*/  ISO15765_RECEIVE,
@@ -112,7 +129,7 @@ static const CanTp_NTaType CanTpNTaConfig =
         /*.configData.CanTpRxNSdu.CanTp_FcPduId =*/  CANTP_ID_%s,
         /*.configData.CanTpRxNSdu.CanIf_FcPduId =*/  CANIF_ID_%s,
         /*.configData.CanTpRxNSdu.PduR_PduId =*/  PDUR_ID_%s,
-        /*.configData.CanTpRxNSdu.CanTpAddressingFormant =*/  CANTP_STANDARD,
+        /*.configData.CanTpRxNSdu.CanTpAddressingFormant =*/  CANTP_%s,
         /*.configData.CanTpRxNSdu.CanTpBs =*/   %s,
         /*.configData.CanTpRxNSdu.CanTpNar =*/  (%s)*CANTP_TIMEOUT_UNIT,
         /*.configData.CanTpRxNSdu.CanTpNbr =*/  (%s)*CANTP_TIMEOUT_UNIT,
@@ -123,12 +140,13 @@ static const CanTp_NTaType CanTpNTaConfig =
         /*.configData.CanTpRxNSdu.CanTpRxTaType =*/  CANTP_PHYSICAL,
         /*.configData.CanTpRxNSdu.CanTpWftMax =*/  %s,
         /*.configData.CanTpRxNSdu.CanTpSTmin  =*/  %s,
-        /*.configData.CanTpRxNSdu.CanTpNSa =*/  &CanTpNSaConfig,
-        /*.configData.CanTpRxNSdu.CanTpNTa =*/  &CanTpNTaConfig,
+        /*.configData.CanTpRxNSdu.CanTpNSa =*/  %s,
+        /*.configData.CanTpRxNSdu.CanTpNTa =*/  %s,
         /*.configData.CanTpRxNSdu.ll_dl =*/  %s,
     },\n"""%(GAGet(obj,'RxPduRef'),
            GAGet(obj,'TxFcPduRef'),
            GAGet(obj,'RxPduRef'),
+           GAGet(obj,'AddressingMode'),
            GAGet(obj,'BS'),
            GAGet(obj,'Nar'),
            GAGet(obj,'Nbr'),
@@ -137,6 +155,7 @@ static const CanTp_NTaType CanTpNTaConfig =
            GAGet(obj,'Padding'),
            GAGet(obj,'MaxBusyTransmission'),
            GAGet(obj,'STmin'),
+           sa,ta,
            GAGet(obj,'ll_dl'))
     Index = -1
     for obj in GLGet('TxSduList'):
@@ -145,6 +164,12 @@ static const CanTp_NTaType CanTpNTaConfig =
             isLast='CANTP_END_OF_LIST'
         else:
             isLast='CANTP_NOT_LAST_ENTRY'
+        if(GAGet(obj,'AddressingMode') == 'EXTENDED'):
+            sa = '&CanTpNSaConfig_%s'%(hex(eval(GAGet(obj,'N_SA'))))
+            ta = '&CanTpNTaConfig_%s'%(hex(eval(GAGet(obj,'N_TA'))))
+        else:
+            sa = 'NULL'
+            ta = 'NULL'
         cstr +="""
     {
         /*.direction =*/  IS015765_TRANSMIT,
@@ -152,7 +177,7 @@ static const CanTp_NTaType CanTpNTaConfig =
         /*.configData.CanTpTxNSdu.CanIf_PduId   =*/  CANIF_ID_%s,
         /*.configData.CanTpTxNSdu.PduR_PduId =*/  PDUR_ID2_%s,
         /*.configData.CanTpTxNSdu.CanTp_FcPduId =*/  CANTP_ID_%s,
-        /*.configData.CanTpTxNSdu.CanTpAddressingMode =*/  CANTP_STANDARD,
+        /*.configData.CanTpTxNSdu.CanTpAddressingMode =*/  CANTP_%s,
         0,
         /*.configData.CanTpTxNSdu.CanTpNas =*/  (%s)*CANTP_TIMEOUT_UNIT,
         /*.configData.CanTpTxNSdu.CanTpNbs =*/  (%s)*CANTP_TIMEOUT_UNIT,
@@ -163,18 +188,20 @@ static const CanTp_NTaType CanTpNTaConfig =
         /*.configData.CanTpTxNSdu.CanTpTxTaType =*/  CANTP_PHYSICAL,
         0,
         0,
-        /*.configData.CanTpTxNSdu.CanTpNSa =*/  &CanTpNSaConfig,
-        /*.configData.CanTpTxNSdu.CanTpNTa =*/  &CanTpNTaConfig,
+        /*.configData.CanTpTxNSdu.CanTpNSa =*/  %s,
+        /*.configData.CanTpTxNSdu.CanTpNTa =*/  %s,
         /*.configData.CanTpTxNSdu.ll_dl =*/  %s,
     },\n"""%(isLast,
            GAGet(obj,'TxPduRef'),
            GAGet(obj,'TxPduRef'),
            GAGet(obj,'RxFcPduRef'),
+           GAGet(obj,'AddressingMode'),
            GAGet(obj,'Nas'),
            GAGet(obj,'Nbs'),
            GAGet(obj,'Ncs'),
            GAGet(obj,'TxPduRef'),
            GAGet(obj,'Padding'),
+           sa,ta,
            GAGet(obj,'ll_dl'))
     cstr += '};\n\n'
     fp.write(cstr)
@@ -182,18 +209,20 @@ static const CanTp_NTaType CanTpNTaConfig =
     for obj in GLGet('RxSduList'):
         cstr += """
     {
-        /*.CanTpAddressingMode =*/  CANTP_STANDARD,
+        /*.CanTpAddressingMode =*/  CANTP_%s,
         /*.CanTpNSduIndex =*/  CANTP_ID_%s,
         /*.CanTpReferringTxIndex =*/  CANTP_ID_%s,
-    },\n"""%(GAGet(obj,'RxPduRef'),
+    },\n"""%(GAGet(obj,'AddressingMode'),
+             GAGet(obj,'RxPduRef'),
            GAGet(obj,'TxFcPduRef'))
     for obj in GLGet('TxSduList'):
         cstr += """
     {
-        /*.CanTpAddressingMode =*/  CANTP_STANDARD,
+        /*.CanTpAddressingMode =*/  CANTP_%s,
         /*.CanTpNSduIndex =*/  CANTP_ID_%s,
         /*.CanTpReferringTxIndex =*/  CANTP_ID_%s,
-    },\n"""%(GAGet(obj,'TxPduRef'),
+    },\n"""%(GAGet(obj,'AddressingMode'),
+             GAGet(obj,'TxPduRef'),
            GAGet(obj,'RxFcPduRef'),)
     cstr += '};\n\n'
     fp.write(cstr)

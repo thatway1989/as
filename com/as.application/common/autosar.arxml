@@ -210,21 +210,21 @@ CPU_CORE_NUMBER="1"
 <CanTp>
 <General Comment="*" DevelopmentErrorDetection="ON" VersionInfoApi="OFF" />
 <RxSduList Max="TBD">
-<Sdu BS="8" Comment="*" CommunicationType="PHYSICAL" MaxBusyTransmission="10" Name="SduP2P" Nar="100" Nbr="100" Ncr="100" Padding="ON" RxPduRef="RxDiagP2P" STmin="1" TxFcPduRef="TxDiagP2P" ll_dl="64" />
+<Sdu AddressingMode="STANDARD" BS="8" Comment="*" CommunicationType="PHYSICAL" MaxBusyTransmission="10" N_SA="TBD" N_TA="TBD" Name="SduP2P" Nar="100" Nbr="100" Ncr="100" Padding="ON" RxPduRef="RxDiagP2P" STmin="1" TxFcPduRef="TxDiagP2P" ll_dl="64" />
 #ifndef USE_DCM_MINI
-<Sdu BS="8" Comment="*" CommunicationType="PHYSICAL" MaxBusyTransmission="10" Name="SduP2A" Nar="100" Nbr="100" Ncr="100" Padding="ON" RxPduRef="RxDiagP2A" STmin="1" TxFcPduRef="TxDiagP2A" ll_dl="64" />
+<Sdu AddressingMode="STANDARD" BS="8" Comment="*" CommunicationType="PHYSICAL" MaxBusyTransmission="10" N_SA="TBD" N_TA="TBD" Name="SduP2A" Nar="100" Nbr="100" Ncr="100" Padding="ON" RxPduRef="RxDiagP2A" STmin="1" TxFcPduRef="TxDiagP2A" ll_dl="64" />
 #endif
 #ifdef USE_LINTP
-<Sdu BS="8" Comment="*" CommunicationType="PHYSICAL" MaxBusyTransmission="10" Name="RxCan2LinDiag" Nar="100" Nbr="100" Ncr="100" Padding="ON" RxPduRef="RxCan2LinDiag" STmin="1" TxFcPduRef="TxCan2LinDiag" ll_dl="8" />
+<Sdu AddressingMode="EXTENDED" BS="8" Comment="*" CommunicationType="PHYSICAL" MaxBusyTransmission="10" N_SA="0x11" N_TA="0x11" Name="RxCan2LinDiag" Nar="100" Nbr="100" Ncr="100" Padding="ON" RxPduRef="RxCan2LinDiag" STmin="1" TxFcPduRef="TxCan2LinDiag" ll_dl="8" />
 #endif
 </RxSduList>
 <TxSduList Max="TBD">
-<Sdu Comment="*" CommunicationType="PHYSICAL" Name="SduP2P" Nas="100" Nbs="100" Ncs="100" Padding="ON" RxFcPduRef="RxDiagP2P" TxPduRef="TxDiagP2P" ll_dl="64" />
+<Sdu AddressingMode="STANDARD" Comment="*" CommunicationType="PHYSICAL" N_SA="TBD" N_TA="TBD" Name="SduP2P" Nas="100" Nbs="100" Ncs="100" Padding="ON" RxFcPduRef="RxDiagP2P" TxPduRef="TxDiagP2P" ll_dl="64" />
 #ifndef USE_DCM_MINI
-<Sdu Comment="*" CommunicationType="PHYSICAL" Name="SduP2A" Nas="100" Nbs="100" Ncs="100" Padding="ON" RxFcPduRef="RxDiagP2A" TxPduRef="TxDiagP2A" ll_dl="64" />
+<Sdu AddressingMode="STANDARD" Comment="*" CommunicationType="PHYSICAL" N_SA="TBD" N_TA="TBD" Name="SduP2A" Nas="100" Nbs="100" Ncs="100" Padding="ON" RxFcPduRef="RxDiagP2A" TxPduRef="TxDiagP2A" ll_dl="64" />
 #endif
 #ifdef USE_LINTP
-<Sdu Comment="*" CommunicationType="PHYSICAL" Name="TxCan2LinDiag" Nas="100" Nbs="100" Ncs="100" Padding="ON" RxFcPduRef="RxCan2LinDiag" TxPduRef="TxCan2LinDiag" ll_dl="8" />
+<Sdu AddressingMode="EXTENDED" Comment="*" CommunicationType="PHYSICAL" N_SA="0x11" N_TA="0x11" Name="TxCan2LinDiag" Nas="100" Nbs="100" Ncs="100" Padding="ON" RxFcPduRef="RxCan2LinDiag" TxPduRef="TxCan2LinDiag" ll_dl="8" />
 #endif
 </TxSduList>
 </CanTp>

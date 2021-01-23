@@ -38,9 +38,9 @@ class doip():
             0x10:'Routing successfully activated',
             0x11:'Routing will be activated; confirmation required',
             0x7e:'Vehicle manufacturer-specific',}
-    def __init__(self,uri='172.18.0.200',port=8989):
-        self.uri = uri
-        self.port = port
+    def __init__(self, **kwargs):
+        self.uri = kwargs.get('ip', '172.18.0.200')
+        self.port = kwargs.get('port', 8989)
         self.startup()
 
     def startup(self):

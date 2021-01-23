@@ -56,36 +56,54 @@ class cantp():
         6:'sending flow control'
     }
 
-    def __init__(self,canbus,rxid,txid,cfgSTmin=10,cfgBS=8,padding=0x55):
-        self.canbus  = canbus
-        self.rxid = rxid
-        self.txid = txid
-        self.padding = padding
+    def __init__(self,**kwargs):
+        self.canbus  = kwargs['busid']
+        self.rxid = kwargs['rxid']
+        self.txid = kwargs['txid']
+        self.padding = kwargs.get('padding', 0x55)
         self.state = CANTP_ST_IDLE
         self.SN = 0
         self.t_size = 0
         self.STmin = 0
         self.BS=0
-        self.cSTmin = cfgSTmin
-        self.cBS = cfgBS
+        self.cSTmin = kwargs.get('STmin', 1)
+        self.cBS = kwargs.get('BS', 8)
+        self.NA = kwargs.get('NA', None)
         self.cfgSTmin = 0
-        self.cfgBS = 0
-        self.ll_dl = 8
+        self.ll_dl = kwargs.get('ll_dl', 8)
+        if(self.ll_dl not in [8, 64]):
+            raise
         self.timeout = 5
+        self.init()
+
+    def init(self):
+        if(self.ll_dl > 8):
+            if(self.NA != None):
+                self.MAX_SF = self.ll_dl-3
+                self.MAX_FF = self.ll_dl-7
+                self.MAX_CF = self.ll_dl-1
+            else:
+                self.MAX_SF = self.ll_dl-2
+                self.MAX_FF = self.ll_dl-6
+                self.MAX_CF = self.ll_dl-2
+        else:
+            if(self.NA != None):
+                self.MAX_SF = 6
+                self.MAX_FF = 5
+                self.MAX_CF = 6
+            else:
+                self.MAX_SF = 7
+                self.MAX_FF = 6
+                self.MAX_CF = 7
 
     def reset(self):
         return can_reset(self.canbus)
 
-    def set_ll_dl(self,v):
-        if(v in [8,64]):
-            self.ll_dl = v
-        else:
-            print('unsupported ll_dl=%s'%(v))
-            assert(0)
-
     def __sendSF_clasic(self,request):
         length = len(request)
         data = []
+        if(self.NA != None):
+            data.append(self.NA)
         data.append(ISO15765_TPCI_SF | (length&0x0F))
         for i,c in enumerate(request):
             data.append(c&0xFF)
@@ -98,6 +116,8 @@ class cantp():
     def __sendSF_ll(self,request):
         length = len(request)
         data = []
+        if(self.NA != None):
+            data.append(self.NA)
         data.append(ISO15765_TPCI_SF)
         data.append(length)
         for i,c in enumerate(request):
@@ -109,7 +129,8 @@ class cantp():
         return can_write(self.canbus,self.txid,data)
 
     def __sendSF__(self,request):
-        if(len(request) <= 7):
+        classic_MAX_SF = 6 if self.NA != None else 7 
+        if(len(request) <= classic_MAX_SF):
             r = self.__sendSF_clasic(request)
         else:
             r = self.__sendSF_ll(request)
@@ -118,14 +139,16 @@ class cantp():
     def __sendFF_clasic(self,data):
         length = len(data)
         pdu = []
+        if(self.NA != None):
+            data.append(self.NA)
         pdu.append(ISO15765_TPCI_FF | ((length>>8)&0x0F))
         pdu.append(length&0xFF)
   
-        for d in data[:6]:
+        for d in data[:self.MAX_FF]:
             pdu.append(d)
   
         self.SN = 0
-        self.t_size = 6
+        self.t_size = self.MAX_FF
         self.state = CANTP_ST_WAIT_FC
   
         return can_write(self.canbus,self.txid,pdu)
@@ -133,6 +156,8 @@ class cantp():
     def __sendFF_ll(self,data):
         length = len(data)
         pdu = []
+        if(self.NA != None):
+            data.append(self.NA)
         pdu.append(ISO15765_TPCI_FF | 0)
         pdu.append(0)
         pdu.append((length>>24)&0xFF)
@@ -140,11 +165,11 @@ class cantp():
         pdu.append((length>>8)&0xFF)
         pdu.append(length&0xFF)
 
-        for d in data[:self.ll_dl-6]:
+        for d in data[:self.MAX_FF]:
             pdu.append(d)
   
         self.SN = 0
-        self.t_size = self.ll_dl-6
+        self.t_size = self.MAX_FF
         self.state = CANTP_ST_WAIT_FC
   
         return can_write(self.canbus,self.txid,pdu)
@@ -160,14 +185,15 @@ class cantp():
         sz = len(request)
         t_size = self.t_size
         pdu = []
-  
+        if(self.NA != None):
+            ata.append(self.NA)
         self.SN += 1
         if (self.SN > 15):
             self.SN = 0
             
         l_size = sz - t_size  #  left size 
-        if (l_size > (self.ll_dl-1)):
-            l_size = self.ll_dl-1
+        if (l_size > self.MAX_CF):
+            l_size = self.MAX_CF
   
         pdu.append(ISO15765_TPCI_CF | self.SN)
   
@@ -250,8 +276,7 @@ class cantp():
             if(result):
                 print('cantp: there is unconsumed message 0x%X %s, drop it...'%(canid, data))
         self.state = CANTP_ST_IDLE
-        if( (len(request) < 7) or 
-           ( (self.ll_dl > 8) and ((len(request)<=(self.ll_dl-2))) ) ):
+        if(len(request) <= self.MAX_SF):
             ercd = self.__sendSF__(request)
         else:
             ercd = self.__schedule_tx__(request)
@@ -264,8 +289,17 @@ class cantp():
         while ( ((time.time() -pre) < self.timeout) and (ercd == False)):
             result,canid,data= can_read(self.canbus,self.rxid)
             if((True == result) and (self.rxid == canid)):
-                ercd = True
-                break
+                if(self.NA != None):
+                    if(self.NA != data[0]):
+                        print('ignore Frame: NA 0x%X != 0x%x'%(self.NA, data[0]))
+                        time.sleep(0.001)
+                    else:
+                        data = data[1:]
+                        ercd = True
+                        break
+                else:
+                    ercd = True
+                    break
             else:
                 time.sleep(0.001) # sleep 1 ms
         
@@ -273,8 +307,9 @@ class cantp():
             print("cantp timeout when receiving a frame! elapsed time = %s ms"%(time.time() -pre))
             print("state is %s"%(self.__state_name[self.state]))
         else:
-            if((len(data) == 64) and (self.ll_dl != 64)):
+            if((len(data) in [63, 64]) and (self.ll_dl != 64)):
                 self.ll_dl = 64
+                self.init()
                 print('switch CANTP to CANFD mode!')
 
         return ercd,data
@@ -357,6 +392,8 @@ class cantp():
 
     def __sendFC__(self):
         pdu = []
+        if(self.NA != None):
+            pdu.append(self.NA)
         pdu.append(ISO15765_TPCI_FC | ISO15765_FLOW_CONTROL_STATUS_CTS)
         pdu.append(self.cBS)
         pdu.append(self.cSTmin)

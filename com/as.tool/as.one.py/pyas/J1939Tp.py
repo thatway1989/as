@@ -24,17 +24,17 @@ import time
 __all__ = ['J1939Tp']
 
 class J1939Tp():
-    def __init__(self, config):
-        self.canbus =  config['busid']
-        self.TxFcNPdu = config['TxFcNPdu']
-        self.TXDirectNPdu = config['TXDirectNPdu']
-        self.TXCmNPdu = config['TXCmNPdu']
-        self.TXDtNPdu = config['TXDtNPdu']
-        self.RXCmNPdu = config['RXCmNPdu']
-        self.RXFcNPdu = config['RXFcNPdu']
-        self.RXDirectNPdu = config['RXDirectNPdu']
-        self.RXDtNPdu = config['RXDtNPdu']
-        self.STmin = config['STmin']
+    def __init__(self, **kwargs):
+        self.canbus =  kwargs['busid']
+        self.TxFcNPdu = kwargs['TxFcNPdu']
+        self.TXDirectNPdu = kwargs['TXDirectNPdu']
+        self.TXCmNPdu = kwargs['TXCmNPdu']
+        self.TXDtNPdu = kwargs['TXDtNPdu']
+        self.RXCmNPdu = kwargs['RXCmNPdu']
+        self.RXFcNPdu = kwargs['RXFcNPdu']
+        self.RXDirectNPdu = kwargs['RXDirectNPdu']
+        self.RXDtNPdu = kwargs['RXDtNPdu']
+        self.STmin = kwargs['STmin']
         self.ll_dl = 8
 
     def __padding(self,req):

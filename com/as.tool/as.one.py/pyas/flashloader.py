@@ -369,17 +369,16 @@ class AsFlashloader(QThread):
     def start_protocol(self):
         p = self.protocol
         if(p == 'UDS on CAN'):
-            self.tp = dcm(DFTBUS,0x732,0x731)
+            self.tp = dcm(protocal='CAN',busid=DFTBUS,rxid=0x732,txid=0x731)
         elif(p == 'UDS on USBCAN'):
-            self.tp = dcm(DFTBUS,0x732,0x731)
+            self.tp = dcm(protocal='CAN',busid=DFTBUS,rxid=0x732,txid=0x731)
         elif(p == 'UDS on CANFD'):
-            self.tp = dcm(DFTBUS,0x732,0x731)
-            self.tp.set_ll_dl(64)
+            self.tp = dcm(protocal='CAN',busid=DFTBUS,rxid=0x732,txid=0x731, ll_dl=64)
         elif(p == 'UDS on DOIP'):
             ip,port=self.misc.split(':')
             port = eval(port)
             self.infor.emit('start DoIP over %s:%s'%(ip, port))
-            self.tp = dcm(ip,port)
+            self.tp = dcm(protocal='DOIP',ip=ip,port=port)
         elif(p == 'XCP on CAN'):
             self.tp = xcp(DFTBUS, 0x554, 0x555)
         elif(p.startswith('CMD on COM')):

@@ -51,19 +51,18 @@ class dcm():
                 0x7F:"service not supported in active session"}
     # service list which support sub function
     __sbr__ = [0x3E]
-    def __init__(self,busid_or_uri,rxid_or_port=None,txid=None,cfgSTmin=10,cfgBS=8,padding=0x55):
-        # Okay, I know, this is ugly but for the compatiability
-        if(rxid_or_port == None):
-            self.tp = J1939Tp(busid_or_uri)
-        elif(txid != None):
-            self.tp = cantp(busid_or_uri,rxid_or_port,txid,cfgSTmin,cfgBS,padding)
+    def __init__(self, **kwargs):
+        protocal = kwargs.get('protocal', 'CAN')
+        if(protocal == 'J1939TP'):
+            self.tp = J1939Tp(**kwargs)
+        elif(protocal == 'CAN'):
+            self.tp = cantp(**kwargs)
+        elif(protocal == 'DOIP'):
+            self.tp = doip(**kwargs)
         else:
-            self.tp = doip(busid_or_uri,rxid_or_port)
+            raise
         self.last_error = None
         self.last_reponse = None
-
-    def set_ll_dl(self,v):
-        self.tp.set_ll_dl(v)
 
     def __get_service_name__(self,serviceid):
         try:

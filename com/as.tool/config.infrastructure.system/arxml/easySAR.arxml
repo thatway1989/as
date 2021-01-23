@@ -257,7 +257,10 @@
 			Nbr="Integer Range=0~255 Default=25 PosGUI=9 \n Unit=ms \n Comment=(transmission time untill flow control)"
 			Ncr="Integer Range=0~255 Default=150 PosGUI=10 \n Unit=ms \n Comment=(transmission request delay)"
 			ll_dl="Enum=(8,64) Default=8 PosGUI=11"
-			Comment="TextArea Default=* PosGUI=12"
+			AddressingMode="Enum=(STANDARD,EXTENDED) Default=STANDARD PosGUI=12"
+			N_SA="Integer Range=0~255 Default=TBD PosGUI=13 Enabled=(Self.AddressingMode==EXTENDED) \n Comment=(Node Source Address)"
+			N_TA="Integer Range=0~255 Default=TBD PosGUI=14 Enabled=(Self.AddressingMode==EXTENDED) \n Comment==(Node Target Address)"
+			Comment="TextArea Default=* PosGUI=15"
 			>
 		</Sdu>
 	</RxSduList>
@@ -272,7 +275,10 @@
 			Nbs="Integer Range=0~255 Default=75 PosGUI=6 \n Unit=ms \n Comment=(transmission time untill flow control)"
 			Ncs="Integer Range=0~255 Default=25 PosGUI=7 \n Unit=ms \n Comment=(transmission request delay)"
 			ll_dl="Enum=(8,64) Default=8 PosGUI=8"
-			Comment="TextArea Default=* PosGUI=9"
+			AddressingMode="Enum=(STANDARD,EXTENDED) Default=STANDARD PosGUI=9"
+			N_SA="Integer Range=0~255 Default=TBD PosGUI=10 Enabled=(Self.AddressingMode==EXTENDED) \n Comment=(Node Source Address)"
+			N_TA="Integer Range=0~255 Default=TBD PosGUI=11 Enabled=(Self.AddressingMode==EXTENDED) \n Comment==(Node Target Address)"
+			Comment="TextArea Default=* PosGUI=12"
 			>
 		</Sdu>
 	</TxSduList>

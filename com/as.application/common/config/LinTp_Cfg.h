@@ -1,7 +1,7 @@
 /**
  * AS - the open source Automotive Software on https://github.com/parai
  *
- * Copyright (C) 2018  AS <parai@foxmail.com>
+ * Copyright (C) 2021  AS <parai@foxmail.com>
  *
  * This source code is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published by the

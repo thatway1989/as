@@ -523,10 +523,15 @@ static void handleConsecutiveFrame(const CanTp_RxNSduType *rxConfig,
 	PduLengthType bytesCopiedToPdurRxBuffer = 0;
 	BufReq_ReturnType ret = BUFREQ_NOT_OK;
 
-	if (rxRuntime->iso15765.state == RX_WAIT_CONSECUTIVE_FRAME) {
-		if (rxConfig->CanTpAddressingFormant == CANTP_EXTENDED) {
-			extendedAddress = rxPduData->SduDataPtr[indexCount++];
+	if (rxConfig->CanTpAddressingFormant == CANTP_EXTENDED) {
+		extendedAddress = rxPduData->SduDataPtr[indexCount++];
+		if (extendedAddress != rxConfig->CanTpNTa->CanTpNTa) {
+			ASLOG(CANTP, ("Ignore CF as Node Address 0x%X != 0x%x!\n", rxConfig->CanTpNTa->CanTpNTa, extendedAddress));
+			return;
 		}
+	}
+
+	if (rxRuntime->iso15765.state == RX_WAIT_CONSECUTIVE_FRAME) {
 		segmentNumber = rxPduData->SduDataPtr[indexCount++] & SEGMENT_NUMBER_MASK;
 		if (segmentNumber != (rxRuntime->iso15765.framesHandledCount & SEGMENT_NUMBER_MASK)) {
 			ASLOG(CANTP,("Segmentation number error detected - is the sending"
@@ -721,10 +726,15 @@ static void handleFlowControlFrame(const CanTp_TxNSduType *txConfig,
 	int indexCount = 0;
 	uint8 extendedAddress = 0;
 
-	if ( txRuntime->iso15765.state == TX_WAIT_FLOW_CONTROL ) {
-		if (txConfig->CanTpAddressingMode == CANTP_EXTENDED) { /** @req CANTP094 *//** @req CANTP095 */
-			extendedAddress = txPduData->SduDataPtr[indexCount++];
+	if (txConfig->CanTpAddressingMode == CANTP_EXTENDED) { /** @req CANTP094 *//** @req CANTP095 */
+		extendedAddress = txPduData->SduDataPtr[indexCount++];
+		if (extendedAddress != txConfig->CanTpNSa->CanTpNSa) {
+			ASLOG(CANTP, ("Ignore FC as Node Address 0x%X != 0x%x!\n", txConfig->CanTpNSa->CanTpNSa, extendedAddress));
+			return;
 		}
+	}
+
+	if ( txRuntime->iso15765.state == TX_WAIT_FLOW_CONTROL ) {
 		switch (txPduData->SduDataPtr[indexCount++] & ISO15765_TPCI_FS_MASK) {
 		case ISO15765_FLOW_CONTROL_STATUS_CTS:
 #if 1
@@ -768,11 +778,18 @@ static void handleSingleFrame(const CanTp_RxNSduType *rxConfig,
 	PduLengthType pduLength;
 	uint8 *data = NULL;
 	PduLengthType bytesWrittenToSduRBuffer;
-
+	uint8 extendedAddress = 0;
 
 	if (rxRuntime->iso15765.state != IDLE) {
 		PduR_CanTpRxIndication(rxConfig->PduR_PduId, NTFRSLT_E_NOT_OK);  // Abort current reception, we need to tell the current receiver it has been aborted.
 		ASLOG(CANTPE, ("Single frame received and channel not IDLE!\n"));
+	}
+	if (rxConfig->CanTpAddressingFormant == CANTP_EXTENDED) {
+		extendedAddress = rxPduData->SduDataPtr[0];
+		if (extendedAddress != rxConfig->CanTpNTa->CanTpNTa) {
+			ASLOG(CANTP, ("Ignore SF as Node Address 0x%X != 0x%x!\n", rxConfig->CanTpNTa->CanTpNTa, extendedAddress));
+			return;
+		}
 	}
 	(void) initRx15765RuntimeData(rxConfig, rxRuntime); /** @req CANTP124 */
 	pduLength = getPduLength(&rxConfig->CanTpAddressingFormant, SINGLE_FRAME, rxPduData);
@@ -829,11 +846,18 @@ static void handleFirstFrame(const CanTp_RxNSduType *rxConfig,
 	PduLengthType pduLength = 0;
 	PduLengthType bytesWrittenToSduRBuffer;
 	uint8_t* data;
-
+	uint8 extendedAddress = 0;
 
 	if (rxRuntime->iso15765.state != IDLE) {
 		ASLOG(CANTPE, ("First frame received during Rx-session!\n" ));
 		PduR_CanTpRxIndication(rxConfig->PduR_PduId, NTFRSLT_E_NOT_OK);  // Abort current reception, we need to tell the current receiver it has been aborted.
+	}
+
+	if (rxConfig->CanTpAddressingFormant == CANTP_EXTENDED) {
+		if (extendedAddress != rxConfig->CanTpNTa->CanTpNTa) {
+			ASLOG(CANTP, ("Ignore FF as Node Address 0x%X != 0x%x!\n", rxConfig->CanTpNTa->CanTpNTa, extendedAddress));
+			return;
+		}
 	}
 
 	(void) initRx15765RuntimeData(rxConfig, rxRuntime); /** @req CANTP124 */

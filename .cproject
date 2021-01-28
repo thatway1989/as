@@ -71,6 +71,10 @@
 									<listOptionValue builtIn="false" value="USE_SMP"/>
 									<listOptionValue builtIn="false" value="USE_ELF64"/>
 									<listOptionValue builtIn="false" value="USE_CANNM"/>
+									<listOptionValue builtIn="false" value="USE_LINSM"/>
+									<listOptionValue builtIn="false" value="USE_LINTP"/>
+									<listOptionValue builtIn="false" value="USE_LINIF"/>
+									<listOptionValue builtIn="false" value="USE_LINTPGW"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.cygwin.567764495" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input.cygwin"/>
 							</tool>
@@ -122,6 +126,10 @@
 									<listOptionValue builtIn="false" value="USE_SMP"/>
 									<listOptionValue builtIn="false" value="USE_ELF64"/>
 									<listOptionValue builtIn="false" value="USE_CANNM"/>
+									<listOptionValue builtIn="false" value="USE_LINSM"/>
+									<listOptionValue builtIn="false" value="USE_LINTP"/>
+									<listOptionValue builtIn="false" value="USE_LINIF"/>
+									<listOptionValue builtIn="false" value="USE_LINTPGW"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin.1824387882" superClass="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin"/>
 							</tool>

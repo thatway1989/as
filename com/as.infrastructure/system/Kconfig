@@ -4,6 +4,10 @@ config CRC
 	bool "CRC"
 	default y
 
+config BSWM
+	bool "BSW Manager"
+	default y
+
 config ECUM
 	bool "Ecu Manager"
 	default y

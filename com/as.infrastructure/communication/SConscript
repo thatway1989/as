@@ -10,6 +10,12 @@ objs = []
 if('LINIF' in MODULES):
     objs += Glob('Lin/LinIf.c')
 
+if('LINTP' in MODULES):
+    objs += Glob('Lin/LinTp.c')
+
+if('LINTPGW' in MODULES):
+    objs += Glob('Lin/LinTpGw.c')
+
 if('LINSM' in MODULES):
     objs += Glob('Lin/LinSM.c')
 

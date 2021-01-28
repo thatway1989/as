@@ -15,9 +15,16 @@
 #ifndef _CONFIG_LINTP_CFG_H_
 #define _CONFIG_LINTP_CFG_H_
 /* ============================ [ INCLUDES  ] ====================================================== */
+#include "LinIf_Cfg.h"
 /* ============================ [ MACROS    ] ====================================================== */
 #define LINTPGW_ID_TxCan2LinDiag 0
 #define LINTPGW_ID_RxCan2LinDiag 0
+
+#define LINTPGW_ID_TxLinDiag 0
+#define LINTPGW_ID_RxLinDiag 0
+
+#define LINTP_ID_TxLinDiag 0
+#define LINTP_ID_RxLinDiag 0
 /* ============================ [ TYPES     ] ====================================================== */
 /* ============================ [ DECLARES  ] ====================================================== */
 /* ============================ [ DATAS     ] ====================================================== */

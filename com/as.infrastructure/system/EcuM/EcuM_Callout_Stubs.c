@@ -346,6 +346,10 @@ void EcuM_AL_DriverInitTwo(const EcuM_ConfigType* ConfigPtr)
 #if defined(USE_LINIF)
 	LinIf_Init(NULL);
 #endif
+
+#if defined(USE_LINSM)
+	LinSM_Init(NULL);
+#endif
 	// Setup CAN tranceiver
 	// TODO
 

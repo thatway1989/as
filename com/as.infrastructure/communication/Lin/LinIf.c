@@ -41,6 +41,7 @@
 
 #include "asdebug.h"
 
+#define AS_LOG_LINIF  1
 #define AS_LOG_LINIFE 2
 
 /* Development error macros. */
@@ -132,6 +133,7 @@ Std_ReturnType LinIf_ScheduleRequest(NetworkHandleType Channel,LinIf_SchHandleTy
 	VALIDATE_W_RV( (Channel < LINIF_CONTROLLER_CNT), LINIF_SCHEDULEREQUEST_SERVICE_ID, LINIF_E_NONEXISTENT_CHANNEL, E_NOT_OK);
 	VALIDATE_W_RV( (LinIfChannelStatus[Channel] != LINIF_CHANNEL_SLEEP && LinIfChannelStatus[Channel] != LINIF_CHANNEL_SLEEP_TRANS), LINIF_SCHEDULEREQUEST_SERVICE_ID, LINIF_E_SCHEDULE_REQUEST_ERROR, E_NOT_OK);
 
+	ASLOG(LINIF,("LinIf %d request schedule table %d\n", Channel, Schedule));
 	newScheduleRequest[Channel] = TRUE;
 	newSchedule[Channel] = Schedule;
 	return E_OK;
@@ -257,6 +259,7 @@ void LinIf_MainFunction()
 
 			//Set new schedule if ordered
 		    if(newScheduleRequest[chIndex] == TRUE){
+		    	ASLOG(LINIF,("LinIf %d switch to schedule table %d\n", chIndex, newSchedule[chIndex]));
 		    	currentSchedule[chIndex] = (LinIf_ScheduleTableType *)&LinIfScheduleTableCfg[newSchedule[chIndex]];
 		    	currentIndex[chIndex] = 0;
 		    	newScheduleRequest[chIndex]=FALSE;

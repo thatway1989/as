@@ -23,7 +23,9 @@
 #include "EcuM.h"
 #include "LinIf.h"
 #include "Nvm.h"
-
+#ifdef USE_SD
+#include "SD.h"
+#endif
 /* ============================ [ MACROS    ] ====================================================== */
 
 /* ============================ [ TYPES     ] ====================================================== */
@@ -57,15 +59,16 @@ void BswM_J1939DcmBroadcastStatus(uint16 NetworkMask);
 void BswM_J1939Nm_StateChangeNotification(NetworkHandleType Network,uint8 Node,Nm_StateType NmState);
 void BswM_LinSM_CurrentSchedule(NetworkHandleType Network,LinIf_SchHandleType CurrentSchedule);
 //void BswM_LinSM_CurrentState(NetworkHandleType Network,LinSM_ModeType CurrentState);
-//void BswM_LinTp_RequestMode(NetworkHandleType Network,LinTp_Mode LinTpRequestedMode);
+void BswM_LinTp_RequestMode(NetworkHandleType Network,LinTp_Mode LinTpRequestedMode);
 void BswM_NmIf_CarWakeUpIndication(NetworkHandleType Network);
 void BswM_NvM_CurrentBlockMode(NvM_BlockIdType Block,NvM_RequestResultType CurrentBlockMode);
 void BswM_NvM_CurrentJobMode(uint8 ServiceId,NvM_RequestResultType CurrentJobMode);
 void BswM_RequestMode(BswM_UserType requesting_user,BswM_ModeType requested_mode);
+#ifdef USE_SD
 //void BswM_Sd_ClientServiceCurrentState(uint16 SdClientServiceHandleId,Sd_ClientServiceCurrentStateType CurrentClientState);
 //void BswM_Sd_ConsumedEventGroupCurrentState(uint16 SdConsumedEventGroupHandleId,Sd_ConsumedEventGroupCurrentStateTypeConsumedEventGroupState);
 void BswM_Sd_EventHandlerCurrentState(uint16 SdEventHandlerHandleId,Sd_EventHandlerCurrentStateType EventHandlerStatus);
+#endif
 Std_ReturnType BswM_TriggerSlaveRTEStop(CoreIdType CoreID);
 Std_ReturnType BswM_TriggerStartUpPhase2(CoreIdType CoreID);
-void BswM_WdgM_RequestPartitionReset(ApplicationType Application);
 #endif /* COM_AS_INFRASTRUCTURE_INCLUDE_BSWM_H_ */

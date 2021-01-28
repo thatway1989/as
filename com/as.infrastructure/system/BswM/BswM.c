@@ -13,7 +13,13 @@
  * for more details.
  */
 /* ============================ [ INCLUDES  ] ====================================================== */
-#include "Std_Types.h"
+#include "BswM.h"
+#ifdef USE_LINTP
+#include "LinIf.h"
+#ifdef USE_LINSM
+#include "LinSM.h"
+#endif
+#endif
 /* ============================ [ MACROS    ] ====================================================== */
 
 /* ============================ [ TYPES     ] ====================================================== */
@@ -21,3 +27,33 @@
 /* ============================ [ DATAS     ] ====================================================== */
 /* ============================ [ LOCALS    ] ====================================================== */
 /* ============================ [ FUNCTIONS ] ====================================================== */
+#ifdef USE_LINTP
+void BswM_LinTp_RequestMode(NetworkHandleType Network, LinTp_Mode LinTpRequestedMode)
+{
+#ifdef USE_LINSM
+	switch(LinTpRequestedMode) {
+		case LINTP_APPLICATIVE_SCHEDULE:
+			LinSM_ScheduleRequest(Network, LINIF_SCH_TABLE_APPLICATIVE);
+			break;
+		case LINTP_DIAG_REQUEST:
+			LinSM_ScheduleRequest(Network, LINIF_SCH_TABLE_DIAG_REQUEST);
+			break;
+		case LINTP_DIAG_RESPONSE:
+			LinSM_ScheduleRequest(Network, LINIF_SCH_TABLE_DIAG_RESPONSE);
+			break;
+	}
+#else
+	switch(LinTpRequestedMode) {
+		case LINTP_APPLICATIVE_SCHEDULE:
+			LinIf_ScheduleRequest(Network, LINIF_SCH_TABLE_APPLICATIVE);
+			break;
+		case LINTP_DIAG_REQUEST:
+			LinIf_ScheduleRequest(Network, LINIF_SCH_TABLE_DIAG_REQUEST);
+			break;
+		case LINTP_DIAG_RESPONSE:
+			LinIf_ScheduleRequest(Network, LINIF_SCH_TABLE_DIAG_RESPONSE);
+			break;
+	}
+#endif
+}
+#endif

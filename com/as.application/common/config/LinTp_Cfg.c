@@ -14,41 +14,70 @@
  */
 /* ============================ [ INCLUDES  ] ====================================================== */
 #include "LinIf.h"
-#include "Lin.h"
-#include "PduR.h"
 /* ============================ [ MACROS    ] ====================================================== */
 /* ============================ [ TYPES     ] ====================================================== */
 /* ============================ [ DECLARES  ] ====================================================== */
 /* ============================ [ DATAS     ] ====================================================== */
-const LinIf_ChannelConfigType LinIfChannelCfg[LINIF_CONTROLLER_CNT] = {
-		LIN_CHANNEL_0,
-		&LinChannelConfig[LIN_CHANNEL_0]
+
+#ifdef USE_LINTPGW
+static uint8_t rxBuffer[512];
+static uint8_t txBuffer[128];
+static const PduInfoType rxPduInfo =
+{
+	(uint8*)rxBuffer, sizeof(rxBuffer)
 };
 
-const LinIf_FrameType LinIfFrameCfg[] = {
-	{ UNCONDITIONAL, ENHANCED, LinIfTxPdu, 0x10, 8, PDUR_ID2_LIN_TX_MSG1 },
-	{ UNCONDITIONAL, ENHANCED, LinIfRxPdu, 0x20, 8, PDUR_ID_LIN_RX_MSG1 },
-	{ UNCONDITIONAL, ENHANCED, LinIfTxPdu, 0x3D, 8, PDUR_ID2_TxLinDiag },
-	{ UNCONDITIONAL, ENHANCED, LinIfRxPdu, 0x3E, 8, PDUR_ID_RxLinDiag },
+static const PduInfoType txPduInfo =
+{
+	(uint8*)txBuffer, sizeof(txBuffer)
 };
 
-static const LinIf_EntryType LinIfEntryTableApp[] = {
-	{ LINIF_ID_LIN_TX_MSG1, LINIF_CONVERT_MS_TO_MAIN_CYCLES(1000) },
-	{ LINIF_ID_LIN_RX_MSG1, LINIF_CONVERT_MS_TO_MAIN_CYCLES(1000) },
+static const LinTpGw_InstanceConfigType LinTpGw_InstanceConfig[] = {
+	{
+		&rxPduInfo,
+		&txPduInfo
+	}
 };
 
-static const LinIf_EntryType LinIfEntryTableDiagRequest[] = {
-	{ LINIF_ID_TxLinDiag, LINIF_CONVERT_MS_TO_MAIN_CYCLES(20) },
+static LinTpGw_RuntimeType LinTpGw_Runtime[] = {
+	{
+		LINTPGW_BUFFER_IDLE,
+		LINTPGW_BUFFER_IDLE
+	}
 };
 
-static const LinIf_EntryType LinIfEntryTableDiagResponse[] = {
-	{ LINIF_ID_RxLinDiag, LINIF_CONVERT_MS_TO_MAIN_CYCLES(20) },
+const LinTpGw_ConfigType LinTpGw_Config = {
+	LinTpGw_InstanceConfig,
+	LinTpGw_Runtime,
+	ARRAY_SIZE(LinTpGw_InstanceConfig)
+};
+#endif
+static LinTp_ContextType LinTp_TxContext;
+static const LinTp_TxPduConfigType LinTp_TxPduConfigs[] = {
+	{
+		0,
+		&LinTp_TxContext,
+#ifndef USE_BSWM
+		LINIF_SCH_TABLE_DIAG_REQUEST
+#endif
+	}
+};
+static LinTp_ContextType LinTp_TxContext;
+static const LinTp_RxPduConfigType LinTp_RxPduConfigs[] = {
+	{
+		0,
+		&LinTp_TxContext,
+#ifndef USE_BSWM
+		LINIF_SCH_TABLE_DIAG_RESPONSE
+#endif
+	}
 };
 
-const LinIf_ScheduleTableType LinIfScheduleTableCfg[] = {
-	{ LinIfEntryTableApp, ARRAY_SIZE(LinIfEntryTableApp) },
-	{ LinIfEntryTableDiagRequest, ARRAY_SIZE(LinIfEntryTableDiagRequest) },
-	{ LinIfEntryTableDiagResponse, ARRAY_SIZE(LinIfEntryTableDiagResponse) },
+const LinTp_ConfigType LinTp_Config = {
+	LinTp_TxPduConfigs,
+	ARRAY_SIZE(LinTp_TxPduConfigs),
+	LinTp_RxPduConfigs,
+	ARRAY_SIZE(LinTp_RxPduConfigs),
 };
 /* ============================ [ LOCALS    ] ====================================================== */
 /* ============================ [ FUNCTIONS ] ====================================================== */

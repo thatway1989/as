@@ -23,6 +23,9 @@ if('LINIF' in MODULES):
     objs += Glob('config/LinIf_*.c')
     objs += Glob('config/linif.xml')
 
+if('LINTP' in MODULES):
+    objs += Glob('config/LinTp_*.c')
+
 if('LINSM' in MODULES):
     objs += Glob('config/LinSM*.c')
 

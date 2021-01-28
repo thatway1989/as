@@ -62,7 +62,7 @@ if('run' in COMMAND_LINE_TARGETS):
 MODULES = ['ECUM','SCHM','MCU',
            'DET','DEM','SHELL',
            'CAN','CANIF','PDUR','COM','COMM','CANTP',
-           'LIN','LINIF','LINSM','LINTP',
+           'LIN','LINIF','LINSM','LINTP','LINTPGW','BSWM',
            'DCM','CANNM','CANSM','NM','OSEKNM','XCP',
            'PORT','DIO','EEP','FLS','STMO',
            'EA','FEE','MEMIF','NVM',

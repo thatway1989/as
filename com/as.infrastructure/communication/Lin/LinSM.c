@@ -84,7 +84,6 @@ void LinSM_Init(const void* ConfigPtr)
 		comTxPduIdGrp[i]= INVALID_COM_GROUP;
 	}
 
-	LinIf_Init(0);
 	LinSMStatus = LINSM_INIT;
 }
 

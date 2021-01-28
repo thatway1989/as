@@ -38,6 +38,9 @@
 #include "ComStack_Types.h"
 #include "ComM_Types.h"
 
+#ifdef USE_LINTP
+#include "LinTp.h"
+#endif
 
 /** @name Service id's */
 //@{
@@ -78,6 +81,5 @@ Std_ReturnType LinIf_GotoSleep(NetworkHandleType Channel);
 Std_ReturnType LinIf_WakeUp(NetworkHandleType Channel);
 
 void LinIf_MainFunction();
-
 #endif
 /** @} */

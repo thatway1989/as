@@ -15,6 +15,10 @@
 /* ============================ [ INCLUDES  ] ====================================================== */
 #include "asdebug.h"
 #include "LinIf.h"
+#ifdef USE_LINSM
+#include "LinSM.h"
+#include "LinSM_Cbk.h"
+#endif
 #include "Rte_LinApp.h"
 /* ============================ [ MACROS    ] ====================================================== */
 /* ============================ [ TYPES     ] ====================================================== */
@@ -24,6 +28,10 @@
 /* ============================ [ FUNCTIONS ] ====================================================== */
 void LinApp_Init(void)
 {
+#ifdef USE_LINSM
+	LinSM_RequestComMode(0, COMM_FULL_COMMUNICATION);
+	LinSM_WakeUp_Confirmation(0, TRUE);
+#endif
 	LinIf_ScheduleRequest(0, 0);
 }
 

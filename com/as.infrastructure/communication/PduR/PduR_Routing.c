@@ -111,6 +111,11 @@ void PduR_ARC_RouteRxIndication(const PduRDestPdu_type * destination, const PduI
 		Dcm_RxIndication(destination->DestPduId, *PduInfo->SduDataPtr);
 #endif
 		break;
+#ifdef USE_LINTPGW
+	case ARC_PDUR_LINTPGW:
+		LinTpGw_RxIndication(destination->DestPduId, *PduInfo->SduDataPtr);
+		break;
+#endif
 	default:
 		ASLOG(PDURE, ("RX with invalid destination module %d\n", destination->DestModule));
 		break;
@@ -130,6 +135,11 @@ void PduR_ARC_RouteTxConfirmation(const PduRRoutingPath_type *route, uint8 resul
 		Dcm_TxConfirmation(route->SrcPduId, result);
 #endif
 		break;
+#ifdef USE_LINTPGW
+	case ARC_PDUR_LINTPGW:
+		LinTpGw_TxConfirmation(route->SrcPduId, result);
+		break;
+#endif
 	default:
 		break;
 	}
@@ -144,6 +154,11 @@ Std_ReturnType PduR_ARC_RouteTriggerTransmit(const PduRRoutingPath_type *route, 
 		retVal = Com_TriggerTransmit(route->SrcPduId, pduInfo);
 #endif
 		break;
+#ifdef USE_LINTPGW
+	case ARC_PDUR_LINTPGW:
+		retVal = LinTpGw_TriggerTransmit(route->SrcPduId, pduInfo);
+		break;
+#endif
 	default:
 		retVal = E_NOT_OK;
 		break;
@@ -160,6 +175,11 @@ BufReq_ReturnType PduR_ARC_RouteProvideRxBuffer(const PduRDestPdu_type * destina
 		retVal = Dcm_ProvideRxBuffer(destination->DestPduId, TpSduLength, PduInfoPtr);
 #endif
 		break;
+#ifdef USE_LINTPGW
+	case ARC_PDUR_LINTPGW:
+		retVal = LinTpGw_ProvideRxBuffer(destination->DestPduId, TpSduLength, PduInfoPtr);
+		break;
+#endif
 	default:
 		break;
 	}
@@ -175,6 +195,11 @@ BufReq_ReturnType PduR_ARC_RouteProvideTxBuffer(const PduRRoutingPath_type *rout
 		retVal = Dcm_ProvideTxBuffer(route->SrcPduId, PduInfoPtr, TpSduLength);
 #endif
 		break;
+#ifdef USE_LINTPGW
+	case ARC_PDUR_LINTPGW:
+		retVal = LinTpGw_ProvideTxBuffer(route->SrcPduId, PduInfoPtr, TpSduLength);
+		break;
+#endif
 	default:
 		retVal = BUFREQ_NOT_OK;
 		break;

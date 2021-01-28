@@ -9,6 +9,9 @@ objs = []
 
 objs += SConscript('kernel/SConscript')
 
+if('BSWM' in MODULES):
+    objs += Glob('BswM/*.c')
+
 if('ECUM' in MODULES):
     objs += Glob('EcuM/*.c')
     asenv.Append(CPPPATH=['%s/EcuM'%(cwd)])

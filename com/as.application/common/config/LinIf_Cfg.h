@@ -28,10 +28,14 @@
 
 #define LINIF_ID_LIN_TX_MSG1 0
 #define LINIF_ID_LIN_RX_MSG1 1
-#define LINIF_FRAME_NUM 2
+#define LINIF_ID_TxLinDiag   2
+#define LINIF_ID_RxLinDiag   3
+#define LINIF_FRAME_NUM 4
 
-#define LINIF_SCH_TABLE_1 0
-#define LINIF_SCH_CNT 1
+#define LINIF_SCH_TABLE_APPLICATIVE   0
+#define LINIF_SCH_TABLE_DIAG_REQUEST  1
+#define LINIF_SCH_TABLE_DIAG_RESPONSE 2
+#define LINIF_SCH_CNT 3
 /* ============================ [ TYPES     ] ====================================================== */
 /* ============================ [ DECLARES  ] ====================================================== */
 /* ============================ [ DATAS     ] ====================================================== */

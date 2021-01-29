@@ -20,23 +20,24 @@
 /* ============================ [ MACROS    ] ====================================================== */
 /* ============================ [ TYPES     ] ====================================================== */
 typedef struct {
-	const PduInfoType* rxPduInfo;
-	const PduInfoType* txPduInfo;
+	const PduInfoType* PduInfo;
+	LinIf_SchHandleType schTbl;
 } LinTpGw_InstanceConfigType;
 
 typedef enum {
 	LINTPGW_BUFFER_IDLE = 0,
-	LINTPGW_BUFFER_PROVIDED,
-	LINTPGW_BUFFER_FULL,
+	LINTPGW_BUFFER_PROVIDED_TO_CANTP_RX,
+	LINTPGW_BUFFER_PROVIDED_TO_CANTP_TX,
+	LINTPGW_BUFFER_PROVIDED_TO_LINTP_RX,
+	LINTPGW_BUFFER_CANTP_FULL,
+	LINTPGW_BUFFER_LINTP_FULL,
 } LinTpGw_BufferStateType;
 
 typedef struct
 {
-	uint8 rxPduState;
-	uint8 txPduState;
-	uint32_t rxPduLength;
-	uint32_t txPduLength;
-	uint32_t index;
+	PduLengthType PduLength;
+	PduLengthType index;
+	uint8 PduState;
 } LinTpGw_RuntimeType; /* RTE */
 
 typedef struct {
@@ -54,22 +55,25 @@ typedef enum {
 typedef struct {
 	PduInfoType PduInfo;
 	PduLengthType index;
+	uint16_t timer;
+	uint8_t SN;
 } LinTp_ContextType;
 
 typedef struct {
 	NetworkHandleType network;
-	LinTp_ContextType* context;
 	#ifndef USE_BSWM
 	LinIf_SchHandleType schTbl;
 	#endif
+	uint8_t NA;
 } LinTp_TxPduConfigType;
 
 typedef struct {
 	NetworkHandleType network;
-	LinTp_ContextType* context;
 	#ifndef USE_BSWM
 	LinIf_SchHandleType schTbl;
 	#endif
+	uint8_t NA;
+	uint16_t timeout;
 } LinTp_RxPduConfigType;
 
 typedef struct {
@@ -77,6 +81,7 @@ typedef struct {
 	uint32_t txPduNum;
 	const LinTp_RxPduConfigType* rxPduConfigs;
 	uint32_t rxPduNum;
+	LinTp_ContextType* context;
 } LinTp_ConfigType;
 /* ============================ [ DECLARES  ] ====================================================== */
 /* ============================ [ DATAS     ] ====================================================== */
@@ -95,4 +100,6 @@ void LinTp_Init(const LinTp_ConfigType* ConfigPtr);
 Std_ReturnType LinTp_Transmit(PduIdType TxPduId, const PduInfoType* PduInfoPtr);
 Std_ReturnType LinTp_TriggerTransmit(PduIdType TxPduId, const PduInfoType* PduInfoPtr);
 PduLengthType LinTp_TransmitLeft(PduIdType TxPduId);
+Std_ReturnType LinTp_StartReception(PduIdType RxPduId, const PduInfoType* PduInfoPtr);
+void LinTp_MainFunction(void);
 #endif /* _LINTP_H_ */

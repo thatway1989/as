@@ -20,30 +20,21 @@
 /* ============================ [ DATAS     ] ====================================================== */
 
 #ifdef USE_LINTPGW
-static uint8_t rxBuffer[512];
-static uint8_t txBuffer[128];
-static const PduInfoType rxPduInfo =
+static uint8_t LinTpGw_rxBuffer[512];
+static const PduInfoType LinTpGw_PduInfo =
 {
-	(uint8*)rxBuffer, sizeof(rxBuffer)
-};
-
-static const PduInfoType txPduInfo =
-{
-	(uint8*)txBuffer, sizeof(txBuffer)
+	(uint8*)LinTpGw_rxBuffer, sizeof(LinTpGw_rxBuffer)
 };
 
 static const LinTpGw_InstanceConfigType LinTpGw_InstanceConfig[] = {
 	{
-		&rxPduInfo,
-		&txPduInfo
+		&LinTpGw_PduInfo,
+		LINIF_SCH_TABLE_APPLICATIVE
 	}
 };
 
 static LinTpGw_RuntimeType LinTpGw_Runtime[] = {
-	{
-		LINTPGW_BUFFER_IDLE,
-		LINTPGW_BUFFER_IDLE
-	}
+	{ 0, 0, LINTPGW_BUFFER_IDLE }
 };
 
 const LinTpGw_ConfigType LinTpGw_Config = {
@@ -52,25 +43,28 @@ const LinTpGw_ConfigType LinTpGw_Config = {
 	ARRAY_SIZE(LinTpGw_InstanceConfig)
 };
 #endif
-static LinTp_ContextType LinTp_TxContext;
 static const LinTp_TxPduConfigType LinTp_TxPduConfigs[] = {
 	{
 		0,
-		&LinTp_TxContext,
 #ifndef USE_BSWM
-		LINIF_SCH_TABLE_DIAG_REQUEST
+		LINIF_SCH_TABLE_DIAG_REQUEST,
 #endif
+		0x11,
 	}
 };
-static LinTp_ContextType LinTp_TxContext;
 static const LinTp_RxPduConfigType LinTp_RxPduConfigs[] = {
 	{
 		0,
-		&LinTp_TxContext,
 #ifndef USE_BSWM
-		LINIF_SCH_TABLE_DIAG_RESPONSE
+		LINIF_SCH_TABLE_DIAG_RESPONSE,
 #endif
+		0x11,
+		LINIF_CONVERT_MS_TO_MAIN_CYCLES(100),
 	}
+};
+
+static LinTp_ContextType LinTp_Context[] = {
+	{{NULL, 0}, 0, 0, 0},
 };
 
 const LinTp_ConfigType LinTp_Config = {
@@ -78,6 +72,7 @@ const LinTp_ConfigType LinTp_Config = {
 	ARRAY_SIZE(LinTp_TxPduConfigs),
 	LinTp_RxPduConfigs,
 	ARRAY_SIZE(LinTp_RxPduConfigs),
+	LinTp_Context
 };
 /* ============================ [ LOCALS    ] ====================================================== */
 /* ============================ [ FUNCTIONS ] ====================================================== */

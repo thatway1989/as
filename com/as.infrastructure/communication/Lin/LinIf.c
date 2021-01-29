@@ -41,7 +41,7 @@
 
 #include "asdebug.h"
 
-#define AS_LOG_LINIF  1
+#define AS_LOG_LINIF  0
 #define AS_LOG_LINIFE 2
 
 /* Development error macros. */
@@ -239,7 +239,7 @@ void LinIf_MainFunction()
 #if defined(LINIF_USE_DEM)
 						Dem_ReportErrorStatus(LINIF_E_RESPONSE, DEM_EVENT_STATUS_FAILED);
 #endif
-						ASLOG(LINIFE,("Rx FAILED\n"));
+						ASLOG(LINIFE,("Rx FAILED for %X\n", ptrFrame->LinIfPid));
 					}
 				} else if(ptrFrame->LinIfPduDirection == LinIfTxPdu){
 					Lin_StatusType status = Lin_GetStatus(LinIfChannelCfg[chIndex].LinIfChannelId, &Lin_SduPtr);
@@ -249,7 +249,7 @@ void LinIf_MainFunction()
 #if defined(LINIF_USE_DEM)
 						Dem_ReportErrorStatus(LINIF_E_RESPONSE, DEM_EVENT_STATUS_FAILED);
 #endif
-						ASLOG(LINIFE,("Tx FAILED\n"));
+						ASLOG(LINIFE,("Tx FAILED for %X\n", ptrFrame->LinIfPid));
 					}
 				}
 				// Update index after getting status of last frame
@@ -323,6 +323,9 @@ void LinIf_MainFunction()
 	}
 #ifdef USE_LINSM
 	LinSM_TimerTick();
+#endif
+#ifdef USE_LINTP
+	LinTp_MainFunction();
 #endif
 }
 

@@ -140,7 +140,7 @@ class cantp():
         length = len(data)
         pdu = []
         if(self.NA != None):
-            data.append(self.NA)
+            pdu.append(self.NA)
         pdu.append(ISO15765_TPCI_FF | ((length>>8)&0x0F))
         pdu.append(length&0xFF)
   
@@ -157,7 +157,7 @@ class cantp():
         length = len(data)
         pdu = []
         if(self.NA != None):
-            data.append(self.NA)
+            pdu.append(self.NA)
         pdu.append(ISO15765_TPCI_FF | 0)
         pdu.append(0)
         pdu.append((length>>24)&0xFF)
@@ -186,7 +186,7 @@ class cantp():
         t_size = self.t_size
         pdu = []
         if(self.NA != None):
-            ata.append(self.NA)
+            pdu.append(self.NA)
         self.SN += 1
         if (self.SN > 15):
             self.SN = 0

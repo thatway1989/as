@@ -46,7 +46,7 @@ typedef struct {
 } LinIf_FrameType;
 
 typedef struct {
-	uint32 LinIfFrameRef;
+	uint16 LinIfFrameRef;
 	uint16 LinIfDelay;
 } LinIf_EntryType;
 

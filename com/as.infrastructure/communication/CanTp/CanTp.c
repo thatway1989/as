@@ -854,6 +854,7 @@ static void handleFirstFrame(const CanTp_RxNSduType *rxConfig,
 	}
 
 	if (rxConfig->CanTpAddressingFormant == CANTP_EXTENDED) {
+		extendedAddress = rxPduData->SduDataPtr[0];
 		if (extendedAddress != rxConfig->CanTpNTa->CanTpNTa) {
 			ASLOG(CANTP, ("Ignore FF as Node Address 0x%X != 0x%x!\n", rxConfig->CanTpNTa->CanTpNTa, extendedAddress));
 			return;
@@ -912,6 +913,7 @@ static void handleFirstFrame(const CanTp_RxNSduType *rxConfig,
 				rxPduData->SduLength - (data-rxPduData->SduDataPtr),
 				&bytesWrittenToSduRBuffer);
 	} else {
+		rxRuntime->iso15765.extendedAddress = extendedAddress;
 		ret = copySegmentToPduRRxBuffer(rxConfig, rxRuntime,
 				data,
 				rxPduData->SduLength - (data-rxPduData->SduDataPtr),

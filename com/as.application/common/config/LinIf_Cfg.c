@@ -28,8 +28,8 @@ const LinIf_ChannelConfigType LinIfChannelCfg[LINIF_CONTROLLER_CNT] = {
 const LinIf_FrameType LinIfFrameCfg[] = {
 	{ UNCONDITIONAL, ENHANCED, LinIfTxPdu, 0x10, 8, PDUR_ID2_LIN_TX_MSG1 },
 	{ UNCONDITIONAL, ENHANCED, LinIfRxPdu, 0x20, 8, PDUR_ID_LIN_RX_MSG1 },
-	{ UNCONDITIONAL, ENHANCED, LinIfTxPdu, 0x3D, 8, PDUR_ID2_TxLinDiag },
-	{ UNCONDITIONAL, ENHANCED, LinIfRxPdu, 0x3E, 8, PDUR_ID_RxLinDiag },
+	{ UNCONDITIONAL, ENHANCED, LinIfTxPdu, 0x3C, 8, PDUR_ID2_TxLinDiag },
+	{ UNCONDITIONAL, ENHANCED, LinIfRxPdu, 0x3D, 8, PDUR_ID_RxLinDiag },
 };
 
 static const LinIf_EntryType LinIfEntryTableApp[] = {

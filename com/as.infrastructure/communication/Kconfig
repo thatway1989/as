@@ -25,6 +25,21 @@ config CANTP_MINI
 	depends on CANTP
 	default n
 
+config LINIF
+	bool "Communication LIN Interface"
+	depends on LIN
+	default y
+
+config LINTP
+	bool "Communication LIN Transport Layer"
+	depends on LINIF
+	default y
+
+config LINTPGW
+	bool "Communication LINTP/CANTP Gateway"
+	depends on LINTP && CANTP
+	default y
+
 config COM
 	bool "Communication Signals"
 	depends on PDUR

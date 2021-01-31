@@ -9,6 +9,10 @@ config DIO
 	bool "MCAL DIO driver"
 	default y
 
+config LIN
+	bool "MCAL LIN driver"
+	default y
+
 config FATFS_DRV
 	bool "FATFS diskio driver"
 	default y

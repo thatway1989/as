@@ -108,6 +108,15 @@ void LinTpGw_RxIndication(PduIdType Instance, NotifResultType result)
 	}
 }
 
+void LinTpGw_LinTpRxIndication(PduIdType Instance, const PduInfoType *PduInfo)
+{
+	if(LINTPGW_RTE.PduState == LINTPGW_BUFFER_PROVIDED_TO_LINTP_RX) {
+		LinTp_RxIndication(Instance, PduInfo);
+	} else {
+		LINTPGW_LOG_ERROR();
+	}
+}
+
 void LinTpGw_TxConfirmation(PduIdType Instance, NotifResultType result)
 {
 	asAssert(Instance < LINTPGW_INSTANCE_NUM);

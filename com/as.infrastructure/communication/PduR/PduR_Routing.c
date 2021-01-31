@@ -113,7 +113,11 @@ void PduR_ARC_RouteRxIndication(const PduRDestPdu_type * destination, const PduI
 		break;
 #ifdef USE_LINTPGW
 	case ARC_PDUR_LINTPGW:
-		LinTpGw_RxIndication(destination->DestPduId, *PduInfo->SduDataPtr);
+		if(0 == PduInfo->SduLength) { /* from CANTP */
+			LinTpGw_RxIndication(destination->DestPduId, *PduInfo->SduDataPtr);
+		} else {	/* from LINTP */
+			LinTpGw_LinTpRxIndication(destination->DestPduId, PduInfo);
+		}
 		break;
 #endif
 	default:

@@ -39,6 +39,8 @@
 #include "Dem.h"
 #endif
 
+#include "Os.h"
+
 #include "asdebug.h"
 
 #define AS_LOG_LINIF  0
@@ -236,10 +238,18 @@ void LinIf_MainFunction()
 						outgoingPdu.SduLength = ptrFrame->LinIfLength;
 						PduR_LinIfRxIndication(ptrFrame->LinIfTxTargetPduId,&outgoingPdu);
 					}else{// RX_ERROR or BUSY
-#if defined(LINIF_USE_DEM)
+						#if defined(__WINDOWS__)
+						if(newScheduleRequest[chIndex] != TRUE) {
+							/* For windows, the LIN bus simulation is not very real time,
+							 * so continue to wait until its data arrived if no new schedule request */
+							continue;
+						}
+						#else
+						ASLOG(LINIFE,("Rx FAILED for %X @ %d\n", ptrFrame->LinIfPid, GetOsTick()));
+						#if defined(LINIF_USE_DEM)
 						Dem_ReportErrorStatus(LINIF_E_RESPONSE, DEM_EVENT_STATUS_FAILED);
-#endif
-						ASLOG(LINIFE,("Rx FAILED for %X\n", ptrFrame->LinIfPid));
+						#endif
+						#endif
 					}
 				} else if(ptrFrame->LinIfPduDirection == LinIfTxPdu){
 					Lin_StatusType status = Lin_GetStatus(LinIfChannelCfg[chIndex].LinIfChannelId, &Lin_SduPtr);

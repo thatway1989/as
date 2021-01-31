@@ -17,7 +17,9 @@
 #include "lasdevlib.h"
 #include "laslinlib.h"
 #include "asdebug.h"
+#include "Os.h"
 /* ============================ [ MACROS    ] ====================================================== */
+#define AS_LOG_LIN  1
 #define AS_LOG_LINE 2
 
 #define LIN_BIT(v, pos) (((v)>>(pos)) & 0x01)
@@ -96,6 +98,8 @@ void Lin_SimulatorRunning(void)
 			} else if((linState[i] == LIN_STATE_WAITING_RESPONSE) ||
 					  (linState[i] == LIN_STATE_HEADER_TRANSMITTING)) {
 				linState[i] = LIN_STATE_RESPONSE_RECEIVED;
+			} else {
+				ASLOG(LINE, ("frame received in state %d\n", linState[i]));
 			}
 		} else {
 			if(size > 0) {
@@ -104,6 +108,7 @@ void Lin_SimulatorRunning(void)
 		}
 
 		if(size > 0) {
+			ASLOG(LIN, ("%d RX: %c %02X @ %d\n", i, data[0], data[1], GetOsTick()));
 			free(data);
 		}
 		switch(linState[i]) {
@@ -229,6 +234,7 @@ Std_ReturnType Lin_SendFrame( uint8 Channel,  Lin_PduType* PduInfoPtr )
 		}
 
 		if(E_OK == ercd) {
+			ASLOG(LIN, ("%d TX: %c %02X @ %d\n", Channel, data[0], data[1], GetOsTick()));
 			r = asdev_write(fd, data, len);
 			if(len != r) {
 				ercd = E_NOT_OK;
@@ -263,6 +269,7 @@ Std_ReturnType Lin_WakeUp( uint8 Channel )
 Lin_StatusType Lin_GetStatus( uint8 Channel, uint8** Lin_SduPtr )
 {
 	Lin_StatusType status = E_OK;
+	*Lin_SduPtr = NULL;
 	switch(linState[Channel]) {
 		case LIN_STATE_ONLINE:
 			status = LIN_CH_OPERATIONAL;
@@ -282,6 +289,7 @@ Lin_StatusType Lin_GetStatus( uint8 Channel, uint8** Lin_SduPtr )
 			status = LIN_TX_OK;
 			break;
 		case LIN_STATE_RESPONSE_RECEIVED:
+			*Lin_SduPtr = linFrame[Channel].data;
 			status = LIN_RX_OK;
 			break;
 	}

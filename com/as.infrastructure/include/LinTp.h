@@ -93,6 +93,7 @@ extern const LinTp_ConfigType LinTp_Config;
 BufReq_ReturnType LinTpGw_ProvideRxBuffer(PduIdType Instance, PduLengthType tpSduLength, PduInfoType **pduInfoPtr);
 BufReq_ReturnType LinTpGw_ProvideTxBuffer(PduIdType Instance, PduInfoType **pduInfoPtr, PduLengthType length);
 void LinTpGw_RxIndication(PduIdType Instance, NotifResultType result);
+void LinTpGw_LinTpRxIndication(PduIdType Instance, const PduInfoType *PduInfo);
 void LinTpGw_TxConfirmation(PduIdType Instance, NotifResultType result);
 Std_ReturnType LinTpGw_TriggerTransmit(PduIdType Instance, PduInfoType *PduInfoPtr);
 
@@ -101,5 +102,6 @@ Std_ReturnType LinTp_Transmit(PduIdType TxPduId, const PduInfoType* PduInfoPtr);
 Std_ReturnType LinTp_TriggerTransmit(PduIdType TxPduId, const PduInfoType* PduInfoPtr);
 PduLengthType LinTp_TransmitLeft(PduIdType TxPduId);
 Std_ReturnType LinTp_StartReception(PduIdType RxPduId, const PduInfoType* PduInfoPtr);
+void LinTp_RxIndication(PduIdType RxPduId, const PduInfoType *PduInfo);
 void LinTp_MainFunction(void);
 #endif /* _LINTP_H_ */

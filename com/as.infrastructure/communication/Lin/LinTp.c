@@ -149,6 +149,31 @@ Std_ReturnType LinTp_StartReception(PduIdType RxPduId, const PduInfoType* PduInf
 	return ercd;
 }
 
+void LinTp_RxIndication(PduIdType RxPduId, const PduInfoType *PduInfo)
+{
+	LinTp_ContextType* context;
+
+	if(RxPduId < LinTp_Config.rxPduNum) {
+		context = &LinTp_Config.context[RxPduId];
+		if(PduInfo->SduDataPtr[0] != LinTp_Config.rxPduConfigs[RxPduId].NA) {
+			ASLOG(LINTP, ("ignore as NA R %X != E %X\n", PduInfo->SduDataPtr[0], LinTp_Config.rxPduConfigs[RxPduId].NA));
+		} else {
+			switch(PduInfo->SduDataPtr[1]&N_PCI_MASK) {
+				case N_PCI_SF:
+					break;
+				case N_PCI_FF:
+					break;
+				case N_PCI_CF:
+					break;
+				default:
+					ASLOG(LINTP, ("invalid frame"));
+					break;
+			}
+			context->timer = LinTp_Config.rxPduConfigs[RxPduId].timeout;
+		}
+	}
+}
+
 void LinTp_MainFunction(void) {
 
 	int i;

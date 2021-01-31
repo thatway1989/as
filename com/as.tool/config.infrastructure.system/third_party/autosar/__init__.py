@@ -64,9 +64,18 @@ def __createDataTypeFromTemplate(name, min, max):
    @classmethod
    def apply(cls, ws):
       package = ws.getDataTypePackage()
-      if package.find(cls.__name__) is None:         
+      if package.find(cls.__name__) is None:
          package.createIntegerDataType(cls.__name__, min=cls.minValue, max=cls.maxValue, offset=0, scaling=1, unit='1')
    return type(name, (autosar.Template,), dict(minValue=min, maxValue=max, apply=apply))
+
+def __createArrayDataTypeFromTemplate(name, typeRef, arraySize=8):
+   @classmethod
+   def apply(cls, ws):
+      package = ws.getDataTypePackage()
+      if package.find(cls.__name__) is None:
+         typeDef = package.find(typeRef.__name__)
+         package.createArrayDataType(cls.__name__, typeDef.ref, arraySize)
+   return type(name, (autosar.Template,), dict(typeRef=typeRef, apply=apply))
 
 SINT8_T = __createDataTypeFromTemplate('SINT8_T', -128, 127)
 UINT8_T = __createDataTypeFromTemplate('UINT8_T', 0, 255)
@@ -74,6 +83,12 @@ SINT16_T = __createDataTypeFromTemplate('SINT16_T', -32768, 32767)
 UINT16_T = __createDataTypeFromTemplate('UINT16_T', 0, 65535)
 SINT32_T = __createDataTypeFromTemplate('SINT32_T', -2147483648, 2147483647)
 UINT32_T = __createDataTypeFromTemplate('UINT32_T', 0, 4294967295)
+UINT8_N_T = __createArrayDataTypeFromTemplate('UINT8_N_T',UINT8_T)
+UINT16_N_T = __createArrayDataTypeFromTemplate('UINT16_N_T',UINT16_T)
+UINT32_N_T = __createArrayDataTypeFromTemplate('UINT32_N_T',UINT32_T)
+SINT8_N_T = __createArrayDataTypeFromTemplate('SINT8_N_T',SINT8_T)
+SINT16_N_T = __createArrayDataTypeFromTemplate('SINT16_N_T',SINT16_T)
+SINT32_N_T = __createArrayDataTypeFromTemplate('SINT32_N_T',SINT32_T)
 #### Constant Helpers ####
 def createConstantTemplateFromEnumerationType(name, dataTypeTemplate, default=None):
    @classmethod

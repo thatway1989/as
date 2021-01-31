@@ -52,6 +52,12 @@ static const LinTp_TxPduConfigType LinTp_TxPduConfigs[] = {
 		0x11,
 	}
 };
+#ifdef __WINDOWS__
+/* my windows LIN Bus simulator real time ability is too bad */
+#define LINTP_TIMIEOUT_MS 1000
+#else
+#define LINTP_TIMIEOUT_MS 100
+#endif
 static const LinTp_RxPduConfigType LinTp_RxPduConfigs[] = {
 	{
 		0,
@@ -59,7 +65,7 @@ static const LinTp_RxPduConfigType LinTp_RxPduConfigs[] = {
 		LINIF_SCH_TABLE_DIAG_RESPONSE,
 #endif
 		0x11,
-		LINIF_CONVERT_MS_TO_MAIN_CYCLES(100),
+		LINIF_CONVERT_MS_TO_MAIN_CYCLES(LINTP_TIMIEOUT_MS),
 	}
 };
 

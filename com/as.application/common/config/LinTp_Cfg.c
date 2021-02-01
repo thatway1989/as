@@ -14,6 +14,7 @@
  */
 /* ============================ [ INCLUDES  ] ====================================================== */
 #include "LinIf.h"
+#include "CanTp.h"
 /* ============================ [ MACROS    ] ====================================================== */
 /* ============================ [ TYPES     ] ====================================================== */
 /* ============================ [ DECLARES  ] ====================================================== */
@@ -29,6 +30,7 @@ static const PduInfoType LinTpGw_PduInfo =
 static const LinTpGw_InstanceConfigType LinTpGw_InstanceConfig[] = {
 	{
 		&LinTpGw_PduInfo,
+		CANTP_ID_TxCan2LinDiag,
 		LINIF_SCH_TABLE_APPLICATIVE
 	}
 };

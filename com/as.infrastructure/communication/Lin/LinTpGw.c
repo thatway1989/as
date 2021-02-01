@@ -14,6 +14,7 @@
  */
 /* ============================ [ INCLUDES  ] ====================================================== */
 #include "LinIf.h"
+#include "CanTp.h"
 #include "asdebug.h"
 /* ============================ [ MACROS    ] ====================================================== */
 #define AS_LOG_LINTPGW 0
@@ -26,6 +27,7 @@
 #define LINTPGW_SDU_SIZE (LinTpGw_Config.instanceConfig[Instance].PduInfo->SduLength)
 #define LINTPGW_SDU (LinTpGw_Config.instanceConfig[Instance].PduInfo)
 #define LINTPGW_SCHTBL (LinTpGw_Config.instanceConfig[Instance].schTbl)
+#define LINTPGW_TX_PDU_ID (LinTpGw_Config.instanceConfig[Instance].TxPduId)
 
 /* ============================ [ TYPES     ] ====================================================== */
 /* ============================ [ DECLARES  ] ====================================================== */
@@ -110,10 +112,32 @@ void LinTpGw_RxIndication(PduIdType Instance, NotifResultType result)
 
 void LinTpGw_LinTpRxIndication(PduIdType Instance, const PduInfoType *PduInfo)
 {
+	LinTp_StatusType status;
+	Std_ReturnType ercd;
+	PduInfoType pdu;
+
 	if(LINTPGW_RTE.PduState == LINTPGW_BUFFER_PROVIDED_TO_LINTP_RX) {
-		LinTp_RxIndication(Instance, PduInfo);
+		pdu.SduDataPtr = PduInfo->SduDataPtr;
+		pdu.SduLength = PduInfo->SduLength;
+		status = LinTp_RxIndication(Instance, &pdu);
+		if(LINTP_RX_OK == status) {
+			LINTPGW_RTE.PduState = LINTPGW_BUFFER_LINTP_FULL;
+			ercd = CanTp_Transmit(LINTPGW_TX_PDU_ID, &pdu);
+			if(ercd != E_OK) {
+				ASLOG(LINTPGWE, ("(%d) CanTp transmit failed\n", Instance));
+				LINTPGW_RTE.PduState = LINTPGW_BUFFER_IDLE;
+			}
+			LinIf_ScheduleRequest(Instance, LINTPGW_SCHTBL);
+		} else if(LINTP_RX_BUSY == status){
+			/* pass */
+		} else {
+			ASLOG(LINTPGWE, ("(%d) LinTp receive failed\n", Instance));
+			LinIf_ScheduleRequest(Instance, LINTPGW_SCHTBL);
+			LINTPGW_RTE.PduState = LINTPGW_BUFFER_IDLE;
+		}
 	} else {
 		LINTPGW_LOG_ERROR();
+		LINTPGW_RTE.PduState = LINTPGW_BUFFER_IDLE;
 	}
 }
 
@@ -127,12 +151,16 @@ void LinTpGw_TxConfirmation(PduIdType Instance, NotifResultType result)
 				LINTPGW_RTE.PduState = LINTPGW_BUFFER_PROVIDED_TO_LINTP_RX;
 				LinTp_StartReception(Instance, LINTPGW_SDU);
 			}
+		} else if(LINTPGW_BUFFER_PROVIDED_TO_CANTP_TX == LINTPGW_RTE.PduState) {
+			LINTPGW_RTE.PduState = LINTPGW_BUFFER_IDLE;
 		} else {
 			LINTPGW_LOG_ERROR();
+			LINTPGW_RTE.PduState = LINTPGW_BUFFER_IDLE;
 		}
 	} else {
 		LINTPGW_LOG_ERROR();
 		LinIf_ScheduleRequest(Instance, LINTPGW_SCHTBL);
+		LINTPGW_RTE.PduState = LINTPGW_BUFFER_IDLE;
 	}
 }
 
@@ -145,6 +173,7 @@ Std_ReturnType LinTpGw_TriggerTransmit(PduIdType Instance, PduInfoType *PduInfoP
 		ret = LinTp_TriggerTransmit(Instance, PduInfoPtr);
 	} else {
 		LINTPGW_LOG_ERROR();
+		LINTPGW_RTE.PduState = LINTPGW_BUFFER_IDLE;
 	}
 
 	return ret;

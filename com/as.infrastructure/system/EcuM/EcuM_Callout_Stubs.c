@@ -93,6 +93,9 @@
 #if defined(USE_LINSM)
 #include "LinSM.h"
 #endif
+#if defined(USE_LINIF)
+#include "LinIf.h"
+#endif
 #if defined(USE_SPI)
 #include "Spi.h"
 #endif

@@ -615,7 +615,7 @@ static BufReq_ReturnType sendNextTxFrame(
 
 	// copy data to temp buffer
 	uint32 byteCount = 0;
-	for(; txRuntime->canFrameBuffer.byteCount < MAX_SEGMENT_DATA_SIZE && ret == BUFREQ_OK ;) {
+	for(; txRuntime->canFrameBuffer.byteCount < txConfig->ll_dl && ret == BUFREQ_OK ;) {
 		if(txRuntime->pdurBuffer == 0 || txRuntime->pdurBufferCount == txRuntime->pdurBuffer->SduLength) {
 			// data empty, request new data
 			ret = PduR_CanTpProvideTxBuffer(txConfig->PduR_PduId, &txRuntime->pdurBuffer, 0);
@@ -1018,6 +1018,7 @@ Std_ReturnType CanTp_Transmit(PduIdType CanTpTxSduId,
 			txRuntime->transferCount = 0;
 			txRuntime->iso15765.framesHandledCount = 0;
 			txRuntime->transferTotal = CanTpTxInfoPtr->SduLength; /** @req CANTP225 */
+			asAssert(txRuntime->transferTotal);
 			txRuntime->iso15765.stateTimeoutCount = CANTP_CONVERT_MS_TO_MAIN_CYCLES(txConfig->CanTpNcs); /** @req CANTP167 */
 			txRuntime->mode = CANTP_TX_PROCESSING;
 			iso15765Frame = calcRequiredProtocolFrameType(txConfig, txRuntime, &isClassic);

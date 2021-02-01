@@ -33,6 +33,20 @@
 /* ============================ [ DECLARES  ] ====================================================== */
 /* ============================ [ DATAS     ] ====================================================== */
 /* ============================ [ LOCALS    ] ====================================================== */
+static LinTp_StatusType ReceiveSF(LinTp_ContextType* context, uint8* Data)
+{
+	uint8 length;
+	uint8 *pData;
+
+	length = Data[0]&N_PCI_SF_DL;
+	pData = &(Data[1]);
+
+	memcpy(context->PduInfo.SduDataPtr, pData, length);
+
+	context->index = length;
+
+	return LINTP_RX_OK;
+}
 /* ============================ [ FUNCTIONS ] ====================================================== */
 void LinTp_Init(const LinTp_ConfigType* ConfigPtr)
 {
@@ -149,8 +163,9 @@ Std_ReturnType LinTp_StartReception(PduIdType RxPduId, const PduInfoType* PduInf
 	return ercd;
 }
 
-void LinTp_RxIndication(PduIdType RxPduId, const PduInfoType *PduInfo)
+LinTp_StatusType LinTp_RxIndication(PduIdType RxPduId, PduInfoType *PduInfo)
 {
+	LinTp_StatusType status = LINTP_RX_ERROR;
 	LinTp_ContextType* context;
 
 	if(RxPduId < LinTp_Config.rxPduNum) {
@@ -160,6 +175,7 @@ void LinTp_RxIndication(PduIdType RxPduId, const PduInfoType *PduInfo)
 		} else {
 			switch(PduInfo->SduDataPtr[1]&N_PCI_MASK) {
 				case N_PCI_SF:
+					status = ReceiveSF(context, &PduInfo->SduDataPtr[1]);
 					break;
 				case N_PCI_FF:
 					break;
@@ -169,9 +185,20 @@ void LinTp_RxIndication(PduIdType RxPduId, const PduInfoType *PduInfo)
 					ASLOG(LINTP, ("invalid frame"));
 					break;
 			}
+		}
+
+		if(LINTP_RX_OK == status) {
+			context->timer = 0;
+			PduInfo->SduDataPtr = context->PduInfo.SduDataPtr;
+			PduInfo->SduLength = context->index;
+		} else if(LINTP_RX_BUSY == status) {
 			context->timer = LinTp_Config.rxPduConfigs[RxPduId].timeout;
+		} else {
+			context->timer = 0;
 		}
 	}
+
+	return status;
 }
 
 void LinTp_MainFunction(void) {

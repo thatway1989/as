@@ -21,6 +21,7 @@
 /* ============================ [ TYPES     ] ====================================================== */
 typedef struct {
 	const PduInfoType* PduInfo;
+	PduIdType TxPduId;
 	LinIf_SchHandleType schTbl;
 } LinTpGw_InstanceConfigType;
 
@@ -83,6 +84,12 @@ typedef struct {
 	uint32_t rxPduNum;
 	LinTp_ContextType* context;
 } LinTp_ConfigType;
+
+typedef enum {
+	LINTP_RX_OK,
+	LINTP_RX_BUSY,
+	LINTP_RX_ERROR,
+} LinTp_StatusType;;
 /* ============================ [ DECLARES  ] ====================================================== */
 /* ============================ [ DATAS     ] ====================================================== */
 extern const LinTpGw_ConfigType LinTpGw_Config;
@@ -102,6 +109,6 @@ Std_ReturnType LinTp_Transmit(PduIdType TxPduId, const PduInfoType* PduInfoPtr);
 Std_ReturnType LinTp_TriggerTransmit(PduIdType TxPduId, const PduInfoType* PduInfoPtr);
 PduLengthType LinTp_TransmitLeft(PduIdType TxPduId);
 Std_ReturnType LinTp_StartReception(PduIdType RxPduId, const PduInfoType* PduInfoPtr);
-void LinTp_RxIndication(PduIdType RxPduId, const PduInfoType *PduInfo);
+LinTp_StatusType LinTp_RxIndication(PduIdType RxPduId, PduInfoType *PduInfo);
 void LinTp_MainFunction(void);
 #endif /* _LINTP_H_ */

@@ -20,6 +20,7 @@
 #include "asdebug.h"
 /* ============================ [ MACROS    ] ====================================================== */
 #define AS_LOG_LINTP 0
+#define AS_LOG_LINTPE 1
 
 /* see ISO 15765-2 2004 */
 #define N_PCI_MASK  0x30
@@ -38,6 +39,10 @@ static LinTp_StatusType ReceiveSF(LinTp_ContextType* context, uint8* Data)
 	uint8 length;
 	uint8 *pData;
 
+	if(context->index > 0) {
+		ASLOG(LINTPE, ("SF received, abort previous reception\n"));
+	}
+
 	length = Data[0]&N_PCI_SF_DL;
 	pData = &(Data[1]);
 
@@ -46,6 +51,63 @@ static LinTp_StatusType ReceiveSF(LinTp_ContextType* context, uint8* Data)
 	context->index = length;
 
 	return LINTP_RX_OK;
+}
+
+static LinTp_StatusType ReceiveFF(LinTp_ContextType* context, uint8* Data)
+{
+	uint8 length;
+	uint8 *pData;
+	LinTp_StatusType status = LINTP_RX_ERROR;
+
+	if(context->index > 0) {
+		ASLOG(LINTPE, ("FF received, abort previous reception\n"));
+	}
+
+	length = ((Data[0]&0x0F) << 8) + Data[1];
+	if(length > context->PduInfo.SduLength) {
+		pData = &(Data[2]);
+		memcpy(context->PduInfo.SduDataPtr, pData, 5);
+		context->PduInfo.SduLength = length;
+		context->index = 5;
+		context->SN = 1;
+		status = LINTP_RX_OK;
+	} else {
+		ASLOG(LINTPE, ("Buffer not enough expected %d, real %d\n", length, context->PduInfo.SduLength));
+	}
+
+	return status;
+}
+
+static LinTp_StatusType ReceiveCF(LinTp_ContextType* context, uint8* Data)
+{
+	uint8 length;
+	uint8 *pData;
+	LinTp_StatusType status = LINTP_RX_ERROR;
+
+	if(context->index == 0) {
+		ASLOG(LINTPE, ("CF received without FF\n"));
+	}
+
+	if(context->SN == (Data[0]&N_PCI_SN)) {
+		context->SN ++ ;
+		if(context->SN > 15) { context->SN = 0; }
+		length = context->PduInfo.SduLength - context->index;
+		if( length > 6 ) { length = 6; }
+		if(length > 0) {
+			pData = &(Data[1]);
+			memcpy(&context->PduInfo.SduDataPtr[context->index], pData, length);
+			context->index += length;
+			if(context->index >= context->PduInfo.SduLength) {
+				status = LINTP_RX_OK;
+			} else {
+				status = LINTP_RX_BUSY;
+			}
+		} else {
+			ASLOG(LINTPE, ("too much CF received\n"));
+		}
+	}
+
+	return status;
 }
 /* ============================ [ FUNCTIONS ] ====================================================== */
 void LinTp_Init(const LinTp_ConfigType* ConfigPtr)
@@ -178,8 +240,10 @@ LinTp_StatusType LinTp_RxIndication(PduIdType RxPduId, PduInfoType *PduInfo)
 					status = ReceiveSF(context, &PduInfo->SduDataPtr[1]);
 					break;
 				case N_PCI_FF:
+					status = ReceiveFF(context, &PduInfo->SduDataPtr[1]);
 					break;
 				case N_PCI_CF:
+					status = ReceiveCF(context, &PduInfo->SduDataPtr[1]);
 					break;
 				default:
 					ASLOG(LINTP, ("invalid frame"));

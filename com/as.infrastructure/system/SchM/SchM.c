@@ -128,7 +128,7 @@
 #include "Gpt.h"
 #endif
 
-#if defined(USE_CANIF)
+#if defined(USE_LINIF)
 #include "LinIf.h"
 #define	SCHM_MAINFUNCTION_LINIF() SCHM_MAINFUNCTION(LINIF,LinIf_MainFunction())
 #else

@@ -411,7 +411,7 @@ static Std_ReturnType canReceivePaddingHelper(
 			llLen = MAX_SEGMENT_DATA_SIZE;
 		}
 		for (i = PduInfoPtr->SduLength; i < llLen; i++) {
-			PduInfoPtr->SduDataPtr[i] = 0x0; // TODO: Does it have to be padded with zeroes?
+			PduInfoPtr->SduDataPtr[i] = 0x55;
 		}
 		PduInfoPtr->SduLength = llLen;
 	}
@@ -440,7 +440,7 @@ static Std_ReturnType canTansmitPaddingHelper(
 			llLen = MAX_SEGMENT_DATA_SIZE;
 		}
 		for (i = PduInfoPtr->SduLength; i < llLen; i++) {
-			PduInfoPtr->SduDataPtr[i] = 0x0; // TODO: Does it have to be padded with zeroes?
+			PduInfoPtr->SduDataPtr[i] = 0x55;
 		}
 		PduInfoPtr->SduLength = llLen;
 	}

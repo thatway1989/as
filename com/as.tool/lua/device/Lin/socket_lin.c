@@ -20,6 +20,7 @@
 #else
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #endif
 #include <stdio.h>

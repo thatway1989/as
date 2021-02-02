@@ -65,16 +65,16 @@
 <General Comment="*" DevelopmentErrorDetection="ON" VersionInfoApi="OFF" />
 <RxSduList Max="TBD">
 #ifdef USE_PCI /* QEMU PCI use virtual CAN, this is not realtime on windows */
-<Sdu BS="8" Comment="*" CommunicationType="PHYSICAL" MaxBusyTransmission="10" Name="SduP2P" Nar="25" Nbr="25" Ncr="1500" Padding="ON" RxPduRef="RxDiagP2P" STmin="1" TxFcPduRef="TxDiagP2P" ll_dl="64" />
+<Sdu AddressingMode="STANDARD" BS="8" Comment="*" CommunicationType="PHYSICAL" MaxBusyTransmission="10" N_SA="TBD" N_TA="TBD" Name="SduP2P" Nar="25" Nbr="25" Ncr="1500" Padding="ON" RxPduRef="RxDiagP2P" STmin="1" TxFcPduRef="TxDiagP2P" ll_dl="64" />
 #else
-<Sdu BS="8" Comment="*" CommunicationType="PHYSICAL" MaxBusyTransmission="10" Name="SduP2P" Nar="25" Nbr="25" Ncr="150" Padding="ON" RxPduRef="RxDiagP2P" STmin="1" TxFcPduRef="TxDiagP2P" ll_dl="64" />
+<Sdu AddressingMode="STANDARD" BS="8" Comment="*" CommunicationType="PHYSICAL" MaxBusyTransmission="10" N_SA="TBD" N_TA="TBD" Name="SduP2P" Nar="25" Nbr="25" Ncr="150" Padding="ON" RxPduRef="RxDiagP2P" STmin="1" TxFcPduRef="TxDiagP2P" ll_dl="64" />
 #endif
 </RxSduList>
 <TxSduList Max="TBD">
 #ifdef USE_PCI
-<Sdu Comment="*" CommunicationType="PHYSICAL" Name="SduP2P" Nas="25" Nbs="1500" Ncs="25" Padding="ON" RxFcPduRef="RxDiagP2P" TxPduRef="TxDiagP2P" ll_dl="64" />
+<Sdu AddressingMode="STANDARD" Comment="*" CommunicationType="PHYSICAL" N_SA="TBD" N_TA="TBD" Name="SduP2P" Nas="25" Nbs="1500" Ncs="25" Padding="ON" RxFcPduRef="RxDiagP2P" TxPduRef="TxDiagP2P" ll_dl="64" />
 #else
-<Sdu Comment="*" CommunicationType="PHYSICAL" Name="SduP2P" Nas="25" Nbs="75" Ncs="25" Padding="ON" RxFcPduRef="RxDiagP2P" TxPduRef="TxDiagP2P" ll_dl="64" />
+<Sdu AddressingMode="STANDARD" Comment="*" CommunicationType="PHYSICAL" N_SA="TBD" N_TA="TBD" Name="SduP2P" Nas="25" Nbs="75" Ncs="25" Padding="ON" RxFcPduRef="RxDiagP2P" TxPduRef="TxDiagP2P" ll_dl="64" />
 #endif
 </TxSduList>
 </CanTp>

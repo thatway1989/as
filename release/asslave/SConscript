@@ -1,0 +1,4 @@
+objs = Glob('autosar.arxml')
+objs += Glob('../ascore/app/*.c')
+objs += Glob('../ascore/app/*.xml')
+Return('objs')

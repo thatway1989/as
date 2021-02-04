@@ -249,6 +249,9 @@ def GenH():
 #if defined(USE_LINTP)
 #include "LinTp.h"
 #endif
+#if defined(USE_LINTP_SLAVE)
+#include "LinTp_Slave.h"
+#endif
 
 extern const PduR_PBConfigType PduR_Config;
 

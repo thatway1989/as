@@ -121,6 +121,11 @@ if(asenv['RELEASE']=='asboot'):
                'TINYOS',
                'CANTP_MINI','BOOTLOADER'
                ]
+elif(asenv['RELEASE']=='asslave'):
+    MODULES = ['ECUM','SCHM','MCU','DET',
+               'LIN_SLAVE','PDUR', 'LINTP_SLAVE',
+               'DCM','TINYOS',
+               ]
 
 if(asenv['MODULES'] is None):
     asenv['MODULES'] = MODULES

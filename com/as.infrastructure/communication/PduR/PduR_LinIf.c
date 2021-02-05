@@ -25,7 +25,7 @@ void PduR_LinIfRxIndication(PduIdType LinRxPduId, const PduInfoType* PduInfoPtr)
 }
 
 void PduR_LinIfTxConfirmation(PduIdType LinTxPduId) {
-	PduR_ARC_TxConfirmation(LinTxPduId, NULL, 0x0f);
+	PduR_ARC_TxConfirmation(LinTxPduId, 0, 0x0f);
 }
 
 Std_ReturnType PduR_LinIfTriggerTransmit(PduIdType LinTxPduId, PduInfoType* PduInfoPtr) {

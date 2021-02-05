@@ -36,6 +36,7 @@ typedef struct {
 /* ============================ [ DECLARES  ] ====================================================== */
 extern void Can_SimulatorRunning(void);
 extern void Lin_SimulatorRunning(void);
+extern void LinS_SimulatorRunning(void);
 #ifdef USE_AWS
 static void on_hangup(void *closure, struct afb_wsj1 *wsj1);
 static void on_call(void *closure, const char *api, const char *verb, struct afb_wsj1_msg *msg);
@@ -135,6 +136,9 @@ KSM(Simulator,Running)
 #endif
 #ifdef USE_LIN
 	Lin_SimulatorRunning();
+#endif
+#ifdef USE_LINS
+	LinS_SimulatorRunning();
 #endif
 #if defined(__TINY_OS__) || defined(__CONTIKI_OS__)
 	clock_t now = clock();

@@ -20,6 +20,10 @@ if('LIN' in MODULES):
     objs += Glob('mcal/Lin.c')
     asenv.Append(CPPDEFINES='__AS_PY_DEV__')
 
+if('LINS' in MODULES):
+    objs += Glob('mcal/LinS.c')
+    asenv.Append(CPPDEFINES='__AS_PY_DEV__')
+
 if('DIO' in MODULES):
     objs += Glob('mcal/Dio.c')
 

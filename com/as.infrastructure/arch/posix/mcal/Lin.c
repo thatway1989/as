@@ -19,7 +19,7 @@
 #include "asdebug.h"
 #include "Os.h"
 /* ============================ [ MACROS    ] ====================================================== */
-#define AS_LOG_LIN  1
+#define AS_LOG_LIN  0
 #define AS_LOG_LINE 2
 
 #define LIN_BIT(v, pos) (((v)>>(pos)) & 0x01)

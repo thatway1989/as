@@ -72,7 +72,7 @@ def GenH():
 #endif
 #define PDUR_FRIF_SUPPORT STD_OFF  /* Not supported */
 #define PDUR_FRTP_SUPPORT STD_OFF  /* Not supported */
-#ifdef USE_LINIF
+#if defined(USE_LINIF) || defined(USE_LINSIF)
 #define PDUR_LINIF_SUPPORT STD_%s
 #else
 #define PDUR_LINIF_SUPPORT STD_OFF
@@ -249,8 +249,8 @@ def GenH():
 #if defined(USE_LINTP)
 #include "LinTp.h"
 #endif
-#if defined(USE_LINTP_SLAVE)
-#include "LinTp_Slave.h"
+#if defined(USE_LINSTP)
+#include "LinSTp.h"
 #endif
 
 extern const PduR_PBConfigType PduR_Config;

@@ -96,6 +96,9 @@
 #if defined(USE_LINIF)
 #include "LinIf.h"
 #endif
+#if defined(USE_LINSIF)
+#include "LinSIf.h"
+#endif
 #if defined(USE_SPI)
 #include "Spi.h"
 #endif
@@ -352,6 +355,10 @@ void EcuM_AL_DriverInitTwo(const EcuM_ConfigType* ConfigPtr)
 
 #if defined(USE_LINSM)
 	LinSM_Init(NULL);
+#endif
+
+#if defined(USE_LINSIF)
+	LinSIf_Init(NULL);
 #endif
 	// Setup CAN tranceiver
 	// TODO

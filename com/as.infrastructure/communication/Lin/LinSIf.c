@@ -15,6 +15,7 @@
 /* ============================ [ INCLUDES  ] ====================================================== */
 #include "LinSIf.h"
 #include "PduR_LinIf.h"
+#include "Os.h"
 #include "asdebug.h"
 /* ============================ [ MACROS    ] ====================================================== */
 #define AS_LOG_LINSIF  1
@@ -76,6 +77,7 @@ static void handleHeader(NetworkHandleType network, uint8_t pid) {
 	uint8_t data[9]; /* data and checksum */
 	PduInfoType pduInfo;
 
+	ASLOG(LINSIF, ("%d RX: Pid=%02X\n", (int)network,(uint32)pid));
 	frame = getFrameConfig(network, pid);
 	if(NULL != frame) {
 		if(frame->PduDirection == LinSIfTxPdu) {
@@ -92,6 +94,8 @@ static void handleHeader(NetworkHandleType network, uint8_t pid) {
 				ASLOG(LINSIFE, ("failed to get PDU data\n"));
 			}
 		}
+	} else {
+		ASLOG(LINSIF, ("ignored"));
 	}
 }
 
@@ -101,7 +105,11 @@ static void handleFull(NetworkHandleType network, uint8_t pid, uint8_t* data, Pd
 	Std_ReturnType ercd;
 	PduInfoType pduInfo;
 	uint8_t cksum;
-
+	ASLOG(LINSIF, ("%d RX: Pid=%02X, DLC=%d DATA=[%02X %02X %02X %02X %02X %02X %02X %02X] checksum=%02X @%u\n",
+				(int)network,(uint32)pid,(int)length,
+				(uint32)data[0],(uint32)data[1],(uint32)data[2],(uint32)data[3],
+				(uint32)data[4],(uint32)data[5],(uint32)data[6],(uint32)data[7],
+				(uint32)checksum, GetOsTick()));
 	frame = getFrameConfig(network, pid);
 	if(NULL != frame) {
 		if(frame->PduDirection == LinSIfRxPdu) {
@@ -114,6 +122,8 @@ static void handleFull(NetworkHandleType network, uint8_t pid, uint8_t* data, Pd
 				ASLOG(LINSIFE, ("checksum is not correct\n"));
 			}
 		}
+	} else {
+		ASLOG(LINSIF, ("ignored"));
 	}
 }
 /* ============================ [ FUNCTIONS ] ====================================================== */

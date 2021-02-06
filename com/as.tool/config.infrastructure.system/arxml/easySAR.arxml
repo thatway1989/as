@@ -303,14 +303,14 @@
 	<RoutineList Max="65535">
 		<Source 
 			Name="Text PosGUI=0"
-			Module="Enum=(Com,Dcm,CanTp,CanIf,LinTp,LinIf,J1939Tp,SoAdIf,SoAdTp,LinTpGw) Default=Com PosGUI=1"
+			Module="Enum=(Com,Dcm,CanTp,CanIf,LinTp,LinIf,J1939Tp,SoAdIf,SoAdTp,LinTpGw,LinSTp) Default=Com PosGUI=1"
 			PduRef="EnumRef=EcuC.PduList PosGUI=2"
 			Comment="TextArea Default=* PosGUI=3"
 			>
 			<DestinationList Max="65535">
 				<Destination
 					Name="Text PosGUI=0 Comment=(If ZeroCost, then only 1 Destination is allowed)"
-					Module="Enum=(Com,Dcm,CanTp,CanIf,LinTp,LinIf,J1939Tp,SoAdIf,SoAdTp,LinTpGw) Default=Com PosGUI=1"
+					Module="Enum=(Com,Dcm,CanTp,CanIf,LinTp,LinIf,J1939Tp,SoAdIf,SoAdTp,LinTpGw,LinSTp) Default=Com PosGUI=1"
 					PduRef="EnumRef=EcuC.PduList PosGUI=2"
 					Comment="TextArea Default=* PosGUI=3"
 					>

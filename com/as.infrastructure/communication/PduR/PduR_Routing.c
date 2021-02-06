@@ -122,6 +122,11 @@ void PduR_ARC_RouteRxIndication(const PduRDestPdu_type * destination, const PduI
 		}
 		break;
 #endif
+#ifdef USE_LINSTP
+	case ARC_PDUR_LINSTP:
+		LinSTp_RxIndication(destination->DestPduId, PduInfo);
+		break;
+#endif
 	default:
 		ASLOG(PDURE, ("RX with invalid destination module %d\n", destination->DestModule));
 		break;

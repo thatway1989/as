@@ -16,6 +16,11 @@
 </ApplicationModeList>
 </Task>
 <Task Activation="1" Application="OsDefaultApp" Autostart="False" Comment="*" Cpu="OS_ON_ANY_CPU" Name="SchM_BswService" Priority="8" Schedule="FULL" StackSize="2048" />
+<Task Activation="1" Application="OsDefaultApp" Autostart="True" Comment="*" Cpu="OS_ON_ANY_CPU" Name="TaskIdle" Priority="0" Schedule="FULL" StackSize="2048">
+<ApplicationModeList Max="TBD">
+<ApplicationMode Comment="*" Name="OSDEFAULTAPPMODE" />
+</ApplicationModeList>
+</Task>
 </TaskList>
 <AlarmList Max="TBD">
 <Alarm Action="ActivateTask" Application="OsDefaultApp" Autostart="False" Callback="TBD" Comment="*" Counter="OsClock" Event="TBD" Name="Alarm_BswService" Period="100" StartTime="0" Task="SchM_BswService" />
@@ -32,6 +37,8 @@
 <PduList Max="TBD">
 <Pdu Comment="*" Name="RxLinDiag" Size="64" />
 <Pdu Comment="*" Name="TxLinDiag" Size="64" />
+<Pdu Comment="virtual LinTp PDU" Name="RxLinDiagTp" Size="64" />
+<Pdu Comment="virtual LinTp PDU" Name="TxLinDiagTp" Size="64" />
 </PduList>
 </EcuC>
 <Can>
@@ -50,14 +57,24 @@
 <PduR>
 <General CanIfUsed="False" CanTpUsed="False" ComUsed="False" Comment="*" DcmUsed="True" DevelopmentErrorDetection="ON" J1939TpUsed="False" LinIfUsed="True" LinTpUsed="True" VersionInfoApi="OFF" ZeroCostIf="CanIf" ZeroCostOperationMode="OFF" ZeroCostTp="CanTp" />
 <RoutineList Max="TBD">
-<Source Comment="*" Module="Dcm" Name="DcmP2P" PduRef="TxLinDiag">
+<Source Comment="*" Module="Dcm" Name="DcmP2P" PduRef="TxLinDiagTp">
 <DestinationList Max="TBD">
-<Destination Comment="*" Module="LinTp" Name="LinTpP2P" PduRef="TxLinDiag" />
+<Destination Comment="*" Module="LinSTp" Name="LinTpP2P" PduRef="TxLinDiagTp" />
 </DestinationList>
 </Source>
-<Source Comment="*" Module="LinTp" Name="LinTpP2P" PduRef="RxLinDiag">
+<Source Comment="*" Module="LinSTp" Name="LinTpP2P" PduRef="RxLinDiagTp">
 <DestinationList Max="TBD">
-<Destination Comment="*" Module="Dcm" Name="DcmP2P" PduRef="RxLinDiag" />
+<Destination Comment="*" Module="Dcm" Name="DcmP2P" PduRef="RxLinDiagTp" />
+</DestinationList>
+</Source>
+<Source Comment="*" Module="LinIf" Name="RxLinIfToTp" PduRef="RxLinDiag">
+<DestinationList Max="TBD">
+<Destination Comment="*" Module="LinSTp" Name="RxLinIfToTp" PduRef="RxLinDiag" />
+</DestinationList>
+</Source>
+<Source Comment="*" Module="LinSTp" Name="TxLinTpToLinIf" PduRef="TxLinDiag">
+<DestinationList Max="TBD">
+<Destination Comment="*" Module="LinIf" Name="TxLinTpToLinIf" PduRef="TxLinDiag" />
 </DestinationList>
 </Source>
 </RoutineList>
@@ -94,9 +111,9 @@
 <ConnectionList Max="TBD">
 <Connection Comment="*" Name="Connection1">
 <RxChannelList Max="TBD">
-<RxChannel AddressingType="PHYSICAL" Comment="*" Name="RxChannel1" PduRef="RxLinDiag" />
+<RxChannel AddressingType="PHYSICAL" Comment="*" Name="RxChannel1" PduRef="RxLinDiagTp" />
 </RxChannelList>
-<TxChannel Comment="*" Name="TxChannel2" PduRef="TxLinDiag" />
+<TxChannel Comment="*" Name="TxChannel2" PduRef="TxLinDiagTp" />
 </Connection>
 </ConnectionList>
 </Protocol>

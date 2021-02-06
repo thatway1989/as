@@ -19,7 +19,7 @@
 #include "asdebug.h"
 #include "Os.h"
 /* ============================ [ MACROS    ] ====================================================== */
-#define AS_LOG_LINS  0
+#define AS_LOG_LINS  1
 #define AS_LOG_LINSE 2
 
 #define LIN_BIT(v, pos) (((v)>>(pos)) & 0x01)
@@ -112,6 +112,7 @@ Std_ReturnType LinS_SendFrame(NetworkHandleType netowrk, PduInfoType* pduInfo)
 			if(len != r) {
 				ercd = E_NOT_OK;
 			}
+			ASLOG(LINS, ("%d TX: %c %02X @ %d\n", netowrk, data[0], data[1], GetOsTick()));
 		}
 	} else {
 		ercd = E_NOT_OK;

@@ -124,7 +124,7 @@ if(asenv['RELEASE']=='asboot'):
 elif(asenv['RELEASE']=='asslave'):
     MODULES = ['ECUM','SCHM','MCU','DET',
                'LINS','LINSIF','PDUR','LINSTP',
-               'DCM','TINYOS',
+               'DCM','TINYOS','SHELL',
                ]
 
 if(asenv['MODULES'] is None):

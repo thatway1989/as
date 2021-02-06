@@ -36,7 +36,7 @@ def GenPduR(root,dir):
     print("    >>> Gen PduR DONE <<<")
 
 def isUpperLayer(layer):
-    if(layer in ['Com', 'Dcm', 'LinTpGw']):
+    if(layer in ['Com', 'Dcm', 'LinTpGw', 'LinSTp']):
         return True
     return False
 

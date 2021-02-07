@@ -22,6 +22,7 @@
 #include <sys/time.h>
 #include <ctype.h>
 /* ============================ [ MACROS    ] ====================================================== */
+#define AS_LOG_LIN 0
 /* ============================ [ TYPES     ] ====================================================== */
 /* ============================ [ DECLARES  ] ====================================================== */
 static int lasdev_open  (const char* device, const char* option, void** param);
@@ -150,6 +151,11 @@ static int lasdev_write (void* param,const char* data,size_t size)
 		frame.dlc = size - 3;
 		memcpy(&frame.data, &data[2], frame.dlc);
 		frame.checksum = data[size-1];
+		ASLOG(LIN, ("Pid=%02X, DLC=%d DATA=[%02X %02X %02X %02X %02X %02X %02X %02X] checksum=%02X @%u\n",
+					(uint32)frame.pid,(int)frame.dlc,
+					(uint32)frame.data[0],(uint32)frame.data[1],(uint32)frame.data[2],(uint32)frame.data[3],
+					(uint32)frame.data[4],(uint32)frame.data[5],(uint32)frame.data[6],(uint32)frame.data[7],
+					(uint32)frame.checksum));
 	} else {
 		ASLOG(ERROR,("Invalid data format for %s\n", dev->name));
 		len = -EINVAL;

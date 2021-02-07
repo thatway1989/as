@@ -95,7 +95,7 @@ static void handleHeader(NetworkHandleType network, uint8_t pid) {
 			}
 		}
 	} else {
-		ASLOG(LINSIF, ("ignored"));
+		ASLOG(LINSIF, ("ignored\n"));
 	}
 }
 
@@ -119,11 +119,11 @@ static void handleFull(NetworkHandleType network, uint8_t pid, uint8_t* data, Pd
 				pduInfo.SduLength = length;
 				PduR_LinIfRxIndication(frame->TargetPduId,&pduInfo);
 			} else {
-				ASLOG(LINSIFE, ("checksum is not correct\n"));
+				ASLOG(LINSIFE, ("checksum %02X is not correct\n", cksum));
 			}
 		}
 	} else {
-		ASLOG(LINSIF, ("ignored"));
+		ASLOG(LINSIF, ("ignored\n"));
 	}
 }
 /* ============================ [ FUNCTIONS ] ====================================================== */

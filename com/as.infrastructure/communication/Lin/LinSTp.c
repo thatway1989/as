@@ -143,7 +143,7 @@ static void ReceiveCF(PduIdType Instance, uint8* Data) {
 		} else {
 			context->state = LINSTP_IDLE;
 			Dcm_RxIndication(config->dcmRxId, NTFRSLT_E_WRONG_SN);
-			ASLOG(LINSTPE, ("[%d]Sequence Number Wrong, Abort Current Receiving.\n", Instance));
+			ASLOG(LINSTPE, ("[%d]Sequence Number %d Wrong, Abort Current Receiving.\n", Instance, context->SN));
 			context->timer = 0;
 		}
 	}
@@ -227,9 +227,9 @@ Std_ReturnType LinSTp_TriggerTransmit(PduIdType Instance, PduInfoType *PduInfoPt
 					if(doSize <= 6) {
 						data[pos++] = N_PCI_SF|doSize;
 					} else {
-						doSize = 5;
 						data[pos++] = N_PCI_FF|((doSize>>8)&0xF);
 						data[pos++] = doSize&0xFF;
+						doSize = 5;
 					}
 				} else {
 					if(doSize > 6) {

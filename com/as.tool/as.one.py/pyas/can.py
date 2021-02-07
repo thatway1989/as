@@ -53,7 +53,7 @@ def can_open(busid,device,port,baudrate):
 def can_write(busid,canid,data):
     '''can request write on can bus <busid>'''
     if(busid == DFTBUS): busid = default_busid
-    return __can__.write(busid, canid, len(data), bytearray(data))
+    return __can__.write(busid, canid, len(data), bytes(bytearray(data)))
 
 def can_read(busid,canid):
     ''' can request read a can frame from <canid> queue of <busid>'''

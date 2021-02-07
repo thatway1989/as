@@ -18,6 +18,11 @@ try:
     from .can import *
 except:
     from can import *
+
+try:
+    from .lin import *
+except:
+    from lin import *
 import time
 
 
@@ -66,15 +71,54 @@ class cantp():
         self.t_size = 0
         self.STmin = 0
         self.BS=0
-        self.cSTmin = kwargs.get('STmin', 1)
-        self.cBS = kwargs.get('BS', 8)
-        self.NA = kwargs.get('NA', None)
-        self.cfgSTmin = 0
-        self.ll_dl = kwargs.get('ll_dl', 8)
+        protocal = kwargs.get('protocal', 'CAN')
+        if(protocal == 'CAN'):
+            self.cSTmin = kwargs.get('STmin', 1)
+            self.cBS = kwargs.get('BS', 8)
+            self.NA = kwargs.get('NA', None)
+            self.cfgSTmin = 0
+            self.ll_dl = kwargs.get('ll_dl', 8)
+            self.read = self.read_can
+            self.write = self.write_can
+        elif(protocal == 'LIN'):
+            self.cSTmin = kwargs.get('STmin', 20)
+            self.cBS = 0
+            self.NA = kwargs.get('NA')
+            self.cfgSTmin = self.cSTmin
+            self.ll_dl = 8
+            self.read = self.read_lin
+            self.write = self.write_lin
+        else:
+            raise
+        self.protocal = protocal
         if(self.ll_dl not in [8, 64]):
             raise
         self.timeout = 5
         self.init()
+
+    def read_can(self):
+        return can_read(self.canbus,self.rxid)
+    def write_can(self, data):
+        return can_write(self.canbus,self.txid,data)
+
+    def read_lin(self):
+        timeout = 5*self.cSTmin/1000.0
+        time.sleep(self.cSTmin/1000.0)
+        ercd = lin_write(self.canbus,self.rxid)
+        if(ercd != True):
+            return False, None, None
+        ercd = False
+        pre = time.time()
+        while ( ((time.time() -pre) < timeout) and (ercd == False)):
+            ercd, pid, data = lin_read(self.canbus)
+            if(pid != self.rxid):
+                ercd = False
+            else:
+                return ercd, pid, data
+        return False, None, None
+
+    def write_lin(self, data):
+        return lin_write(self.canbus,self.txid,data)
 
     def init(self):
         if(self.ll_dl > 8):
@@ -111,7 +155,7 @@ class cantp():
         while(i<8):
             data.append(self.padding)
             i += 1
-        return can_write(self.canbus,self.txid,data)
+        return self.write(data)
     
     def __sendSF_ll(self,request):
         length = len(request)
@@ -126,7 +170,7 @@ class cantp():
         while(i<self.ll_dl):
             data.append(self.padding)
             i += 1
-        return can_write(self.canbus,self.txid,data)
+        return self.write(data)
 
     def __sendSF__(self,request):
         classic_MAX_SF = 6 if self.NA != None else 7 
@@ -151,7 +195,7 @@ class cantp():
         self.t_size = self.MAX_FF
         self.state = CANTP_ST_WAIT_FC
   
-        return can_write(self.canbus,self.txid,pdu)
+        return self.write(pdu)
 
     def __sendFF_ll(self,data):
         length = len(data)
@@ -172,7 +216,7 @@ class cantp():
         self.t_size = self.MAX_FF
         self.state = CANTP_ST_WAIT_FC
   
-        return can_write(self.canbus,self.txid,pdu)
+        return self.write(pdu)(self.canbus,self.txid,pdu)
 
     def __sendFF__(self,request):
         if(self.ll_dl <= 8):
@@ -221,9 +265,12 @@ class cantp():
   
         self.STmin = self.cfgSTmin
   
-        return can_write(self.canbus,self.txid,pdu)
+        return self.write(pdu)
    
     def __handleFC__(self,request):
+        if(self.protocal == 'LIN'):
+            self.state = CANTP_ST_SEND_CF
+            return True
         ercd,data = self.__waitRF__()
         if (True == ercd):
             if ((data[0]&ISO15765_TPCI_MASK) == ISO15765_TPCI_FC):
@@ -255,11 +302,8 @@ class cantp():
                 if(self.state == CANTP_ST_WAIT_FC):
                     ercd = self.__handleFC__(request)
                 elif(self.state == CANTP_ST_SEND_CF):
-                    if(self.STmin > 0):
-                        self.STmin = self.STmin - 1
-                        time.sleep(0.001)
-                    if(self.STmin == 0):
-                      ercd = self.__sendCF__(request)
+                    time.sleep(self.STmin/1000.0)
+                    ercd = self.__sendCF__(request)
                 else:
                     print("cantp: transmit unknown state ", self.__state_name[self.state])
                     ercd = False
@@ -270,9 +314,9 @@ class cantp():
          
     def transmit(self,request):
         assert(len(request) < 4096)
-        result = True
+        result = self.protocal == 'CAN' 
         while(result):
-            result,canid,data= can_read(self.canbus,self.rxid)
+            result,canid,data= self.read()
             if(result):
                 print('cantp: there is unconsumed message 0x%X %s, drop it...'%(canid, data))
         self.state = CANTP_ST_IDLE
@@ -287,7 +331,7 @@ class cantp():
         data=None
         pre = time.time()
         while ( ((time.time() -pre) < self.timeout) and (ercd == False)):
-            result,canid,data= can_read(self.canbus,self.rxid)
+            result,canid,data= self.read()
             if((True == result) and (self.rxid == canid)):
                 if(self.NA != None):
                     if(self.NA != data[0]):
@@ -391,6 +435,9 @@ class cantp():
         return ercd,finished
 
     def __sendFC__(self):
+        if(self.protocal == 'LIN'):
+            self.state = CANTP_ST_WAIT_CF
+            return True
         pdu = []
         if(self.NA != None):
             pdu.append(self.NA)
@@ -405,7 +452,7 @@ class cantp():
         self.BS = self.cBS
         self.state = CANTP_ST_WAIT_CF
    
-        return can_write(self.canbus,self.txid,pdu)
+        return self.write(pdu)
 
     def receive(self, timeout=5):
         ercd = True

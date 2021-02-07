@@ -55,7 +55,7 @@ class dcm():
         protocal = kwargs.get('protocal', 'CAN')
         if(protocal == 'J1939TP'):
             self.tp = J1939Tp(**kwargs)
-        elif(protocal == 'CAN'):
+        elif(protocal in ['CAN', 'LIN']):
             self.tp = cantp(**kwargs)
         elif(protocal == 'DOIP'):
             self.tp = doip(**kwargs)

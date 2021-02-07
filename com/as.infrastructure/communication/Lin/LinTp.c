@@ -159,9 +159,9 @@ Std_ReturnType LinTp_TriggerTransmit(PduIdType TxPduId, const PduInfoType* PduIn
 				if(doSize <= 6) {
 					data[pos++] = N_PCI_SF|doSize;
 				} else {
-					doSize = 5;
 					data[pos++] = N_PCI_FF|((doSize>>8)&0xF);
 					data[pos++] = doSize&0xFF;
+					doSize = 5;
 				}
 			} else {
 				if(doSize > 6) {

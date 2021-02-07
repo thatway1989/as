@@ -15,7 +15,7 @@
 #ifndef _LINTP_SLAVECFG_H_
 #define _LINTP_SLAVECFG_H_
 /* ============================ [ INCLUDES  ] ====================================================== */
-#include "SchM_Cfg.h"
+#include "SchM_cfg.h"
 /* ============================ [ MACROS    ] ====================================================== */
 #define LINSTP_ID_TxLinDiagTp 0
 #define LINSTP_ID_RxLinDiagTp 0

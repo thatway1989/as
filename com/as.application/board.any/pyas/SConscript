@@ -10,7 +10,7 @@ if(IsPlatformWindows()):
 else:
     asenv.Append(CPPDEFINES=['__LINUX__'])
 
-asenv.Append(CPPDEFINES=['__AS_BY_PARAI__','__AS_PY_CAN__','__AS_PY_DEV__',
+asenv.Append(CPPDEFINES=['__AS_BY_PARAI__','__AS_PY_DEV__',
                          'NDEBUG','UNICODE','QT_LARGEFILE_SUPPORT'])
 
 MODULES = ['LUA_CAN','LUA_SERIAL_CAN', 'LUA_SOCKET_CAN',
@@ -18,6 +18,10 @@ MODULES = ['LUA_CAN','LUA_SERIAL_CAN', 'LUA_SOCKET_CAN',
            'LUA_DEV','LUA_DEV_RS232',
            'LUA_DEV_LIN','LUA_DEV_LIN_SOCKET',
            ]
+
+if(os.getenv('USE_PYBIND11') == 'True'):
+    MODULES.append('PYBIND11')
+
 if(IsPlatformWindows()):
     MODULES += ['LUA_PEAK_CAN','LUA_ZLG_CAN','LUA_VXL_CAN']
 
@@ -25,6 +29,11 @@ if(asenv['MODULES'] is None):
     asenv['MODULES'] = MODULES
 else:
     MODULES = asenv['MODULES']
+
+if('PYBIND11' in MODULES):
+    asenv.Append(CPPDEFINES=['__AS_CAN_BUS__'])
+else:
+    asenv.Append(CPPDEFINES=['__AS_PY_CAN__'])
 
 MODULES.append('ANYOS')
 

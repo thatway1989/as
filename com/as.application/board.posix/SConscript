@@ -23,9 +23,9 @@ if('run' in COMMAND_LINE_TARGETS):
         candrvtgt = '%s/build/%s/socket_can_driver.exe'%(ASROOT, os.name)
         RunCommand('start %s 0'%(candrvtgt))
         RunCommand('start %s 1'%(candrvtgt))
-    lindrvtgt = '%s/build/%s/socket_lin_driver.exe'%(ASROOT, os.name)
-    RunCommand('start %s 0'%(lindrvtgt))
-    RunCommand('start %s 1'%(lindrvtgt))
+        lindrvtgt = '%s/build/%s/socket_lin_driver.exe'%(ASROOT, os.name)
+        RunCommand('start %s 0'%(lindrvtgt))
+        RunCommand('start %s 1'%(lindrvtgt))
 
     if('asone' in COMMAND_LINE_TARGETS):
         if(IsPlatformWindows()):

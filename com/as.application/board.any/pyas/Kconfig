@@ -16,3 +16,7 @@ config PYAS
 config DET
     bool
     default y
+
+config PYBIND11
+	bool "use pybinder 11 or not, default sip"
+	default n

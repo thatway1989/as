@@ -135,6 +135,13 @@
 #define	SCHM_MAINFUNCTION_LINIF()
 #endif
 
+#if defined(USE_LINSTP)
+#include "LinSTp.h"
+#define	SCHM_MAINFUNCTION_LINSTP() SCHM_MAINFUNCTION(LINSTP,LinSTp_MainFunction())
+#else
+#define	SCHM_MAINFUNCTION_LINSTP()
+#endif
+
 #if defined(USE_CAN)
 #include "Can.h"
 #include "SchM_Can.h"
@@ -365,7 +372,7 @@ SCHM_DECLARE(SOAD);
 SCHM_DECLARE(SD);
 SCHM_DECLARE(J1939TP);
 SCHM_DECLARE(LINIF);
-
+SCHM_DECLARE(LINSTP);
 void SchM_Init( void ) {
 
 }
@@ -502,6 +509,7 @@ TASK(SchM_BswService) {
 		SCHM_MAINFUNCTION_ECUM();
 
 		SCHM_MAINFUNCTION_LINIF();
+		SCHM_MAINFUNCTION_LINSTP();
 
 		SCHM_MAINFUNCTION_CAN_WRITE();
 		SCHM_MAINFUNCTION_CAN_READ();

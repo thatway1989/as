@@ -273,7 +273,7 @@ static void ReceiveCF(PduIdType Instance, uint8* Data)
 		{
 			CANTP_RTE.state = CANTP_IDLE;
 			Dcm_RxIndication(Instance, NTFRSLT_E_NOT_OK);
-			ASLOG(CANTPE, ("[%d]Sequence Number Wrong, Abort Current Receiving.", Instance));
+			ASLOG(CANTPE, ("[%d]Sequence Number Wrong, Abort Current Receiving.\n", Instance));
 		}
 	}
 }

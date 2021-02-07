@@ -16,6 +16,7 @@ __lic__ = '''
  '''
 import os,sys
 CWD = os.path.dirname(__file__)
+if(CWD==''): CWD=os.path.abspath('.')
 ASROOT = os.path.abspath('%s/../../../../'%(CWD))
 PYAS = '%s/build/%s/any/pyas'%(ASROOT, os.name)
 if(not os.path.exists('%s/AS.%s'%(CWD, 'pyd' if os.name == 'nt' else 'so'))):

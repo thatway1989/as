@@ -91,6 +91,11 @@ Std_ReturnType PduR_ARC_RouteTransmit(const PduRDestPdu_type * destination, cons
 		retVal = J1939Tp_Transmit(destination->DestPduId, pduInfo);
 #endif
 		break;
+#ifdef USE_LINSTP
+	case ARC_PDUR_LINSTP:
+		retVal = LinSTp_Transmit(destination->DestPduId, pduInfo);
+		break;
+#endif
 	default:
 		ASLOG(PDURE, ("TX with invalid destination module %d\n", destination->DestModule));
 		retVal = E_NOT_OK;
@@ -168,6 +173,11 @@ Std_ReturnType PduR_ARC_RouteTriggerTransmit(const PduRRoutingPath_type *route, 
 #ifdef USE_LINTPGW
 	case ARC_PDUR_LINTPGW:
 		retVal = LinTpGw_TriggerTransmit(route->SrcPduId, pduInfo);
+		break;
+#endif
+#ifdef USE_LINSTP
+	case ARC_PDUR_LINSTP:
+		retVal = LinSTp_TriggerTransmit(route->SrcPduId, pduInfo);
 		break;
 #endif
 	default:

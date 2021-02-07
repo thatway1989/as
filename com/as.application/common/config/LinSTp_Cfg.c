@@ -12,48 +12,30 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef _LINTP_SLAVE_H_
-#define _LINTP_SLAVE_H_
 /* ============================ [ INCLUDES  ] ====================================================== */
-#include "ComStack_Types.h"
-
+#include "LinSTp.h"
+#include "Dcm.h"
 /* ============================ [ MACROS    ] ====================================================== */
+#ifdef __WINDOWS__
+/* my windows LIN Bus simulator real time ability is too bad */
+#define LINSTP_TIMIEOUT_MS 1000
+#else
+#define LINSTP_TIMIEOUT_MS 100
+#endif
 /* ============================ [ TYPES     ] ====================================================== */
-typedef enum {
-	LINSTP_IDLE,
-	LINSTP_RX_BUSY,
-	LINSTP_RX_PROVIDED_TO_DCM,
-	LINSTP_TX_BUSY,
-} LinSTp_StateType;
-
-typedef struct {
-	PduInfoType PduInfo;
-	PduLengthType index;
-	uint16_t timer;
-	uint8_t SN;
-	uint8_t state;
-} LinSTp_ContextType;
-
-typedef struct {
-	PduIdType dcmRxId;
-	PduIdType dcmTxId;
-	uint16_t timeout;
-	uint8_t NA;
-} LinSTp_ChannelConfigType;
-
-typedef struct {
-	const LinSTp_ChannelConfigType* channelConfigs;
-	uint32_t channelNums;
-	LinSTp_ContextType* contexts;
-} LinSTp_ConfigType;
-
-#include "LinSTp_Cfg.h"
 /* ============================ [ DECLARES  ] ====================================================== */
 /* ============================ [ DATAS     ] ====================================================== */
+static const LinSTp_ChannelConfigType LinSTp_ChannelConfigs[1] = {
+	{DCM_ID_RxLinDiagTp, DCM_ID_TxLinDiagTp, LINSTP_CONVERT_MS_TO_MAIN_CYCLES(LINSTP_TIMIEOUT_MS), 0x11}
+};
+
+static LinSTp_ContextType LinSTp_Contexts[] ={
+	{{NULL, 0}, 0, 0, 0, 0},
+};
+const LinSTp_ConfigType LinSTp_Config = {
+	LinSTp_ChannelConfigs,
+	ARRAY_SIZE(LinSTp_ChannelConfigs),
+	LinSTp_Contexts,
+};
 /* ============================ [ LOCALS    ] ====================================================== */
 /* ============================ [ FUNCTIONS ] ====================================================== */
-void LinSTp_RxIndication(PduIdType Instance, const PduInfoType *PduInfo);
-Std_ReturnType LinSTp_Transmit(PduIdType Instance, const PduInfoType *PduInfo);
-Std_ReturnType LinSTp_TriggerTransmit(PduIdType Instance, PduInfoType *PduInfoPtr);
-void LinSTp_MainFunction(void);
-#endif /* _LINTP_SLAVE_H_ */

@@ -70,7 +70,7 @@ static LinTp_StatusType ReceiveFF(LinTp_ContextType* context, uint8* Data)
 		context->PduInfo.SduLength = length;
 		context->index = 5;
 		context->SN = 1;
-		status = LINTP_RX_OK;
+		status = LINTP_RX_BUSY;
 	} else {
 		ASLOG(LINTPE, ("Buffer not enough expected %d, real %d\n", length, context->PduInfo.SduLength));
 	}
@@ -246,7 +246,7 @@ LinTp_StatusType LinTp_RxIndication(PduIdType RxPduId, PduInfoType *PduInfo)
 					status = ReceiveCF(context, &PduInfo->SduDataPtr[1]);
 					break;
 				default:
-					ASLOG(LINTP, ("invalid frame"));
+					ASLOG(LINTP, ("invalid frame\n"));
 					break;
 			}
 		}
@@ -269,7 +269,6 @@ void LinTp_MainFunction(void) {
 
 	int i;
 	LinTp_ContextType* context;
-	NetworkHandleType network;
 	for(i=0; i<LinTp_Config.rxPduNum; i++) {
 		context = &LinTp_Config.context[i];
 		if(context->timer > 0) {

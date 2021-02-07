@@ -18,7 +18,7 @@
 #include "Os.h"
 #include "asdebug.h"
 /* ============================ [ MACROS    ] ====================================================== */
-#define AS_LOG_LINSIF  1
+#define AS_LOG_LINSIF  0
 #define AS_LOG_LINSIFE 2
 
 #define LIN_BIT(v, pos) (((v)>>(pos)) & 0x01)

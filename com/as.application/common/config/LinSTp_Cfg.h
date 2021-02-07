@@ -15,14 +15,18 @@
 #ifndef _LINTP_SLAVECFG_H_
 #define _LINTP_SLAVECFG_H_
 /* ============================ [ INCLUDES  ] ====================================================== */
+#include "SchM_Cfg.h"
 /* ============================ [ MACROS    ] ====================================================== */
 #define LINSTP_ID_TxLinDiagTp 0
 #define LINSTP_ID_RxLinDiagTp 0
 
 #define LINSTP_ID_TxLinDiag 0
 #define LINSTP_ID_RxLinDiag 0
+
+#define LINSTP_CONVERT_MS_TO_MAIN_CYCLES(x)     MIAN_FUNCTION_MS2TICKS(LINSTP,x)
 /* ============================ [ TYPES     ] ====================================================== */
 /* ============================ [ DECLARES  ] ====================================================== */
+extern const LinSTp_ConfigType LinSTp_Config;
 /* ============================ [ DATAS     ] ====================================================== */
 /* ============================ [ LOCALS    ] ====================================================== */
 /* ============================ [ FUNCTIONS ] ====================================================== */

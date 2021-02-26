@@ -311,7 +311,7 @@ class UISerial(QWidget):
         
         grid.addWidget(QLabel('Baudrate:'), 0, 2)
         self.cmdBaudrate = QComboBox()
-        self.cmdBaudrate.addItems(['4800','7200','9600','14400','19200','38400','57600','115200','128000'])
+        self.cmdBaudrate.addItems(['4800','7200','9600','14400','19200','38400','57600','115200','128000', '500000'])
         grid.addWidget(self.cmdBaudrate, 0, 3)
         self.cmdBaudrate.setCurrentIndex(7)
         self.cmdBaudrate.setEditable(True) 

@@ -826,14 +826,6 @@ class Qemu():
 
     def LocateASQemu(self):
         ASROOT = Env['ASROOT']
-        candrvsrc = '%s/com/as.tool/lua/can/socket_can_driver.c'%(ASROOT)
-        candrvtgt = '%s/build/%s/socket_can_driver'%(ASROOT, os.name)
-        cmd = '%s -I%s/com/as.infrastructure/include %s -o %s'%(Env['CC'], ASROOT, candrvsrc, candrvtgt)
-        if(IsPlatformWindows()):
-            cmd += ' -D__WINDOWS__ -lwsock32'
-        else:
-            cmd += ' -D__LINUX__'
-        MKObject(candrvsrc, candrvtgt, cmd)
         if(IsPlatformWindows()):
             # try default install location of qemu
             qemu = '%s/qemu-system-%s'%(Env['CC'][:-3],self.arch)
@@ -861,7 +853,7 @@ class Qemu():
         python = Env['python3']
         cmd = 'python main.py'
         if(IsPlatformWindows()):
-            python = 'start ' + cmd
+            cmd = 'start ' + cmd
         else:
             cmd += ' &'
         if('asone' in COMMAND_LINE_TARGETS):

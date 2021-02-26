@@ -20,7 +20,7 @@ if('flsdrv' in asenv):
 
 if(IsPlatformWindows()):target += '.exe'
 if('S19' in asenv):
-    RunCommand('cp -fv %s/.app_s19.c.lds %s'%(BDIR, ASROOT))
+    RunCommand('cp -fv %s/.app_s19.c.lds %s'%(BDIR, ASROOT), e=False)
     action = '%s %s %s.s19'%(asenv['S19'],target,target)
     asenv['POSTACTION'].append(action)
 

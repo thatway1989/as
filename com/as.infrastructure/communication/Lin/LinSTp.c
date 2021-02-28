@@ -194,10 +194,12 @@ Std_ReturnType LinSTp_Transmit(PduIdType Instance, const PduInfoType *PduInfo)
 				context->PduInfo.SduLength = PduInfo->SduLength;
 				context->PduInfo.SduDataPtr = PduInfo2->SduDataPtr;
 				context->index = 0;
+				context->SN = 1;
 				context->state = LINSTP_TX_BUSY;
 				context->timer =config->timeout;
 			} else {
 				ASLOG(LINSTPE, ("[%d] provide TX buffer failed\n",Instance));
+				ercd = E_NOT_OK;
 			}
 		}
 	} else {

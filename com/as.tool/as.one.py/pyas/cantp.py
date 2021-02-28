@@ -406,8 +406,8 @@ class cantp():
                 SN = data[0]&0x0F
                 if (SN == self.SN):
                     l_size = t_size - sz  # left size
-                    if (l_size > (self.ll_dl-1)):
-                        l_size = self.ll_dl-1
+                    if (l_size > (len(data)-1)):
+                        l_size = len(data)-1
                     for i in range(l_size):
                         response.append(data[i+1])
          

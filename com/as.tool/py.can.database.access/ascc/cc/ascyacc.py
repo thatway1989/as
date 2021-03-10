@@ -128,7 +128,8 @@ def p_ba(p):
           | BA_ STR  BO_ digit digit SEMI EOL
           | BA_ STR  BO_ digit STR SEMI EOL
           | BA_ STR  SG_ digit ID digit SEMI EOL
-          | BA_ STR  SG_ digit ID STR SEMI EOL'''
+          | BA_ STR  SG_ digit ID STR SEMI EOL
+          | BA_ STR STR SEMI EOL'''
     p[0] = []
     for i in range(1,len(p)):
         p[0].append(p[i]) 

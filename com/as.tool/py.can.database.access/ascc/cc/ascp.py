@@ -43,7 +43,7 @@ def get_init(p,sig):
 
 def get_comment(p,sig):
     name = sig['sg']['name']
-    if('baList' not in p):
+    if('cmList' not in p):
         return None
     for cm in p['cmList']:
         if((cm[1]=='SG_') and (cm[3]==name)):

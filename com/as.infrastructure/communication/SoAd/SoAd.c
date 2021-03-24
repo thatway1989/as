@@ -914,6 +914,7 @@ Std_ReturnType SoAd_GetRemoteAddr( SoAd_SoConIdType SoConId, TcpIp_SockAddrType*
 Std_ReturnType SoAd_GetSoConId( PduIdType TxPduId, SoAd_SoConIdType* SoConIdPtr )
 {
 	Std_ReturnType ercd = E_NOT_OK;
+	*SoConIdPtr = TxPduId;
 	return ercd;
 }
 Std_ReturnType SoAd_RequestIpAddrAssignment( SoAd_SoConIdType SoConId,

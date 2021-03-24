@@ -80,6 +80,11 @@ config SOAD
 	depends on (LWIP || UIP)
 	default y
 
+config SD
+	bool "SOMEIP service discovery"
+	depends on SOAD
+	default y
+
 config XCP
 	bool "Extened Calibration Protocol"
 	depends on PDUR

@@ -44,6 +44,7 @@ static Sd_DynServerServiceType * findServerService(uint32 instanceno,
             && (Sd_DynConfig.Instance[instanceno].SdServerService[i].ServerServiceCfg->InstanceId == InstanceID) )
         {
             server = &(Sd_DynConfig.Instance[instanceno].SdServerService[i]);
+            ASLOG(SDSERVER, ("find server service %04X:%04X\n", ServiceID, InstanceID));
             break;
         }
     }
@@ -162,6 +163,10 @@ static int EntryReceived(uint32 instanceno, Sd_Entry_Type * entry,
             }
         }
 
+        ASLOG(SDSERVER, ("Subscribe: ServiceID=0x%X, InstanceID=0x%X, MajorVersion=0x%X, EventgroupID=0x%X %s.\n",
+                entry->type2.ServiceID, entry->type2.InstanceID,
+                entry->type2.MajorVersion, entry->type2.EventgroupID,
+                EventHandlerFound?"found":"not found"));
         if (!EventHandlerFound)
         {
             entryType = SD_ENTRY_GROUP_NOT_FOUND;
@@ -353,7 +358,7 @@ static void UpdateServerService(uint32 instanceno, uint32 serverno,
             if (server->InitialOffer_Timer_Value_ms <= 0) {
                 /* Send OfferService Entry */
                 ASLOG(SDSERVER, ("Offer Service %04X:%04X\n", 
-							server->ServerServiceCfg->Id, server->ServerServiceCfg->InstanceId));
+                            server->ServerServiceCfg->Id, server->ServerServiceCfg->InstanceId));
                 TransmitSdMessage(sd_instance, (Sd_DynClientServiceType *)NULL, server, NULL, 0, SD_OFFER_SERVICE, NULL, is_multicast); // IMPROVEMENT: Should ipaddress parameter be used
                 server->InitialOffer_Timer_Value_ms = 0;
                 server->InitialOfferTimerOn = FALSE;
@@ -453,7 +458,7 @@ static void UpdateServerService(uint32 instanceno, uint32 serverno,
             if (server->OfferRepDelay_Timer_Value_ms <= 0) {
                 /* Send OfferService Entry */
                 ASLOG(SDSERVER, ("Offer Service %04X:%04X\n", 
-							server->ServerServiceCfg->Id, server->ServerServiceCfg->InstanceId));
+                            server->ServerServiceCfg->Id, server->ServerServiceCfg->InstanceId));
                 TransmitSdMessage(sd_instance, NULL, server, NULL, 0, SD_OFFER_SERVICE,NULL,FALSE); // IMPROVEMENT: Should ipaddress parameter be used
                 server->OfferRepDelayTimerOn = FALSE;
                 server->OfferRepetitions++;
@@ -472,7 +477,7 @@ static void UpdateServerService(uint32 instanceno, uint32 serverno,
                 if ((entry->type1.Type == FIND_SERVICE_TYPE)) {
                     /* Send OfferService Entry */
                     ASLOG(SDSERVER, ("Offer Service %04X:%04X\n", 
-								server->ServerServiceCfg->Id, server->ServerServiceCfg->InstanceId));
+                                server->ServerServiceCfg->Id, server->ServerServiceCfg->InstanceId));
                     TransmitSdMessage(sd_instance, NULL, server, NULL, 0, SD_OFFER_SERVICE,NULL,is_multicast); // IMPROVEMENT: Should ipaddress parameter be used
                 }
             }
@@ -552,7 +557,7 @@ static void UpdateServerService(uint32 instanceno, uint32 serverno,
                     if (event_handler_found) {
                         /* Send SubscribeEventGroupAck Entry */
                         ASLOG(SDSERVER, ("Subscribe Event Group Ack %04X:%04X:%04X\n", 
-									entry->type2.ServiceID, entry->type2.InstanceID, entry->type2.EventgroupID));
+                                    entry->type2.ServiceID, entry->type2.InstanceID, entry->type2.EventgroupID));
                         TransmitSdMessage(sd_instance, NULL, server, &(entry->type2), event_handler_index, SD_SUBSCRIBE_EVENTGROUP_ACK,ipaddress, is_multicast);
                     }
                 }
@@ -663,7 +668,7 @@ static void UpdateServerService(uint32 instanceno, uint32 serverno,
                 if (server->OfferCyclicDelay_Timer_Value_ms <= 0) {
                     /* Send OfferService Entry */
                     ASLOG(SDSERVER, ("Offer Service %04X:%04X\n", 
-							server->ServerServiceCfg->Id, server->ServerServiceCfg->InstanceId));
+                            server->ServerServiceCfg->Id, server->ServerServiceCfg->InstanceId));
                     TransmitSdMessage(sd_instance, NULL, server, NULL, 0, SD_OFFER_SERVICE,NULL, FALSE); // IMPROVEMENT: Should ipaddress parameter be used
                     /* Reset Timer */
                     server->OfferCyclicDelay_Timer_Value_ms = server->ServerServiceCfg->TimerRef->OfferCyclicDelay_ms;
@@ -705,14 +710,12 @@ static void UpdateServerService(uint32 instanceno, uint32 serverno,
                         break;
                     }
                 }
-
+                ASLOG(SDSERVER, ("Subscribe Event Group %04X:%04X:%04X\n",
+                        entry->type2.ServiceID, entry->type2.InstanceID, entry->type2.EventgroupID, event_handler_found?"OK":"NA"));
                 if (event_handler_found) {
                     /* Send SubscribeEventGroupAck Entry */
-                    ASLOG(SDSERVER, ("Subscribe Event Group Ack %04X:%04X:%04X\n", 
-								entry->type2.ServiceID, entry->type2.InstanceID, entry->type2.EventgroupID));
                     TransmitSdMessage(sd_instance, NULL, server, &(entry->type2), event_handler_index, SD_SUBSCRIBE_EVENTGROUP_ACK, ipaddress,is_multicast);
                 }
-
             }
 
             /** @req 4.2.2/SWS_SD_00345 */
@@ -781,7 +784,7 @@ static void UpdateServerService(uint32 instanceno, uint32 serverno,
 
             /* Send a StopOffer Message */
             ASLOG(SDSERVER, ("Stop Offer Service %04X:%04X\n", 
-					server->ServerServiceCfg->Id, server->ServerServiceCfg->InstanceId));
+                    server->ServerServiceCfg->Id, server->ServerServiceCfg->InstanceId));
             TransmitSdMessage(sd_instance, NULL, server, NULL, 0, SD_STOP_OFFER_SERVICE, NULL, FALSE); // IMPROVEMENT: Should ipaddress parameter be used
 
             /* Set all EventHandlersCurrentState to RELEASED */

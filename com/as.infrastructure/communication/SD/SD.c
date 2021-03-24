@@ -46,7 +46,7 @@ static int shellSD(int argc, char *argv[] )
 {
 	int rv = 0;
 
-	Sd_LocalIpAddrAssignmentChg(0,TCPIP_IPADDR_STATE_ASSIGNED);
+	Sd_LocalIpAddrAssignmentChg(SOADIF_ID_SD_MULTICAST_TX,TCPIP_IPADDR_STATE_ASSIGNED);
 
 	if(0 == strcmp(argv[1], "find"))
 	{

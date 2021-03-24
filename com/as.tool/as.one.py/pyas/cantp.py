@@ -110,7 +110,7 @@ class cantp():
         ercd = False
         pre = time.time()
         while ( ((time.time() -pre) < timeout) and (ercd == False)):
-            ercd, pid, data = lin_read(self.canbus)
+            ercd, pid, data = lin_read(self.canbus, timeout)
             if(pid != self.rxid):
                 ercd = False
             else:

@@ -34,7 +34,7 @@ def str2int(cstr):
     elif(cstr == ''):
         return None
     elif(cstr.find('.') != -1):
-        return int(float(cstr))
+        return eval(cstr)
     else:
         return int(cstr,10)
     
@@ -174,7 +174,8 @@ def p_badef(p):
              | BA_DEF_ BU_ STR HEX digit digit SEMI EOL
              | BA_DEF_ BO_ STR HEX digit digit SEMI EOL
              | BA_DEF_ EV_ STR HEX digit digit SEMI EOL
-             | BA_DEF_ SG_ STR FLOAT digit digit SEMI EOL             
+             | BA_DEF_ SG_ STR FLOAT digit digit SEMI EOL
+             | BA_DEF_ STR FLOAT digit digit SEMI EOL
              | BA_DEF_ BU_ STR ENUM strList SEMI EOL
              | BA_DEF_ BO_ STR ENUM strList SEMI EOL
              | BA_DEF_ EV_ STR ENUM strList SEMI EOL
@@ -301,6 +302,7 @@ def p_empty(p):
 def p_error(p):
     if not p:
         print("SYNTAX ERROR AT EOF")
+        exit()
     else:
         try:
             print("SYNTAX ERROR AT LINE(%s) %s"%(p.lineno,p))

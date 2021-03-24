@@ -16,7 +16,10 @@
 #if defined(USE_SOAD) && defined(USE_LWIP)
 /* ============================ [ INCLUDES  ] ====================================================== */
 #include "Bsd.h"
+#include "asdebug.h"
 /* ============================ [ MACROS    ] ====================================================== */
+#define AS_LOG_LWIP 0
+#define AS_LOG_LWIPE 2
 /* ============================ [ TYPES     ] ====================================================== */
 /* ============================ [ DECLARES  ] ====================================================== */
 /* ============================ [ DATAS     ] ====================================================== */
@@ -36,6 +39,7 @@ int SoAd_SocketStatusCheckImpl(int s)
 	lwip_getsockopt(s, SOL_SOCKET, SO_ERROR, &sockErr, &sockErrLen);
 	if ((sockErr != 0) && (sockErr != EWOULDBLOCK)) {
 		r = -1;
+		ASLOG(LWIPE, ("[%d] status bad\n", s));
 	}
 
 	return 0;
@@ -43,24 +47,37 @@ int SoAd_SocketStatusCheckImpl(int s)
 
 int SoAd_SendImpl(int s, const void *data, size_t size, int flags)
 {
-	return lwip_send(s, data, size, flags);
+	int nbytes = lwip_send(s, data, size, flags);
+	ASLOG(LWIP, ("[%d] send(%d)\n", nbytes));
+	return nbytes;
 }
 
 int SoAd_SendToImpl(int s, const void *data, size_t size, uint32 RemoteIpAddress, uint16 RemotePort)
 {
 	struct sockaddr_in toAddr;
 	socklen_t toAddrLen = sizeof(toAddr);
+	int nbytes;
+
 	toAddr.sin_family = AF_INET;
 	toAddr.sin_len = sizeof(toAddr);
 
 	toAddr.sin_addr.s_addr = RemoteIpAddress;
-	toAddr.sin_port = RemotePort;
-	return lwip_sendto(s, data, size, 0, (struct sockaddr *)&toAddr, toAddrLen);
+	toAddr.sin_port = htons(RemotePort);
+	nbytes = lwip_sendto(s, data, size, 0, (struct sockaddr *)&toAddr, toAddrLen);
+
+	ASLOG(LWIP, ("[%d] send to %d.%d.%d.%d:%d %d bytes\n", s,
+			(RemoteIpAddress)&0xFF, (RemoteIpAddress>>8)&0xFF,
+			(RemoteIpAddress>>16)&0xFF, (RemoteIpAddress>>24)&0xFF,
+			RemotePort, nbytes));
+
+	return nbytes;
 }
 
 int SoAd_CreateSocketImpl(int domain, int type, int protocol)
 {
-	return lwip_socket(domain, type, protocol);
+	int s = lwip_socket(domain, type, protocol);
+	ASLOG(LWIP, ("[%d] %s created \n", s, type==SOCK_STREAM?"TCP":"UDP"));
+	return s;
 }
 
 uint32 SoAd_GetLocalIp(void)
@@ -92,6 +109,7 @@ int SoAd_BindImpl(int s, uint16 SocketLocalPort, char* SocketLocalIpAddress)
 
 	sLocalAddr.sin_port = htons(SocketLocalPort);
 
+	ASLOG(LWIP, ("[%d] bind to :%d\n", s, SocketLocalPort));
 	r = lwip_bind(s, (struct sockaddr *)&sLocalAddr, sizeof(sLocalAddr));
 
 	if((0 == r) && (SocketLocalIpAddress != NULL))
@@ -111,7 +129,9 @@ int SoAd_BindImpl(int s, uint16 SocketLocalPort, char* SocketLocalIpAddress)
 
 int SoAd_ListenImpl(int s, int backlog)
 {
-	return lwip_listen(s, backlog);
+	int r = lwip_listen(s, backlog);
+	ASLOG(LWIP, ("[%d] listen(%d) \n", s, backlog));
+	return r;
 }
 
 int SoAd_AcceptImpl(int s, uint32 *RemoteIpAddress, uint16 *RemotePort)
@@ -134,9 +154,12 @@ int SoAd_AcceptImpl(int s, uint32 *RemoteIpAddress, uint16 *RemotePort)
 
 		lwip_setsockopt(clientFd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(int));	/* Set socket to no delay */
 
-		*RemotePort = client_addr.sin_port;
+		*RemotePort = htons(client_addr.sin_port);
 		*RemoteIpAddress = client_addr.sin_addr.s_addr;
-
+		ASLOG(LWIP, ("[%d]accept %d.%d.%d.%d:%d\n", s,
+				(*RemoteIpAddress)&0xFF, (*RemoteIpAddress>>8)&0xFF,
+				(*RemoteIpAddress>>16)&0xFF, (*RemoteIpAddress>>24)&0xFF,
+				*RemotePort));
 	}
 
 	return clientFd;
@@ -144,7 +167,11 @@ int SoAd_AcceptImpl(int s, uint32 *RemoteIpAddress, uint16 *RemotePort)
 
 int SoAd_RecvImpl(int s, void *mem, size_t len, int flags)
 {
-	return lwip_recv(s, mem, len, flags);
+	int nbytes = lwip_recv(s, mem, len, flags);
+	if (nbytes > 0) {
+		ASLOG(LWIP, ("[%d] recv(%d) \n", s, nbytes));
+	}
+	return nbytes;
 }
 
 int SoAd_RecvFromImpl(int s, void *mem, size_t len, int flags,
@@ -158,8 +185,12 @@ int SoAd_RecvFromImpl(int s, void *mem, size_t len, int flags,
 
 	if(nbytes > 0)
 	{
-		*RemotePort = fromAddr.sin_port;
+		*RemotePort = htons(fromAddr.sin_port);
 		*RemoteIpAddress = fromAddr.sin_addr.s_addr;
+		ASLOG(LWIP, ("[%d]recv from %d.%d.%d.%d:%d\n", s,
+				(*RemoteIpAddress)&0xFF, (*RemoteIpAddress>>8)&0xFF,
+				(*RemoteIpAddress>>16)&0xFF, (*RemoteIpAddress>>24)&0xFF,
+				*RemotePort));
 	}
 
 	return nbytes;

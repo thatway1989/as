@@ -114,7 +114,7 @@ static const Sd_ServerServiceType Sd_ServerServiceCfg[] =
 	{
 		.AutoAvailable = TRUE,
 		.HandleId = SD_SERVER_SERVICE_SAMPLE1,
-		.Id = 0x1234,
+		.Id = 0x1236,
 		.InstanceId = 0x5678,
 		.MajorVersion = 1,
 		.MinorVersion = 0,

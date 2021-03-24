@@ -638,7 +638,7 @@ static void UpdateClientService(uint32 instanceno, uint32 clientno,
             /** @req 4.2.2/SWS_SD_00457 */
             if (client->FindRepDelay_Timer_Value_ms <= 0) {
                 /* Send FindService Entry */
-                ASLOG(SDCLIENT, ("REPETITION: FIND service %04X:%04X\n",  client->ClientServiceCfg->Id, client->ClientServiceCfg->InstanceId));
+                ASLOG(SDCLIENT, ("REPETITION: FIND service %04X:%04X\n", client->ClientServiceCfg->Id, client->ClientServiceCfg->InstanceId));
                 TransmitSdMessage(sd_instance, client, NULL, NULL, 0, SD_FIND_SERVICE, ipaddress, FALSE);
                 client->FindRepDelayTimerOn = FALSE;
                 client->FindRepetitions++;

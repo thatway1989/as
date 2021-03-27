@@ -39,11 +39,13 @@ typedef struct  {
     Sd_DynInstanceType *sd_instance;
     Sd_DynClientServiceType *client;
     Sd_DynServerServiceType *server;
-    Sd_Entry_Type2_EventGroups *subscribe_entry;
-    TcpIp_SockAddrType *address;
+    Sd_Entry_Type2_EventGroups subscribe_entry;
+    TcpIp_SockAddrType address;
     Sd_EntryType entry_type;
-    uint8 event_index;
     uint32 wait_delay_cntr;
+    uint8 event_index;
+    uint8 has_subscribe_entry;
+    uint8 has_address;
 } DelayedRespType;
 
 static const TcpIp_SockAddrType wildcard = {
@@ -126,15 +128,27 @@ static uint32 GetNumofQueueSdMessages(uint8 queue){
 void Handle_PendingRespMessages(void)
 {
     uint32 sdBufferedMsgs =  GetNumofQueueSdMessages(DELAYRESP_QUEUE);
+    DelayedRespType *respMsg;
+    Sd_Entry_Type2_EventGroups *subscribe_entry;
+    TcpIp_SockAddrType *ipaddress;
+
     for (uint32 i = 0; i < sdBufferedMsgs; i++){
         /* Fetch next item in queue */
-        DelayedRespType *respMsg = (DelayedRespType*)PeekSdMessage(DELAYRESP_QUEUE);
+        respMsg = (DelayedRespType*)PeekSdMessage(DELAYRESP_QUEUE);
         if(respMsg != NULL){
             timerDec(respMsg->wait_delay_cntr);
             if(respMsg->wait_delay_cntr == 0u){
+                subscribe_entry = NULL;
+                ipaddress = NULL;
+                if (respMsg->has_subscribe_entry) {
+                    subscribe_entry = &respMsg->subscribe_entry;
+                }
+                if (respMsg->has_address) {
+                    ipaddress = &respMsg->address;
+                }
                 TransmitSdMessage(respMsg->sd_instance, \
-                                   respMsg->client,respMsg->server,respMsg->subscribe_entry, \
-                                   respMsg->event_index,respMsg->entry_type,respMsg->address, FALSE); /* last parameter should be FALSE */
+                                   respMsg->client,respMsg->server,subscribe_entry, \
+                                   respMsg->event_index,respMsg->entry_type,ipaddress, FALSE); /* last parameter should be FALSE */
                 FreeSdMessage(DELAYRESP_QUEUE);
             }
         }
@@ -224,7 +238,7 @@ void Handle_RxIndication(PduIdType RxPduId, const PduInfoType* PduInfoPtr) {
     }
 
     if (PAYLOAD_MAX < PduInfoPtr->SduLength) {
-    	FreeSdMessage(queue);
+        FreeSdMessage(queue);
         SchM_Exit_SD_EA_0();
         return;
     }
@@ -310,8 +324,18 @@ void TransmitSdMessage(Sd_DynInstanceType *instance,
             respMsg->server = server;
             respMsg->entry_type = entry_type;
             respMsg->event_index = event_index;
-            respMsg->subscribe_entry = subscribe_entry;
-            respMsg->address = ipaddress;
+            if (NULL != subscribe_entry) {
+                respMsg->subscribe_entry = *subscribe_entry;
+                respMsg->has_subscribe_entry = TRUE;
+            } else {
+                respMsg->has_subscribe_entry = FALSE;
+            }
+            if (NULL != ipaddress) {
+                respMsg->address = *ipaddress;
+                respMsg->has_address = TRUE;
+            } else {
+                respMsg->has_address = FALSE;
+            }
             respMsg->wait_delay_cntr = wait_delay_cntr;
             SchM_Exit_SD_EA_0();
         }

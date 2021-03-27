@@ -15,7 +15,10 @@
 /* ============================ [ INCLUDES  ] ====================================================== */
 #include "SD.h"
 #include "SD_Internal.h"
+#include "asdebug.h"
 /* ============================ [ MACROS    ] ====================================================== */
+#define AS_LOG_SD 1
+
 #define DEFAULT_TTL 0xFFFFFF /* until next reboot */
 /* ============================ [ TYPES     ] ====================================================== */
 /* ============================ [ DECLARES  ] ====================================================== */
@@ -109,6 +112,14 @@ static const Sd_ClientServiceType Sd_ClientServiceCfg[] =
 	}
 };
 
+const Sd_EventHandlerType SD_ServerEventHandlers[] = {
+	{
+		.EventGroupId = 0x5678,
+		.HandleId = SD_SERVER_SERVICE_EVENT_SAMPLE1,
+
+	}
+};
+
 static const Sd_ServerServiceType Sd_ServerServiceCfg[] =
 {
 	{
@@ -125,8 +136,8 @@ static const Sd_ServerServiceType Sd_ServerServiceCfg[] =
 		.UdpSocketConnectionGroupSocketConnectionIdsPtr = Sd_UdpSocketConnectionGroupSocketConnectionIds,
 		.CapabilityRecord = NULL,
 		.SdNoOfCapabiltyRecord = 0,
-		.EventHandler = NULL,
-		.NoOfEventHandlers = 0,
+		.EventHandler = SD_ServerEventHandlers,
+		.NoOfEventHandlers = ARRAY_SIZE(SD_ServerEventHandlers),
 		.ProvidedMethods.ServerServiceActivationRef = 0xDB
 	},
 };
@@ -143,10 +154,13 @@ static Sd_DynClientServiceType Sd_DynClientService[] =
 	}
 };
 
+Sd_DynEventHandlerType Sd_DynEventHandlers[1];
+
 static Sd_DynServerServiceType Sd_DynServerService[] =
 {
 	{
-		.ServerServiceCfg = &Sd_ServerServiceCfg[0]
+		.ServerServiceCfg = &Sd_ServerServiceCfg[0],
+		.EventHandlers = Sd_DynEventHandlers,
 	}
 };
 
@@ -191,18 +205,30 @@ const Sd_DynConfigType Sd_DynConfig =
 void BswM_Sd_ClientServiceCurrentState(uint16 SdClientServiceHandleId,
 			Sd_ClientServiceCurrentStateType CurrentClientState)
 {
-
+	static int _state = 0;
+	if (CurrentClientState != _state) {
+		ASLOG(SD, ("ClientService state = %d\n", CurrentClientState));
+		_state = CurrentClientState;
+	}
 }
 
 void BswM_Sd_ConsumedEventGroupCurrentState(uint16 SdConsumedEventGroupHandleId,
 			Sd_ConsumedEventGroupCurrentStateType ConsumedEventGroupState)
 {
-
+	static int _state = 0;
+	if (ConsumedEventGroupState != _state) {
+		ASLOG(SD, ("EventGroup state = %d\n", ConsumedEventGroupState));
+		_state = ConsumedEventGroupState;
+	}
 }
 
 void BswM_Sd_EventHandlerCurrentState(uint16 SdEventHandlerHandleId,
 			Sd_EventHandlerCurrentStateType EventHandlerStatus)
 {
-
+	static int _state = 0;
+	if (EventHandlerStatus != _state) {
+		ASLOG(SD, ("EventHandler state = %d\n", EventHandlerStatus));
+		_state = EventHandlerStatus;
+	}
 }
 

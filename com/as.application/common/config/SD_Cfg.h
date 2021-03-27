@@ -34,6 +34,8 @@
 #define SD_CLIENT_SERVICE_SAMPLE2 1
 
 #define SD_SERVER_SERVICE_SAMPLE1 0
+
+#define SD_SERVER_SERVICE_EVENT_SAMPLE1 0
 /* ============================ [ TYPES     ] ====================================================== */
 
 /* ============================ [ DECLARES  ] ====================================================== */

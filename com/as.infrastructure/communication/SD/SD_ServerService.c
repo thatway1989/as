@@ -710,7 +710,7 @@ static void UpdateServerService(uint32 instanceno, uint32 serverno,
                         break;
                     }
                 }
-                ASLOG(SDSERVER, ("Subscribe Event Group %04X:%04X:%04X\n",
+                ASLOG(SDSERVER, ("Subscribe Event Group %04X:%04X:%04X %s\n",
                         entry->type2.ServiceID, entry->type2.InstanceID, entry->type2.EventgroupID, event_handler_found?"OK":"NA"));
                 if (event_handler_found) {
                     /* Send SubscribeEventGroupAck Entry */

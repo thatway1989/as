@@ -33,6 +33,10 @@
 #ifdef USE_TRACE
 #include "trace.h"
 #endif
+
+#ifdef USE_SD
+#include "SD.h"
+#endif
 // #define AS_PERF_ENABLED
 #include "asdebug.h"
 /* ============================ [ MACROS    ] ====================================================== */
@@ -219,6 +223,18 @@ TASK(TaskApp)
 	static int flag = 0;
 	if(0 == flag) {
 		cppapp_start();
+		flag = 1;
+	}
+}
+#endif
+
+#ifdef USE_SD
+{
+	static int flag = 0;
+	if(0 == flag) {
+		Sd_LocalIpAddrAssignmentChg(SOADIF_ID_SD_MULTICAST_TX,TCPIP_IPADDR_STATE_ASSIGNED);
+		Sd_ClientServiceSetState(0, SD_CLIENT_SERVICE_REQUESTED);
+		Sd_ServerServiceSetState(0, SD_SERVER_SERVICE_AVAILABLE);
 		flag = 1;
 	}
 }

@@ -138,8 +138,9 @@ extern PduAdminListType PduAdminList[SOAD_PDU_ROUTE_COUNT];
 boolean SoAd_BufferGet(uint32 size, uint8** buffPtr);
 void SoAd_BufferFree(uint8* buffPtr);
 void SoAd_SocketClose(uint16 sockNr);
-void SoAd_SocketStatusCheck(uint16 sockNr, int sockHandle);
-uint16 SoAd_SendIpMessage(uint16 sockNr, uint32 msgLen, uint8* buff);
+void SoAd_SocketStatusCheck(uint16 sockNr);
+int SoAd_RecvIpMessage(uint16 sockNr, uint8* buff, uint32 msgLen, int flags);
+uint16 SoAd_SendIpMessage(uint16 sockNr, uint8* buff, uint32 msgLen);
 
 SoadArcLinkStatusType SoAd_GetLinkStatus(void);
 

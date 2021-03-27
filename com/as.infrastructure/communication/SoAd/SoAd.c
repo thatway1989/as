@@ -200,18 +200,20 @@ void SoAd_SocketClose(uint16 sockNr)
 {
 	uint16 i;
 
+	ASLOG(SOAD, ("close(%d) from state %d\n", sockNr, SocketAdminList[sockNr].SocketState));
 	switch (SocketAdminList[sockNr].SocketState) {
 	case SOCKET_UDP_READY:
 	case SOCKET_TCP_LISTENING:
 		SoAd_SocketCloseImpl(SocketAdminList[sockNr].SocketHandle);
 		SocketAdminList[sockNr].SocketHandle = -1;
+		SocketAdminList[sockNr].ConnectionHandle = -1;
 		SocketAdminList[sockNr].SocketState = SOCKET_INIT;
 		break;
 
 
 	case SOCKET_TCP_READY:
 		SoAd_SocketCloseImpl(SocketAdminList[sockNr].ConnectionHandle);
-    	SocketAdminList[sockNr].ConnectionHandle = -1;
+		SocketAdminList[sockNr].ConnectionHandle = -1;
 		SocketAdminList[sockNr].RemoteIpAddress = inet_addr(SoAd_Config.SocketConnection[sockNr].SocketRemoteIpAddress);
 		SocketAdminList[sockNr].RemotePort = htons(SoAd_Config.SocketConnection[sockNr].SocketRemotePort);
 
@@ -238,18 +240,46 @@ void SoAd_SocketClose(uint16 sockNr)
 
 }
 
-void SoAd_SocketStatusCheck(uint16 sockNr, int sockHandle)
+void SoAd_SocketStatusCheck(uint16 sockNr)
 {
 	int sockErr;
 
-	sockErr = SoAd_SocketStatusCheckImpl(sockHandle);
+	if (SocketAdminList[sockNr].SocketProtocolIsTcp) {
+		sockErr = SoAd_SocketStatusCheckImpl(SocketAdminList[sockNr].ConnectionHandle);
+	} else {
+		sockErr = SoAd_SocketStatusCheckImpl(SocketAdminList[sockNr].SocketHandle);
+	}
+
 	if (sockErr != 0) {
-		ASLOG(SOADE, ("socket[%d] status not okay,  closed!\n", sockNr));
+		ASLOG(SOADE, ("socket[%d] status not okay, closed!\n", sockNr));
 		SoAd_SocketClose(sockNr);
 	}
 }
 
-uint16 SoAd_SendIpMessage(uint16 sockNr, uint32 msgLen, uint8* buff)
+int SoAd_RecvIpMessage(uint16 sockNr, uint8* buff, uint32 msgLen, int flags) {
+	int nBytes = 0;
+	uint32 RemoteIpAddress;
+	uint16 RemotePort;
+
+	if (SocketAdminList[sockNr].SocketProtocolIsTcp) {
+		nBytes = SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, buff, msgLen, flags);
+		if (nBytes <= 0) {
+			SoAd_SocketStatusCheck(sockNr);
+		}
+	} else {
+		nBytes = SoAd_RecvFromImpl(SocketAdminList[sockNr].SocketHandle, buff, msgLen, flags, &RemoteIpAddress, &RemotePort);
+		if (nBytes > 0) {
+			SocketAdminList[sockNr].RemotePort = RemotePort;
+			SocketAdminList[sockNr].RemoteIpAddress = RemoteIpAddress;
+		} else {
+			SoAd_SocketStatusCheck(sockNr);
+		}
+	}
+
+	return nBytes;
+}
+
+uint16 SoAd_SendIpMessage(uint16 sockNr, uint8* buff, uint32 msgLen)
 {
 	uint16 bytesSent = 0;
 	int rv;
@@ -375,7 +405,7 @@ static void socketTcpRead(uint16 sockNr)
 
 			if (SoAd_BufferGet(SOAD_RX_BUFFER_SIZE, &pduInfo.SduDataPtr)) {
 				nBytes = SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, pduInfo.SduDataPtr, SOAD_RX_BUFFER_SIZE, MSG_PEEK);
-				SoAd_SocketStatusCheck(sockNr, SocketAdminList[sockNr].ConnectionHandle);
+				SoAd_SocketStatusCheck(sockNr);
 
 				if ((nBytes > 0) && (nBytes >= SocketAdminList[sockNr].SocketRouteRef->DestinationSduLength)) {
 					if  (!SocketAdminList[sockNr].SocketConnectionRef->PduProvideBufferEnable) {
@@ -456,7 +486,7 @@ static void socketUdpRead(uint16 sockNr)
 			if (SoAd_BufferGet(SOAD_RX_BUFFER_SIZE, &pduInfo.SduDataPtr)) {
 				nBytes = SoAd_RecvFromImpl(SocketAdminList[sockNr].SocketHandle, pduInfo.SduDataPtr, SOAD_RX_BUFFER_SIZE, MSG_PEEK,
 							&SocketAdminList[sockNr].RemoteIpAddress, &SocketAdminList[sockNr].RemotePort);
-				SoAd_SocketStatusCheck(sockNr, SocketAdminList[sockNr].SocketHandle);
+				SoAd_SocketStatusCheck(sockNr);
 
 				if (nBytes > 0){
 					if(nBytes >= SocketAdminList[sockNr].SocketRouteRef->DestinationSduLength) {
@@ -662,7 +692,6 @@ void SoAd_MainFunction(void)
 	if (ModuleStatus != SOAD_UNINITIALIZED) {
 		scanSockets();
 		handleTx();
-
 	}
 }
 
@@ -716,7 +745,7 @@ Std_ReturnType SoAdIf_Transmit(PduIdType SoAdSrcPduId, const PduInfoType* SoAdSr
 					|| (SocketAdminList[socketNr].SocketState == SOCKET_TCP_READY)
 					|| (SocketAdminList[socketNr].SocketState == SOCKET_UDP_READY)) {
 						PduAdminList[SoAdSrcPduId].PduStatus = PDU_IF_SENDING;
-						SoAd_SendIpMessage(socketNr, SoAdSrcPduInfoPtr->SduLength, SoAdSrcPduInfoPtr->SduDataPtr);
+						SoAd_SendIpMessage(socketNr, SoAdSrcPduInfoPtr->SduDataPtr, SoAdSrcPduInfoPtr->SduLength);
 						switch (SoAd_Config.PduRoute[SoAdSrcPduId].UserTxConfirmationUL)
 						{
 #if defined(USE_UDPNM)
@@ -788,7 +817,7 @@ Std_ReturnType SoAdTp_Transmit(PduIdType SoAdSrcPduId, const PduInfoType* SoAdSr
 								// No free buffer. Inform PduR..
 								PduR_SoAdTpTxConfirmation(SoAd_Config.PduRoute[SoAdSrcPduId].SourcePduId, NTFRSLT_E_NO_BUFFER);
 								PduAdminList[SoAdSrcPduId].PduStatus = PDU_TP_SENDING;
-								SoAd_SendIpMessage(socketNr, txPduInfo.SduLength, txPduInfo.SduDataPtr);
+								SoAd_SendIpMessage(socketNr, txPduInfo.SduDataPtr, txPduInfo.SduLength);
 								PduR_SoAdTpTxConfirmation(SoAd_Config.PduRoute[SoAdSrcPduId].SourcePduId, NTFRSLT_OK);
 							}
 							SoAd_BufferFree(txPduInfo.SduDataPtr);

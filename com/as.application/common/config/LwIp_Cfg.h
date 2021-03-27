@@ -91,6 +91,8 @@
 #define DNS_DEBUG                       LWIP_DBG_ON
 #endif
 
+#define SYS_LIGHTWEIGHT_PROT 1
+
 #define LWIP_COMPAT_SOCKETS 0
 /* ============================ [ TYPES     ] ====================================================== */
 #ifdef __WINDOWS__

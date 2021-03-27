@@ -29,7 +29,7 @@ static const SoAd_SocketConnectionType SoAd_SocketConnection [SOAD_SOCKET_COUNT]
 		.SocketId = 0,
 		.SocketLocalIpAddress = NULL,
 		.SocketLocalPort = 8989,
-		.SocketProtocol = SOAD_SOCKET_PROT_TCP,
+		.SocketProtocol = SOAD_SOCKET_PROT_UDP,
 		.AutosarConnectorType = SOAD_AUTOSAR_CONNECTOR_DOIP,
 	},
 #ifdef USE_SD

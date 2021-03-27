@@ -41,11 +41,15 @@ class doip():
     def __init__(self, **kwargs):
         self.uri = kwargs.get('ip', '172.18.0.200')
         self.port = kwargs.get('port', 8989)
+        self.udp = kwargs.get('udp', True)
         self.startup()
 
     def startup(self):
         self.online = False
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if(self.udp):
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        else:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.settimeout(5)
         try:
             self.sock.connect((self.uri, self.port))

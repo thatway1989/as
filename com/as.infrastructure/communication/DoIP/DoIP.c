@@ -39,7 +39,11 @@
 
 #define DOIP_PROTOCOL_VERSION	2
 
-#define AS_LOG_DOIP 0
+#define AS_LOG_DOIP  0
+#define AS_LOG_DOIPE 2
+
+#define DOIP_PLT_UDP 0x00010000UL
+#define DOIP_PLT_TCP 0x00000000UL
 
 // Generic doip header negative acknowledge codes
 #define DOIP_E_INCORRECT_PATTERN_FORMAT	0x00
@@ -100,17 +104,17 @@ static uint16 doip_rand(void) {
 #define DOIP_RAND doip_rand
 #endif
 
-static void discardIpMessage(uint16 socketHandle, uint16 len, uint8 *rxBuffer)
+static void discardIpMessage(uint16 sockNr, uint16 len, uint8 *rxBuffer)
 {
 	// Discarding this message
 	while(len > SOAD_RX_BUFFER_SIZE)
 	{
-		(void)SoAd_RecvImpl(socketHandle, rxBuffer, SOAD_RX_BUFFER_SIZE, 0);
+		(void)SoAd_RecvIpMessage(sockNr, rxBuffer, SOAD_RX_BUFFER_SIZE, 0);
 		len -= SOAD_RX_BUFFER_SIZE;
 	}
 
 	if(len > 0){
-		(void)SoAd_RecvImpl(socketHandle, rxBuffer, len, 0);
+		(void)SoAd_RecvIpMessage(sockNr, rxBuffer, len, 0);
 	}
 }
 
@@ -164,7 +168,7 @@ static void createAndSendNack(uint16 sockNr, uint8 nackCode)
 
 	txBuffer[8] = nackCode;
 
-	bytesSent = SoAd_SendIpMessage(sockNr, 8+1, txBuffer);
+	bytesSent = SoAd_SendIpMessage(sockNr, txBuffer, 8+1);
 	if ( bytesSent != 8+1) {
 		// Failed to send ack. Link is probably down.
 		DET_REPORTERROR(MODULE_ID_SOAD, 0, SOAD_DOIP_CREATE_AND_SEND_NACK_ID, SOAD_E_UNEXPECTED_EXECUTION);
@@ -194,7 +198,7 @@ static void createAndSendDiagnosticAck(uint16 sockNr, uint16 sa, uint16 ta)
 
 	txBuffer[8+4] = 0;		// ACK
 
-	bytesSent = SoAd_SendIpMessage(sockNr, 8+5, txBuffer);
+	bytesSent = SoAd_SendIpMessage(sockNr, txBuffer, 8+5);
 	if (bytesSent != 8+5) {
 		// Failed to send ack. Link is probably down.
 		DET_REPORTERROR(MODULE_ID_SOAD, 0, SOAD_DOIP_CREATE_AND_SEND_D_ACK_ID, SOAD_E_UNEXPECTED_EXECUTION);
@@ -224,7 +228,7 @@ static void createAndSendDiagnosticNack(uint16 sockNr, uint16 sa, uint16 ta, uin
 
 	txBuffer[8+4] = nackCode;
 
-	bytesSent = SoAd_SendIpMessage(sockNr, 8+5, txBuffer);
+	bytesSent = SoAd_SendIpMessage(sockNr, txBuffer, 8+5);
 	if (bytesSent != 8+5) {
 		// Failed to send ack. Link is probably down.
 		DET_REPORTERROR(MODULE_ID_SOAD, 0, SOAD_DOIP_CREATE_AND_SEND_D_NACK_ID, SOAD_E_UNEXPECTED_EXECUTION);
@@ -290,7 +294,7 @@ void DoIp_SendVehicleAnnouncement(uint16 sockNr) {
 	if (SoAd_BufferGet(8+33, &txBuffer)) {
 		createVehicleIdentificationResponse(txBuffer);
 
-		bytesSent = SoAd_SendIpMessage(sockNr, 8+33, txBuffer);
+		bytesSent = SoAd_SendIpMessage(sockNr, txBuffer, 8+33);
 		if (bytesSent != 8+33) {
 			// Failed to send ack. Link is probably down.
 			DET_REPORTERROR(MODULE_ID_SOAD, 0, SOAD_DOIP_HANDLE_VEHICLE_ID_REQ_ID, SOAD_E_UNEXPECTED_EXECUTION);
@@ -354,7 +358,7 @@ static void handleVehicleIdentificationReq(uint16 sockNr, uint32 payloadLength, 
 		if (SoAd_BufferGet(8+33, &txBuffer)) {
 			createVehicleIdentificationResponse(txBuffer);
 
-			bytesSent = SoAd_SendIpMessage(sockNr, 8+33, txBuffer);
+			bytesSent = SoAd_SendIpMessage(sockNr, txBuffer, 8+33);
 			if (bytesSent != 8+33) {
 				// Failed to send data. Link is probably down.
 				DET_REPORTERROR(MODULE_ID_SOAD, 0, SOAD_DOIP_HANDLE_VEHICLE_ID_REQ_ID, SOAD_E_UNEXPECTED_EXECUTION);
@@ -460,7 +464,7 @@ static void createAndSendAliveCheck(uint16 connectionIndex) {
 		txBuffer[7] = 0;
 
 
-		bytesSent = SoAd_SendIpMessage(connectionStatus[connectionIndex].sockNr, 8, txBuffer);
+		bytesSent = SoAd_SendIpMessage(connectionStatus[connectionIndex].sockNr, txBuffer, 8);
 		if (bytesSent != 8) {
 			/*
 			 * Could not send data - socket probably broken, so let's close the socket.
@@ -779,7 +783,7 @@ static void handleRoutingActivationReq(uint16 sockNr, uint32 payloadLength, uint
 
 			fillRoutingActivationResponseData(txBuffer, sa, routingActivationResponseCode);
 
-			bytesSent = SoAd_SendIpMessage(sockNr, 8+13, txBuffer);
+			bytesSent = SoAd_SendIpMessage(sockNr, txBuffer, 8+13);
 			if (bytesSent != 8+13) {
 				// Could not send data - report error in development error tracer
 				DET_REPORTERROR(MODULE_ID_SOAD, 0, SOAD_DOIP_ROUTING_ACTIVATION_REQ_ID, SOAD_E_UNEXPECTED_EXECUTION);
@@ -888,7 +892,7 @@ static void handleEntityStatusReq(uint16 sockNr, uint32 payloadLength, uint8 *rx
 			txBuffer[13] = (maxDataSize << 8) & 0xff;
 			txBuffer[14] = maxDataSize & 0xff;
 
-			bytesSent = SoAd_SendIpMessage(sockNr, 8+7, txBuffer);
+			bytesSent = SoAd_SendIpMessage(sockNr, txBuffer, 8+7);
 			if (bytesSent != 8+7) {
 				/*
 				 * Failed to send the message. Report error to Det.
@@ -936,7 +940,7 @@ static void handlePowerModeCheckReq(uint16 sockNr, uint32 payloadLength, uint8 *
 			txBuffer[8] = (uint8)powerMode;
 
 			// @req SWS_DoIP_00092
-			bytesSent = SoAd_SendIpMessage(sockNr, 8+1, txBuffer);
+			bytesSent = SoAd_SendIpMessage(sockNr, txBuffer, 8+1);
 			if (bytesSent != 8+1) {
 				DET_REPORTERROR(MODULE_ID_SOAD, 0, SOAD_DOIP_ENTITY_STATUS_REQ_ID, SOAD_E_UNEXPECTED_EXECUTION);
 			}
@@ -997,7 +1001,7 @@ static void handleAliveCheckResp(uint16 sockNr, uint16 payloadLength, uint8* rxB
 			if ((pendingRoutingActivationSocket != 0xff) && (NULL != pendingRoutingActivationTxBuffer)) {
 				fillRoutingActivationResponseData(pendingRoutingActivationTxBuffer, pendingRoutingActivationSa, routingActivationResponseCode);
 
-				bytesSent = SoAd_SendIpMessage(pendingRoutingActivationSocket, 8+13, pendingRoutingActivationTxBuffer);
+				bytesSent = SoAd_SendIpMessage(pendingRoutingActivationSocket, pendingRoutingActivationTxBuffer, 8+13);
 
 				if (bytesSent != (8+13)) {
 					// Failed to send response. Connection probably already broken..
@@ -1028,7 +1032,7 @@ static void handleTimeout(uint16 connectionIndex) {
 		registerSocket(connectionIndex, pendingRoutingActivationSocket, pendingRoutingActivationActivationType, pendingRoutingActivationSa);
 
 		fillRoutingActivationResponseData(pendingRoutingActivationTxBuffer, pendingRoutingActivationSa, routingActivationResponseCode);
-		bytesSent = SoAd_SendIpMessage(pendingRoutingActivationSocket, 8+13, pendingRoutingActivationTxBuffer);
+		bytesSent = SoAd_SendIpMessage(pendingRoutingActivationSocket, pendingRoutingActivationTxBuffer, 8+13);
 
 		if (bytesSent != (8+13)) {
 			// Failed to send routing actication request..
@@ -1067,7 +1071,6 @@ static void handleDiagnosticMessage(uint16 sockNr, uint32 payloadLength, uint8 *
 		sa = (rxBuffer[8] << 8) | rxBuffer[9];
 		ta = (rxBuffer[10] << 8) | rxBuffer[11];
 
-
 		// Find connection entry for this socket
 		for (i = 0; i < DOIP_MAX_TESTER_CONNECTIONS; i++) {
 			if ((sa == connectionStatus[i].sa) && (sockNr == connectionStatus[i].sockNr)) {
@@ -1079,20 +1082,14 @@ static void handleDiagnosticMessage(uint16 sockNr, uint32 payloadLength, uint8 *
 		lookupResult = lookupSaTa(connectionIndex, sa, ta, &targetIndex);
 		if (lookupResult == LOOKUP_SA_TA_OK) {
 			// Send diagnostic message to PduR
-			PduLengthType len=0;
 			result = PduR_SoAdTpProvideRxBuffer(SoAd_Config.DoIpTargetAddresses[targetIndex].rxPdu,diagnosticMessageLength,&pduInfo);
 			if (result == BUFREQ_OK) {
 
 				pduInfo->SduLength = diagnosticMessageLength;
 				associateTargetWithConnectionIndex(targetIndex, connectionIndex);
 
-				(void)SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, rxBuffer, 12, 0);
-
 				/* Let pdur copy received data */
-				while(len < diagnosticMessageLength)
-				{
-					len += SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, &(pduInfo->SduDataPtr[len]), diagnosticMessageLength-len, 0);
-				}
+				memcpy(pduInfo->SduDataPtr, &rxBuffer[12], diagnosticMessageLength);
 
 				/* Finished reception */
 				(void)PduR_SoAdTpRxIndication(SoAd_Config.DoIpTargetAddresses[targetIndex].rxPdu, NTFRSLT_OK);
@@ -1103,14 +1100,12 @@ static void handleDiagnosticMessage(uint16 sockNr, uint32 payloadLength, uint8 *
 			else
 			{
 				createAndSendDiagnosticNack(sockNr, sa, ta, DOIP_E_DIAG_OUT_OF_MEMORY);
-				discardIpMessage(SocketAdminList[sockNr].ConnectionHandle, payloadLength + 8, rxBuffer);
 				DET_REPORTERROR(MODULE_ID_SOAD, 0, SOAD_DOIP_HANDLE_DIAG_MSG_ID, SOAD_E_SHALL_NOT_HAPPEN);
 			}
 
 		} else if (lookupResult == LOOKUP_SA_TA_TAUNKNOWN) {
 			// TA not known
 			createAndSendDiagnosticNack(sockNr, sa, ta, DOIP_E_DIAG_UNKNOWN_TA);
-			discardIpMessage(SocketAdminList[sockNr].ConnectionHandle, payloadLength + 8, rxBuffer);
 		} else {
 			// SA not registered on receiving socket
 			createAndSendDiagnosticNack(sockNr, sa, ta, DOIP_E_DIAG_INVALID_SA);
@@ -1124,77 +1119,87 @@ static void handleDiagnosticMessage(uint16 sockNr, uint32 payloadLength, uint8 *
 }
 
 
-void DoIp_HandleTcpRx(uint16 sockNr)
+static void DoIp_HandleRxInternal(uint16 sockNr, boolean isUDP)
 {
 	int nBytes;
 	uint8* rxBuffer;
-	uint16 payloadType;
-	uint16 payloadLength;
+	uint32 payloadType;
+	uint32 payloadLength;
 
 	if (SoAd_BufferGet(SOAD_RX_BUFFER_SIZE, &rxBuffer)) {
-		nBytes = SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, rxBuffer, SOAD_RX_BUFFER_SIZE, MSG_PEEK);
-		SoAd_SocketStatusCheck(sockNr, SocketAdminList[sockNr].ConnectionHandle);
+		nBytes = SoAd_RecvIpMessage(sockNr, rxBuffer, SOAD_RX_BUFFER_SIZE, MSG_PEEK);
 		if (nBytes >= 8) {
 			ASMEM(DOIP,"RX",rxBuffer,nBytes);
 			/*NOTE: REMOVE WHEN MOVED TO CANOE8.1*/
 			if (((rxBuffer[0] == 1) || (rxBuffer[0] == 2)) && (((uint8)(~rxBuffer[1]) == 1) || ((uint8)(~rxBuffer[1]) == 2))) {
 			//if ((rxBuffer[0] == DOIP_PROTOCOL_VERSION) && ((uint8)(~rxBuffer[1]) == DOIP_PROTOCOL_VERSION)) {
-				payloadType = rxBuffer[2] << 8 | rxBuffer[3];
-				payloadLength = (rxBuffer[4] << 24) | (rxBuffer[5] << 16) | (rxBuffer[6] << 8) | rxBuffer[7];
+				payloadType = ((uint32)rxBuffer[2] << 8) | rxBuffer[3];
+				if (isUDP) {
+					payloadType |= DOIP_PLT_UDP;
+				} else {
+					payloadType |= DOIP_PLT_TCP;
+				}
+				payloadLength = ((uint32)rxBuffer[4] << 24) | ((uint32)rxBuffer[5] << 16) | ((uint32)rxBuffer[6] << 8) | rxBuffer[7];
 				if ((payloadLength + 8) <= SOAD_RX_BUFFER_SIZE) {
 					if ((payloadLength + 8) <= nBytes) {
 						// Grab the message
+						nBytes = SoAd_RecvIpMessage(sockNr, rxBuffer, payloadLength+8, 0);
 						switch (payloadType) {
-#if 0 /* Vehicle identification requests are not to be supported over TCP */
-						case 0x0001:	// Vehicle Identification Request
-							nBytes = SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, rxBuffer, payloadLength + 8, 0);
+#if 1 /* Vehicle identification requests are not to be supported over TCP */
+						case DOIP_PLT_UDP|0x0001:	// Vehicle Identification Request
 							handleVehicleIdentificationReq(sockNr, payloadLength, rxBuffer, SOAD_ARC_DOIP_IDENTIFICATIONREQUEST_ALL);
 							break;
 
-						case 0x0002:	// Vehicle Identification Request with EID
-							nBytes = SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, rxBuffer, payloadLength + 8, 0);
+						case DOIP_PLT_UDP|0x0002:	// Vehicle Identification Request with EID
 							handleVehicleIdentificationReq(sockNr, payloadLength, rxBuffer, SOAD_ARC_DOIP_IDENTIFICATIONREQUEST_BY_EID);
 							break;
 
-						case 0x0003:	// Vehicle Identification Request with VIN
-							nBytes = SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, rxBuffer, payloadLength + 8, 0);
+						case DOIP_PLT_UDP|0x0003:	// Vehicle Identification Request with VIN
 							handleVehicleIdentificationReq(sockNr, payloadLength, rxBuffer, SOAD_ARC_DOIP_IDENTIFICATIONREQUEST_BY_VIN);
 							break;
 #endif /* Vehicle identification requests are not to be supported over TCP */
 
-						case 0x005:		// Routing Activation request
-							nBytes = SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, rxBuffer, payloadLength + 8, 0);
+						case DOIP_PLT_UDP|0x0004://Quick Fix to Vehicle announcement.
+							break;
+
+						case DOIP_PLT_UDP|0x005:
+						case DOIP_PLT_TCP|0x005:		// Routing Activation request
 							handleRoutingActivationReq(sockNr, payloadLength, rxBuffer);
 							break;
 
-						case 0x008:     // Alive check response
-							nBytes = SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, rxBuffer, payloadLength + 8, 0);
+						case DOIP_PLT_TCP|0x008:     // Alive check response
 							handleAliveCheckResp(sockNr, payloadLength, rxBuffer);
 							break;
 
-						case 0x4003:
+						case DOIP_PLT_UDP|0x4001:    /* DoIP entity status request */
+							handleEntityStatusReq(sockNr, payloadLength, rxBuffer);
+							break;
+
+						case DOIP_PLT_UDP|0x4003:    /* DoIP power mode check request */
+							handlePowerModeCheckReq(sockNr, payloadLength, rxBuffer);
+							break;
+
+						case DOIP_PLT_TCP|0x4003:
 							// @req SWS_DoIP_00090
-							nBytes = SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, rxBuffer, payloadLength + 8, 0);
 							createAndSendNack(sockNr, DOIP_E_INVALID_PAYLOAD_LENGTH);
 							break;
 
-						case 0x8001:	// Diagnostic message
-							//nBytes = SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, rxBuffer, payloadLength + 8, 0);
+						case DOIP_PLT_UDP|0x8001:	/* Diagnostic messages is not to be supported over UDP */
+						case DOIP_PLT_TCP|0x8001:	// Diagnostic message
 							handleDiagnosticMessage(sockNr, payloadLength, rxBuffer);
 							break;
 
 						default:
-							nBytes = SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, rxBuffer, payloadLength + 8, 0);
 							createAndSendNack(sockNr, DOIP_E_UNKNOWN_PAYLOAD_TYPE);
 							break;
 						}
 					} else {
+						discardIpMessage(sockNr, nBytes, rxBuffer);
 						createAndSendNack(sockNr, DOIP_E_INVALID_PAYLOAD_LENGTH);
-						discardIpMessage(SocketAdminList[sockNr].ConnectionHandle, nBytes, rxBuffer);
 					}
 				} else {
+					discardIpMessage(sockNr, nBytes, rxBuffer);
 					createAndSendNack(sockNr, DOIP_E_MESSAGE_TO_LARGE);
-					discardIpMessage(SocketAdminList[sockNr].ConnectionHandle, nBytes, rxBuffer);
 				}
 			} else {
 				createAndSendNack(sockNr, DOIP_E_INCORRECT_PATTERN_FORMAT);
@@ -1209,90 +1214,14 @@ void DoIp_HandleTcpRx(uint16 sockNr)
 	}
 }
 
+void DoIp_HandleTcpRx(uint16 sockNr)
+{
+	DoIp_HandleRxInternal(sockNr, FALSE);
+}
 
 void DoIp_HandleUdpRx(uint16 sockNr)
 {
-	int nBytes;
-	uint8* rxBuffer;
-	uint16 payloadType;
-	uint16 payloadLength;
-	uint32 RemoteIpAddress;
-	uint16 RemotePort;
-
-	if (SoAd_BufferGet(SOAD_RX_BUFFER_SIZE, &rxBuffer)) {
-	    nBytes = SoAd_RecvFromImpl(SocketAdminList[sockNr].SocketHandle, rxBuffer, SOAD_RX_BUFFER_SIZE, MSG_PEEK, &RemoteIpAddress, &RemotePort);
-		SoAd_SocketStatusCheck(sockNr, SocketAdminList[sockNr].SocketHandle);
-		if (nBytes >= 8) {
-			/*NOTE: REMOVE WHEN MOVED TO CANOE8.1*/
-			if (((rxBuffer[0] == 1) || (rxBuffer[0] == 2)) && (((uint8)(~rxBuffer[1]) == 1) || ((uint8)(~rxBuffer[1]) == 2))) {
-				//if ((rxBuffer[0] == DOIP_PROTOCOL_VERSION) && ((uint8)(~rxBuffer[1]) == DOIP_PROTOCOL_VERSION)) {
-				payloadType = rxBuffer[2] << 8 | rxBuffer[3];
-				payloadLength = (rxBuffer[4] << 24) | (rxBuffer[5] << 16) | (rxBuffer[6] << 8) | rxBuffer[7];
-				if ((payloadLength + 8) <= SOAD_RX_BUFFER_SIZE) {
-					if ((payloadLength + 8) <= nBytes) {
-						// Grab the message
-						nBytes = SoAd_RecvFromImpl(SocketAdminList[sockNr].SocketHandle, rxBuffer, payloadLength + 8, 0, &RemoteIpAddress, &RemotePort);
-						SocketAdminList[sockNr].RemotePort = RemotePort;
-						SocketAdminList[sockNr].RemoteIpAddress = RemoteIpAddress;
-						switch (payloadType) {
-						
-						case 0x0001:	// Vehicle Identification Request
-							handleVehicleIdentificationReq(sockNr, payloadLength, rxBuffer, SOAD_ARC_DOIP_IDENTIFICATIONREQUEST_ALL);
-							break;
-
-						case 0x0002:	// Vehicle Identification Request with EID
-							handleVehicleIdentificationReq(sockNr, payloadLength, rxBuffer, SOAD_ARC_DOIP_IDENTIFICATIONREQUEST_BY_EID);
-							break;
-
-						case 0x0003:	// Vehicle Identification Request with VIN
-							handleVehicleIdentificationReq(sockNr, payloadLength, rxBuffer, SOAD_ARC_DOIP_IDENTIFICATIONREQUEST_BY_VIN);
-							break;
-
-						case 0x0004://Quick Fix to Vehicle announcement.
-							break;
-
-#if 0 /* Routing activation is not to be supported over UDP */
-						case 0x005:		// Routing Activation request
-							handleRoutingActivationReq(sockNr, payloadLength, rxBuffer);
-							break;
-#endif /* Routing activation is not to be supported over UDP */
-
-						case 0x4001:    /* DoIP entity status request */
-							handleEntityStatusReq(sockNr, payloadLength, rxBuffer);
-							break;
-
-						case 0x4003:    /* DoIP power mode check request */
-							handlePowerModeCheckReq(sockNr, payloadLength, rxBuffer);
-							break;
-
-
-#if 0 /* Diagnostic messages is not to be supported over UDP */
-						case 0x8001:	// Diagnostic message
-							handleDiagnosticMessage(sockNr, payloadLength, rxBuffer);
-							break;
-#endif  /* Diagnostic messages is not to be supported over UDP */
-
-						default:
-							createAndSendNack(sockNr, DOIP_E_UNKNOWN_PAYLOAD_TYPE);
-					        discardIpMessage(SocketAdminList[sockNr].SocketHandle, payloadLength + 8, rxBuffer);
-							break;
-						}
-					}
-				} else {
-					createAndSendNack(sockNr, DOIP_E_MESSAGE_TO_LARGE);
-					discardIpMessage(SocketAdminList[sockNr].SocketHandle, payloadLength + 8, rxBuffer);
-				}
-			} else {
-				createAndSendNack(sockNr, DOIP_E_INCORRECT_PATTERN_FORMAT);
-				SoAd_SocketClose(sockNr);
-			}
-		}
-
-		SoAd_BufferFree(rxBuffer);
-	} else {
-		// No rx buffer available. Report this in Det. Message should be handled in the next (scanSockets) loop.
-		DET_REPORTERROR(MODULE_ID_SOAD, 0, SOAD_DOIP_HANDLE_UDP_RX_ID, SOAD_E_NOBUFS);
-	}
+	DoIp_HandleRxInternal(sockNr, TRUE);
 }
 
 
@@ -1364,7 +1293,7 @@ Std_ReturnType DoIp_HandleTpTransmit(PduIdType SoAdSrcPduId, const PduInfoType* 
 					memcpy(&txPduInfo.SduDataPtr[12],txPayloadPduInfo->SduDataPtr,SoAdSrcPduInfoPtr->SduLength);
 
 					// Then send the diagnostic message and confirm transmission to PduR
-					bytesSent = SoAd_SendIpMessage(socketNr, txPduInfo.SduLength, txPduInfo.SduDataPtr);
+					bytesSent = SoAd_SendIpMessage(socketNr, txPduInfo.SduDataPtr, txPduInfo.SduLength);
 
 					if (bytesSent == txPduInfo.SduLength) {
 						SoAd_BufferFree(txPduInfo.SduDataPtr);

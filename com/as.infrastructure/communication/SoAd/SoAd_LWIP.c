@@ -18,7 +18,7 @@
 #include "Bsd.h"
 #include "asdebug.h"
 /* ============================ [ MACROS    ] ====================================================== */
-#define AS_LOG_LWIP 0
+#define AS_LOG_LWIP  0
 #define AS_LOG_LWIPE 2
 /* ============================ [ TYPES     ] ====================================================== */
 /* ============================ [ DECLARES  ] ====================================================== */
@@ -27,6 +27,7 @@
 /* ============================ [ FUNCTIONS ] ====================================================== */
 int SoAd_SocketCloseImpl(int s)
 {
+	ASLOG(LWIPE, ("[%d] close\n", s));
 	return lwip_close(s);
 }
 
@@ -42,7 +43,7 @@ int SoAd_SocketStatusCheckImpl(int s)
 		ASLOG(LWIPE, ("[%d] status bad\n", s));
 	}
 
-	return 0;
+	return r;
 }
 
 int SoAd_SendImpl(int s, const void *data, size_t size, int flags)
@@ -169,7 +170,7 @@ int SoAd_RecvImpl(int s, void *mem, size_t len, int flags)
 {
 	int nbytes = lwip_recv(s, mem, len, flags);
 	if (nbytes > 0) {
-		ASLOG(LWIP, ("[%d] recv(%d) \n", s, nbytes));
+		ASLOG(LWIP, ("[%d] recv %d bytes\n", s, nbytes));
 	}
 	return nbytes;
 }
@@ -187,7 +188,8 @@ int SoAd_RecvFromImpl(int s, void *mem, size_t len, int flags,
 	{
 		*RemotePort = htons(fromAddr.sin_port);
 		*RemoteIpAddress = fromAddr.sin_addr.s_addr;
-		ASLOG(LWIP, ("[%d]recv from %d.%d.%d.%d:%d\n", s,
+		ASLOG(LWIP, ("[%d] recv %d bytes from %d.%d.%d.%d:%d\n",
+				s, nbytes,
 				(*RemoteIpAddress)&0xFF, (*RemoteIpAddress>>8)&0xFF,
 				(*RemoteIpAddress>>16)&0xFF, (*RemoteIpAddress>>24)&0xFF,
 				*RemotePort));

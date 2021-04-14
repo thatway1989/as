@@ -22,8 +22,8 @@ MODULES = ['LUA_CAN','LUA_SERIAL_CAN', 'LUA_SOCKET_CAN',
 if(os.getenv('USE_PYBIND11') == 'True'):
     MODULES.append('PYBIND11')
 
-if(IsPlatformWindows()):
-    MODULES += ['LUA_PEAK_CAN','LUA_ZLG_CAN','LUA_VXL_CAN']
+#if(IsPlatformWindows()):
+#    MODULES += ['LUA_PEAK_CAN','LUA_ZLG_CAN','LUA_VXL_CAN']
 
 if(asenv['MODULES'] is None):
     asenv['MODULES'] = MODULES

@@ -493,52 +493,52 @@ static void UpdateServerService(uint32 instanceno, uint32 serverno,
                     for (uint8 eh=0; eh < server->ServerServiceCfg->NoOfEventHandlers; eh++){
                         if (server->ServerServiceCfg->EventHandler[eh].EventGroupId == entry->type2.EventgroupID) {
 
-//                            /** @ req 4.2.2/SWS_SD_00454 */
-//                            //IMPROVEMENT: More work is needed.
-//
-//                            if (server->ServerServiceCfg->EventHandler[eh].Udp != NULL) {
-//                                if (server->ServerServiceCfg->EventHandler[eh].Udp->EventActivationRef != ACTIVATION_REF_NOT_SET) {
-//
-//                                    /* Set socket remote address */
-//                                    /* IMPROVEMENT: Go through the udp socket connections and compare it with Ipv4EndpointOptionUdp for this eventgroup.
-//                                     * If none is found, set the remote address on a wildcard. */
-//
-//                                    /* Enable routing */
-//                                    if (server->EventHandlers[eh].NoOfSubscribers == 0){
-//                                        (void)SoAd_EnableSpecificRouting
-//                                            (server->ServerServiceCfg->EventHandler[eh].Udp->EventActivationRef,
+                            /** @ req 4.2.2/SWS_SD_00454 */
+                            //IMPROVEMENT: More work is needed.
+
+                            if (server->ServerServiceCfg->EventHandler[eh].Udp != NULL) {
+                                if (server->ServerServiceCfg->EventHandler[eh].Udp->EventActivationRef != ACTIVATION_REF_NOT_SET) {
+
+                                    /* Set socket remote address */
+                                    /* IMPROVEMENT: Go through the udp socket connections and compare it with Ipv4EndpointOptionUdp for this eventgroup.
+                                     * If none is found, set the remote address on a wildcard. */
+
+                                    /* Enable routing */
+                                    if (server->EventHandlers[eh].NoOfSubscribers == 0){
+                                        (void)SoAd_EnableSpecificRouting
+                                            (server->ServerServiceCfg->EventHandler[eh].Udp->EventActivationRef,
+                                                    server->ServerServiceCfg->UdpSocketConnectionGroupId);
+
+//                                        (void)SoAd_IfSpecificRoutingGroupTransmit
+//                                            (server->ServerServiceCfg->EventHandler[eh].Udp->EventTriggeringRef,
 //                                                    server->ServerServiceCfg->UdpSocketConnectionGroupId);
-//
-////                                        (void)SoAd_IfSpecificRoutingGroupTransmit
-////                                            (server->ServerServiceCfg->EventHandler[eh].Udp->EventTriggeringRef,
-////                                                    server->ServerServiceCfg->UdpSocketConnectionGroupId);
-//
-//                                    }
-//                                }
-//                            } else {
-//
-//                                /** @ req 4.2.2/SWS_SD_00453 */
-//                                if (server->ServerServiceCfg->EventHandler[eh].Tcp != NULL) {
-//                                    if (server->ServerServiceCfg->EventHandler[eh].Tcp->EventActivationRef != ACTIVATION_REF_NOT_SET) {
-//
-//                                        /* Set socket remote address */
-//                                        /* IMPROVEMENT: Go through the tcp socket connections and compare it with Ipv4EndpointOptionTcp.
-//                                         * If none is found, set the remote address on a wildcard. */
-//
-//                                        /* Enable routing */
-//                                        if (server->EventHandlers[eh].NoOfSubscribers == 0){
-//                                            (void)SoAd_EnableSpecificRouting
-//                                                (server->ServerServiceCfg->EventHandler[eh].Tcp->EventActivationRef,
+
+                                    }
+                                }
+                            } else {
+
+                                /** @ req 4.2.2/SWS_SD_00453 */
+                                if (server->ServerServiceCfg->EventHandler[eh].Tcp != NULL) {
+                                    if (server->ServerServiceCfg->EventHandler[eh].Tcp->EventActivationRef != ACTIVATION_REF_NOT_SET) {
+
+                                        /* Set socket remote address */
+                                        /* IMPROVEMENT: Go through the tcp socket connections and compare it with Ipv4EndpointOptionTcp.
+                                         * If none is found, set the remote address on a wildcard. */
+
+                                        /* Enable routing */
+                                        if (server->EventHandlers[eh].NoOfSubscribers == 0){
+                                            (void)SoAd_EnableSpecificRouting
+                                                (server->ServerServiceCfg->EventHandler[eh].Tcp->EventActivationRef,
+                                                        server->ServerServiceCfg->TcpSocketConnectionGroupId);
+
+//                                            (void)SoAd_IfSpecificRoutingGroupTransmit
+//                                                (server->ServerServiceCfg->EventHandler[eh].Tcp->EventTriggeringRef,
 //                                                        server->ServerServiceCfg->TcpSocketConnectionGroupId);
-//
-////                                            (void)SoAd_IfSpecificRoutingGroupTransmit
-////                                                (server->ServerServiceCfg->EventHandler[eh].Tcp->EventTriggeringRef,
-////                                                        server->ServerServiceCfg->TcpSocketConnectionGroupId);
-//
-//                                        }
-//                                    }
-//                                }
-//                            }
+
+                                        }
+                                    }
+                                }
+                            }
 
                             server->EventHandlers[eh].EventHandlerState = SD_EVENT_HANDLER_REQUESTED;
                             server->EventHandlers[eh].NoOfSubscribers++;

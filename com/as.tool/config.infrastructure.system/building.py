@@ -1111,6 +1111,7 @@ def AddPythonDev(env):
         env.Append(CPPPATH=['%s/include'%(pyp)])
         env.Append(LIBPATH=['%s/libs'%(pyp)])
         istr = 'set'
+        pybind11 = '%s/Lib/site-packages/pybind11/include'%(pyp)
     else:
         pyp = os.sep.join(pyp.split(os.sep)[:-2])
         if(sys.version[0:3] == '2.7'):
@@ -1128,7 +1129,7 @@ def AddPythonDev(env):
         else:
             env.Append(LIBPATH=['%s/lib'%(pyp)])
         istr = 'export'
-    pybind11 = '%s/lib/%s/site-packages/pybind11/include'%(pyp, pylib[:9])
+        pybind11 = '%s/lib/%s/site-packages/pybind11/include'%(pyp, pylib[:9])
     env.Append(CPPPATH=[pybind11])
     #print('%s PYTHONHOME=%s if see error " Py_Initialize: unable to load the file system codec"'%(istr, pyp))
     env.Append(LIBS=[pylib, 'pthread', 'stdc++', 'm'])

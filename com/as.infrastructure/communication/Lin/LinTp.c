@@ -64,7 +64,7 @@ static LinTp_StatusType ReceiveFF(LinTp_ContextType* context, uint8* Data)
 	}
 
 	length = ((Data[0]&0x0F) << 8) + Data[1];
-	if(length > context->PduInfo.SduLength) {
+	if(length <= context->PduInfo.SduLength) {
 		pData = &(Data[2]);
 		memcpy(context->PduInfo.SduDataPtr, pData, 5);
 		context->PduInfo.SduLength = length;

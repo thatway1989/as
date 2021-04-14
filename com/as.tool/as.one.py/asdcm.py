@@ -21,7 +21,6 @@ from PyQt5.QtWidgets import *
 from serial import Serial
 from time import sleep
 from time import ctime
-from binascii import hexlify, unhexlify
 import sys,os
 import xml.etree.ElementTree as ET
 from pyas.dcm import *

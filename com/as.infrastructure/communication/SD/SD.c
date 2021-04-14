@@ -42,34 +42,72 @@
 #ifdef USE_SHELL
 #include "shell.h"
 
+static void Sd_ShowServerInfo(void) {
+    uint32 i, j, k;
+    Sd_DynServerServiceType* SdServerService;
+    Sd_DynEventHandlerType *EventHandler;
+    uint32_t ip;
+    uint16_t port;
+    for (i=0; i < SD_NUMBER_OF_INSTANCES; i++)
+    {
+        for (j=0; j < SdCfgPtr->Instance[i].SdNoOfServerServices; j++)
+        {
+            SdServerService = &Sd_DynConfig.Instance[i].SdServerService[j];
+            printf("SD[%d] server[%d]: service %X:%X version %d.%d %s\n", i, j,
+                SdServerService->ServerServiceCfg->Id, SdServerService->ServerServiceCfg->InstanceId,
+                SdServerService->ServerServiceCfg->MajorVersion, SdServerService->ServerServiceCfg->MinorVersion,
+                (SD_SERVER_SERVICE_DOWN == SdServerService->ServerServiceMode)?"not available":"available");
+            for(k=0; k < SdServerService->ServerServiceCfg->NoOfEventHandlers; k++) {
+                EventHandler = &SdServerService->EventHandlers[k];
+                if (EventHandler->NoOfSubscribers > 0) {
+                    printf("  %d subscribers:\n", EventHandler->NoOfSubscribers);
+                    if (EventHandler->UdpEndpoint.valid) {
+                        ip = EventHandler->UdpEndpoint.IPv4Address;
+                        port =  EventHandler->UdpEndpoint.PortNumber;
+                    } else {
+                        ip = EventHandler->TcpEndpoint.IPv4Address;
+                        port =  EventHandler->TcpEndpoint.PortNumber;
+                    }
+                    printf("    over %s %d.%d.%d.%d:%d\n",
+                        EventHandler->UdpEndpoint.valid? "UDP":"TCP",
+                        (ip>>24)&0xFF, (ip>>16)&0xFF, (ip>>8)&0xFF, ip&0xFF, port);
+                }
+
+            }
+        }
+    }
+}
+
 static int shellSD(int argc, char *argv[] )
 {
-	int rv = 0;
+    int rv = 0;
 
-	Sd_LocalIpAddrAssignmentChg(SOADIF_ID_SD_MULTICAST_TX,TCPIP_IPADDR_STATE_ASSIGNED);
+    Sd_LocalIpAddrAssignmentChg(SOADIF_ID_SD_MULTICAST_TX,TCPIP_IPADDR_STATE_ASSIGNED);
+    if (argc == 3) {
+        if(0 == strcmp(argv[1], "find"))
+        {
+            rv = Sd_ClientServiceSetState(strtoul(argv[2], NULL, 10), SD_CLIENT_SERVICE_REQUESTED);
+        }
+        else if(0 == strcmp(argv[1], "offer"))
+        {
+            rv = Sd_ServerServiceSetState(strtoul(argv[2], NULL, 10), SD_SERVER_SERVICE_AVAILABLE);
+        }
+    }
+    else
+    {
+        Sd_ShowServerInfo();
+    }
 
-	if(0 == strcmp(argv[1], "find"))
-	{
-		rv = Sd_ClientServiceSetState(strtoul(argv[2], NULL, 10), SD_CLIENT_SERVICE_REQUESTED);
-	}
-	else if(0 == strcmp(argv[1], "offer"))
-	{
-		rv = Sd_ServerServiceSetState(strtoul(argv[2], NULL, 10), SD_SERVER_SERVICE_AVAILABLE);
-	}
-	else
-	{
-	}
-
-	return rv;
+    return rv;
 }
 
 SHELL_CONST ShellCmdT cmdSD  = {
-		shellSD,
-		2,2,
-		"sd",
-		"sd <find/offer> id",
-		"  service discovery\n",
-		{NULL,NULL}
+        shellSD,
+        0,2,
+        "sd",
+        "sd <find/offer> id",
+        "  service discovery\n",
+        {NULL,NULL}
 };
 SHELL_CMD_EXPORT(cmdSD)
 #endif
@@ -291,7 +329,7 @@ void Sd_Init( const Sd_ConfigType* ConfigPtr ){
     }
 
 #if !defined(USE_SHELL_SYMTAB) && defined(USE_SHELL)
-	SHELL_AddCmd(&cmdSD);
+    SHELL_AddCmd(&cmdSD);
 #endif
 }
 

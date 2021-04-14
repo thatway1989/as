@@ -112,10 +112,15 @@ static const Sd_ClientServiceType Sd_ClientServiceCfg[] =
 	}
 };
 
+const Sd_EventHandlerTcpUdpType Sd_EventHandlerUdp1 = {
+	.EventActivationRef = 0,
+};
+
 const Sd_EventHandlerType SD_ServerEventHandlers[] = {
 	{
 		.EventGroupId = 0x5678,
 		.HandleId = SD_SERVER_SERVICE_EVENT_SAMPLE1,
+		.Udp = &Sd_EventHandlerUdp1,
 
 	}
 };

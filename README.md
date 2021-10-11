@@ -1,3 +1,6 @@
+# This repo is no longer active supported, a new project is started and C source not opened. But libraries and headers opened at
+# https://github.com/autoas/ssas-public
+
 # as
 automotive software and its tool-chain
 

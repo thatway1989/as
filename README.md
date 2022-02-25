@@ -1,5 +1,6 @@
-# This repo is no longer active supported, a new project is started and C source not opened. But libraries and headers opened at
-# https://github.com/autoas/ssas-public
+这是一个很棒的汽车autosar软件开源项目，里面有工具链、autosar源码，还有qemu，可以不依靠板子运行。
+感谢提供这个开源软件的作者，多谢。
+下面我会提供一系列此源码运行调试解析的文章，来说明完善这套代码。
 
 # as
 automotive software and its tool-chain

@@ -798,6 +798,7 @@ class Qemu():
         self.arch = Env['arch']
         self.port = self.FindPort()
         self.params = '-serial tcp:127.0.0.1:%s,server'%(self.port)
+        self.params += '-net nic -net user,hostfwd=tcp::13400-:1234 '
         if('gdb' in COMMAND_LINE_TARGETS):
             self.params += ' -gdb tcp::1234 -S'
         if(self.arch in arch_map.keys()):
@@ -866,6 +867,7 @@ class Qemu():
             RunCommand('sleep 2 && telnet 127.0.0.1 %s'%(self.port))
         else:
             fp = open('%s/telnet.sh'%(build),'w')
+            fp.write('sudo modprobe vcan\nsudo ip link add dev can0 type vcan\nsudo ip link set up can0\nsudo ip link set can0 mtu 72\n')
             fp.write('sleep 0.5\ntelnet 127.0.0.1 %s\n'%(self.port))
             fp.close()
             fp = open('%s/qemu.sh'%(build),'w')

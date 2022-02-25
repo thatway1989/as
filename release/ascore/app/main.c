@@ -64,6 +64,7 @@ static rt_uint8_t ucHeap[RT_HEAP_SIZE];
 /* ============================ [ FUNCTIONS ] ====================================================== */
 int main(int argc,char* argv[])
 {
+	ASLOG(ON, ("\n!!!---------main function begin----------\n"));
 	ASENVINIT(argc,argv);
 	EcuM_Init();
 	while(1);
@@ -201,6 +202,7 @@ void rtthread_startup(void)
 #ifdef USE_LWIP
 void LwIP_Init(void)
 {
+	ASLOG(ON, ("!!!main.c lwip init begin\n"));
 	/* initialize lwip stack */
 	/* register ethernetif device */
 	tap_netif_hw_init();
@@ -212,7 +214,7 @@ void LwIP_Init(void)
 
 	netbios_init();
 	rt_kprintf("TCP/IP initialized!\n");
-
+	ASLOG(ON, ("!!!main.c lwip init end\n"));
 }
 #endif
 #endif

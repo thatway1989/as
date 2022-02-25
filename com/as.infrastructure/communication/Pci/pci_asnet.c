@@ -369,11 +369,12 @@ struct pbuf *tap_netif_rx(rt_device_t dev)
 void PciNet_Init(uint32 gw, uint32 netmask, uint8* hwaddr, uint32* mtu)
 {
 	imask_t imask;
+	ASLOG(ETH, ("!!!%s: begin\n",__FUNCTION__));
 	pdev = find_pci_dev_from_id(0xcaac,0x0002);
 	if(NULL != pdev)
 	{
 		uint32 val;
-		__iobase = pci_get_memio(pdev, 1);;
+		__iobase = pci_get_memio(pdev, 1);
 
 		Irq_Save(imask);
 		enable_pci_resource(pdev);
@@ -414,6 +415,7 @@ void PciNet_Init(uint32 gw, uint32 netmask, uint8* hwaddr, uint32* mtu)
 #ifdef USE_LWIP
 struct pbuf * low_level_input(void)
 {
+	ASLOG(ETH, ("!!!%s begin\n",__FUNCTION__));
 	imask_t irq_state;
 	struct pbuf *p, *q;
 	u16_t len,len2,pos;
@@ -425,15 +427,17 @@ struct pbuf * low_level_input(void)
 	/* Obtain the size of the packet and put it into the "len"
 	variable. */
 	len = len2 = readl(__iobase+REG_LENGTH);
+	ASLOG(ETH, ("!!!%s len=%d\n",__FUNCTION__, len));
 
 	pos = 0;
 	while(len2 > 0)
 	{
 		pkbuf[pos] = readl(__iobase+REG_DATA);
+		ASLOG(ETH, (" %02x", pkbuf[pos]));
 		pos ++;
 		len2 --;
 	}
-
+	ASLOG(ETH, ("\n"));
 
 	if(0 == len)
 	{
@@ -480,6 +484,7 @@ err_t low_level_output(struct netif *netif, struct pbuf *p)
 	uint32 pos = 0;
 	imask_t irq_state;
 
+	ASLOG(ETH, ("!!!%s begin\n",__FUNCTION__));
 	(void)netif;
 
 	if(NULL == __iobase) return ERR_ABRT;
@@ -496,7 +501,12 @@ err_t low_level_output(struct netif *netif, struct pbuf *p)
 		time. The size of the data in each pbuf is kept in the ->len
 		variable. */
 		/* send data from(q->payload, q->len); */
+		ASLOG(ETH, ("!!!%s len=%d\n",__FUNCTION__ ,q->len));
 		memcpy(bufptr, q->payload, q->len);
+		for(int i=0;i<q->len;i++){
+			ASLOG(ETH, ("%x ",bufptr[i]));
+		}
+		ASLOG(ETH, ("\n"));
 		bufptr += q->len;
 	}
 	#if ETH_PAD_SIZE
@@ -523,6 +533,7 @@ err_t ethernetif_init(struct netif *netif)
 	netif->hwaddr_len = 6;
 	netif->mtu = mtu;
 
+	ASLOG(ETH, ("!!!%s begin\n",__FUNCTION__));
 	ASLOG(ETH, ("hwaddr is %02X:%02X:%02X:%02X:%02X:%02X,  mtu=%d\n", 
 			netif->hwaddr[0],netif->hwaddr[1],netif->hwaddr[2],
 			netif->hwaddr[3],netif->hwaddr[4],netif->hwaddr[5],
@@ -635,6 +646,7 @@ static void ethernet_exit(void)
 static void ethernet_init(void)
 {
 	uint32 mtu;
+	ASLOG(ETH, ("!!!%s: begin\n",__FUNCTION__));
 	PciNet_Init(inet_addr("172.18.0.1"), inet_addr("255.255.255.0"), uip_lladdr.addr, &mtu);
 
 	ASLOG(ETH, ("hwaddr is %02X:%02X:%02X:%02X:%02X:%02X,  mtu=%d\n", 

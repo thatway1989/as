@@ -568,6 +568,7 @@ void __weak ethernet_enable_interrupt(void) {}
 
 struct netif * LwIP_Init(void)
 {
+	ASLOG(LWIP,("%s: begin\n",__FUNCTION__));
 #ifdef USE_LWIP
 	uint8_t macaddress[6] = ETH_MAC_ADDR;
 	struct ip_addr ipaddr;
@@ -601,16 +602,19 @@ struct netif * LwIP_Init(void)
 	netmask.addr = 0;
 	gw.addr = 0;
 #else
+	ASLOG(LWIP,("%s: id addr:%s\n",__FUNCTION__, LWIP_AS_LOCAL_IP_ADDR));
 	GET_BOOT_IPADDR;
 	GET_BOOT_NETMASK;
 	GET_BOOT_GW;
 #endif
 
+	ASLOG(LWIP,("!!!%s: mac address:%s\n",__FUNCTION__, macaddress));
 	ethernet_set_mac_address(macaddress);
 
 	/* Add network interface to the netif_list */
 	netif_add(&netif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
 	/*  Registers the default network interface.*/
+	ASLOG(LWIP,("!!!%s: set default if\n",__FUNCTION__));
 	netif_set_default(&netif);
 
 	#if LWIP_DHCP
@@ -630,12 +634,14 @@ struct netif * LwIP_Init(void)
 	extern void http_server_netconn_init(void);
 	http_server_netconn_init();
 #endif
+	ASLOG(LWIP,("!!!%s: end------\n\n",__FUNCTION__));
 	return &netif;
 #endif /* USE_LWIP */
 }
 #ifdef USE_LWIP
 KSM(LwipIdle,Init)
 {
+	ASLOG(LWIP,("!!!%s(%d)-<%s>\n",__FILE__, __LINE__, __FUNCTION__));
 #ifdef USE_LWIP_POSIX_ARCH
 	printf("!!!LWIP run on pthreads!!!\n");
 #else

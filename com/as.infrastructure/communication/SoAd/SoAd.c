@@ -40,7 +40,7 @@
 #include "shell.h"
 #endif
 
-#define AS_LOG_SOAD  0
+#define AS_LOG_SOAD 1
 #define AS_LOG_SOADE 1
 
 typedef enum {
@@ -263,6 +263,7 @@ int SoAd_RecvIpMessage(uint16 sockNr, uint8* buff, uint32 msgLen, int flags) {
 
 	if (SocketAdminList[sockNr].SocketProtocolIsTcp) {
 		nBytes = SoAd_RecvImpl(SocketAdminList[sockNr].ConnectionHandle, buff, msgLen, flags);
+		
 		if (nBytes <= 0) {
 			SoAd_SocketStatusCheck(sockNr);
 		}
@@ -305,6 +306,7 @@ static void socketCreate(uint16 sockNr)
     int sockFd;
     int sockType;
 	int r;
+	ASLOG(SOAD, ("!!!soad:%s begin sockNr=%d\n",__FUNCTION__,sockNr));
 
     if (SocketAdminList[sockNr].SocketProtocolIsTcp) {
     	sockType = SOCK_STREAM;
@@ -353,6 +355,7 @@ static void socketAccept(uint16 sockNr)
 	int clientFd;
 	uint32 RemoteIpAddress;
 	uint16 RemotePort;
+	ASLOG(SOAD, ("!!!soad:%s begin\n",__FUNCTION__));
 
 	clientFd = SoAd_AcceptImpl(SocketAdminList[sockNr].SocketHandle, &RemoteIpAddress, &RemotePort);
 
@@ -394,6 +397,7 @@ uint8 SoAd_GetNofCurrentlyUsedTcpSockets() {
 
 static void socketTcpRead(uint16 sockNr)
 {
+	ASLOG(SOAD, ("!!!soad:%s begin\n",__FUNCTION__));
 #ifdef USE_PDUR
     BufReq_ReturnType result;
 
@@ -462,6 +466,7 @@ static void socketTcpRead(uint16 sockNr)
 		break;	// SOAD_AUTOSAR_CONNECTOR_PDUR
 #ifdef USE_DOIP
 	case SOAD_AUTOSAR_CONNECTOR_DOIP:
+		ASLOG(SOAD, ("!!!soad:%s begin, DoIP_HandleTcpRx\n",__FUNCTION__));
 		DoIp_HandleTcpRx(sockNr);
 		break;	// SOAD_AUTOSAR_CONNECTOR_DOIP
 #endif
@@ -563,6 +568,7 @@ static void socketUdpRead(uint16 sockNr)
 		break;	// SOAD_AUTOSAR_CONNECTOR_PDUR
 #ifdef USE_DOIP
 	case SOAD_AUTOSAR_CONNECTOR_DOIP:
+		ALOG(SOAD, ("!!!soad:%s begin, DoIP_HandleUdpRx\n",__FUNCTION__));
 		DoIp_HandleUdpRx(sockNr);
 		break;	// SOAD_AUTOSAR_CONNECTOR_DOIP
 #endif
@@ -581,18 +587,22 @@ static void scanSockets(void)
 	for (i = 0; i < SOAD_SOCKET_COUNT; i++) {
 		switch (SocketAdminList[i].SocketState) {
 		case SOCKET_INIT:
+			ALOG(SOAD, ("!!!soad:%s socket %d create\n",__FUNCTION__, i));
 			socketCreate(i);
 			break;
 
 		case SOCKET_TCP_LISTENING:
+			ALOG(SOAD, ("!!!soad:%s tcp listening\n",__FUNCTION__));
 			socketAccept(i);
 			break;
 
 		case SOCKET_TCP_READY:
+			ALOG(SOAD, ("!!!soad:%s tcp id:%d read\n",__FUNCTION__, i));
 			socketTcpRead(i);
 			break;
 
 		case SOCKET_UDP_READY:
+			ALOG(SOAD, ("!!!soad:%s udp id:%d read\n",__FUNCTION__, i);
 			socketUdpRead(i);
 			break;
 
@@ -620,6 +630,7 @@ static void handleTx()
 /** @req SOAD093 */
 void SoAd_Init(void)
 {
+	ALOG(SOAD, ("!!!soad init SOAD_SOCKET_COUNT=%d\n",SOAD_SOCKET_COUNT));
 	sint16 i, j;
 
 	// Initiate the socket administration list
@@ -671,6 +682,7 @@ void SoAd_Init(void)
 	}
 
 #ifdef USE_DOIP
+	ASLOG(SOAD, ("!!!soad:%s DoIp init\n",__FUNCTION__));
 	DoIp_Init();
 #endif
 	TcpIp_Init();
@@ -837,6 +849,7 @@ Std_ReturnType SoAdTp_Transmit(PduIdType SoAdSrcPduId, const PduInfoType* SoAdSr
 			break;
 #ifdef USE_DOIP
 		case SOAD_AUTOSAR_CONNECTOR_DOIP:
+			ASLOG(SOAD, ("!!!soad:%s begin, DoIP_HandleTpTransmit\n",__FUNCTION__));
 			returnCode = DoIp_HandleTpTransmit(SoAdSrcPduId, SoAdSrcPduInfoPtr);
 			break;
 #endif
@@ -858,6 +871,7 @@ Std_ReturnType SoAdTp_Transmit(PduIdType SoAdSrcPduId, const PduInfoType* SoAdSr
 /** @req SOAD193 */
 void TcpIp_Init(void)
 {
+	ASLOG(SOAD,("!!!Tcpip init\n"));
 #if defined(USE_SHELL) && !defined(USE_SHELL_SYMTAB)
 	SHELL_AddCmd(&cmdIfconfig);
 #endif
@@ -915,6 +929,8 @@ Std_ReturnType SoAd_SetRemoteAddr( SoAd_SoConIdType SoConId, const TcpIp_SockAdd
 	{
 		SocketAdminList[SoConId].RemotePort = RemoteAddrPtr->port;
 		memcpy(&SocketAdminList[SoConId].RemoteIpAddress, RemoteAddrPtr->addr, sizeof(SocketAdminList[SoConId].RemoteIpAddress));
+		char addr[32];
+		inet_aton(addr,RemoteAddrPtr->addr);
 		ercd = E_OK;
 	}
 
@@ -923,6 +939,7 @@ Std_ReturnType SoAd_SetRemoteAddr( SoAd_SoConIdType SoConId, const TcpIp_SockAdd
 
 Std_ReturnType SoAd_IfTransmit( PduIdType SoAdSrcPduId, const PduInfoType* SoAdSrcPduInfoPtr )
 {
+	ASLOG(SOAD, ("!!!soad:SoAd_IfTransmit begin\n"));
 	return SoAdIf_Transmit(SoAdSrcPduId, SoAdSrcPduInfoPtr);
 }
 

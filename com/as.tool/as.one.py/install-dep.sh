@@ -1,7 +1,7 @@
 #! /bin/sh
 
 wget https://pypi.python.org/packages/0a/da/9f61d28a20c42b4963334efacfd257c85150ede96d0cd2509b37da69da47/bitarray-0.8.1.tar.gz
-tar xf bitarray-0.8.1 -C .
+tar xf bitarray-0.8.1.tar.gz -C .
 cd bitarray-0.8.1
 sudo python3 setup.py install
 

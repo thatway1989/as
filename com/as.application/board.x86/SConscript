@@ -28,7 +28,8 @@ MODULES = ['ECUM','SCHM','MCU','DET',
            'PCI',
            'CAN','CANIF','PDUR','COM','COMM','CANTP','CANNM',
            'DCM','CANNM','CANSM','NM','OSEKNM','XCP',
-           'SOAD','DOIP','LWIP','FTP','SD',
+#           'SOAD','DOIP','LWIP','FTP','SD',
+           'SOAD','DOIP','LWIP','FTP',
            'ASKAR','PTHREAD','PTHREAD_CLEANUP','PTHREAD_SIGNAL',
            'FATFS','FATFS_DRV','LIBELF','LIBDL','VFS','DEV',
            'COMMONXML'
@@ -47,7 +48,8 @@ asenv['arch'] = arch
 
 if('run' in COMMAND_LINE_TARGETS):
     qemu = Qemu()
-    target = '%s/release/%s/TINIX.IMG'%(ASROOT,asenv['RELEASE'])
+#    target = '%s/release/%s/TINIX.IMG'%(ASROOT,asenv['RELEASE'])
+    target = '%s/TINIX.IMG'%(ASROOT)
     qemu.Run('-fda %s -boot a -m 64M'%(target))
 
 asenv.Append(CPPPATH=['%s/../board.posix/common'%(cwd)])

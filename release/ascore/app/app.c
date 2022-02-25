@@ -197,6 +197,7 @@ TASK(TaskApp)
 
 #ifndef USE_STDRT
 #ifdef USE_LWIP
+	ASLOG(OS, ("!!!OsActivateTask TaskLwip!\n"));
 	OsActivateTask(TaskLwip);
 #endif
 #endif

@@ -50,6 +50,7 @@
 #include "PduR_Dcm.h"
 #include "ComStack_Types.h"
 
+#define AS_LOG_DCM 1
 
 // State variable
 typedef enum
@@ -110,6 +111,7 @@ void Dcm_MainFunction(void) /** @req DCM362 */
 BufReq_ReturnType Dcm_ProvideRxBuffer(PduIdType dcmRxPduId, PduLengthType tpSduLength, PduInfoType **pduInfoPtr)
 {
 	BufReq_ReturnType returnCode;
+	ASLOG(DCM, ("!!!%s begin\n",__FUNCTION__));
 
 	VALIDATE_RV(dcmState == DCM_INITIALIZED, DCM_PROVIDE_RX_BUFFER_ID, DCM_E_UNINIT, BUFREQ_NOT_OK);
 	VALIDATE_RV(dcmRxPduId < DCM_DSL_RX_PDU_ID_LIST_LENGTH, DCM_PROVIDE_RX_BUFFER_ID, DCM_E_PARAM, BUFREQ_NOT_OK);
@@ -124,6 +126,7 @@ BufReq_ReturnType Dcm_ProvideRxBuffer(PduIdType dcmRxPduId, PduLengthType tpSduL
 
 void Dcm_RxIndication(PduIdType dcmRxPduId, NotifResultType result)
 {
+	ASLOG(DCM, ("!!!%s begin\n",__FUNCTION__));
 	VALIDATE_NO_RV(dcmState == DCM_INITIALIZED, DCM_RX_INDICATION_ID, DCM_E_UNINIT);
 	VALIDATE_NO_RV(dcmRxPduId < DCM_DSL_RX_PDU_ID_LIST_LENGTH, DCM_RX_INDICATION_ID, DCM_E_PARAM);
 

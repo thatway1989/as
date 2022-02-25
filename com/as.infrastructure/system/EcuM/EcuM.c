@@ -104,6 +104,8 @@
 #endif
 //#define USE_LDEBUG_PRINTF
 #include "asdebug.h"
+
+#define AS_LOG_ECUM 1
 /* ----------------------------[private define]------------------------------*/
 /* ----------------------------[private macro]-------------------------------*/
 /* ----------------------------[private typedef]-----------------------------*/
@@ -173,15 +175,18 @@ static void asblk_mount(void)
  * Initialize EcuM.
  */
 void EcuM_Init(void) {
+	ASLOG(ECUM, ("!!!EcuM_Init\n"));
 	Std_ReturnType status;
 	AppModeType appMode;
 
 	set_current_state(ECUM_STATE_STARTUP_ONE);
 
 	// Initialize drivers that are needed to determine PostBuild configuration
+	ASLOG(ECUM, ("!!!EcuM_AL_DriverInitZero!\n"));
 	EcuM_AL_DriverInitZero();
 
 	// Initialize the OS
+	ASLOG(ECUM, ("!!!InitOS!\n"));
 	InitOS();
 
 	// Setup interrupts
@@ -193,6 +198,7 @@ void EcuM_Init(void) {
 	// TODO: Check consistency of PB configuration
 
 	// Initialize drivers needed before the OS-starts
+	ASLOG(ECUM, ("!!!EcuM_AL_DriverInitOne!\n"));
 	EcuM_AL_DriverInitOne(EcuM_World.config);
 
 	// Determine the reset/wakeup reason
@@ -244,7 +250,10 @@ void EcuM_Init(void) {
 		//TODO: Report error.
 	}
 
+	ASLOG(ECUM, ("!!!KSM init!\n"));
 	KSM_INIT();
+	
+	ASLOG(ECUM, ("!!!StartOS!\n"));
 	StartOS(appMode); /** @req EcuM2141 */
 }
 /*
@@ -252,6 +261,7 @@ void EcuM_Init(void) {
  */
 void EcuM_StartupTwo(void)
 {
+	ASLOG(ECUM, ("!!!EcuM_StartupTwo\n"));
 	//TODO:  Validate that we are in state STARTUP_ONE.
 #if defined(USE_NVM)
 	TimerType nvmTimer,tickTimerElapsed;

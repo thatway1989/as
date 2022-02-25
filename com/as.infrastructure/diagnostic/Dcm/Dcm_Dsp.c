@@ -45,7 +45,7 @@
 #endif
 
 #include "asdebug.h"
-#define AS_LOG_DCM 0
+#define AS_LOG_DCM 1
 
 Dcm_ReturnEraseMemoryType __weak Dcm_EraseMemory(Dcm_OpStatusType OpStatus, uint8 MemoryIdentifier, uint32 MemoryAddress, uint32 MemorySize);
 Dcm_ReturnWriteMemoryType __weak Dcm_WriteMemory(Dcm_OpStatusType OpStatus, uint8 MemoryIdentifier, uint32 MemoryAddress, uint32 MemorySize, uint8* MemoryData);
@@ -497,7 +497,7 @@ boolean DspCheckSessionLevel(Dcm_DspSessionRowType const* const* sessionLevelRef
 		}
 	}
 
-	ASLOG(DCM, ("DspCheckSessionLevel(%d)=%s\n", currentSession, (TRUE==levelFound)?"True":"False"));
+	ASLOG(DCM, ("!!!DspCheckSessionLevel(%d)=%s\n", currentSession, (TRUE==levelFound)?"True":"False"));
 	return levelFound;
 }
 
@@ -612,9 +612,11 @@ void DspUdsEcuReset(const PduInfoType *pduRxData, PduIdType txPduId, PduInfoType
 {
 	/** @req DCM260 */
 	uint8 reqResetType;
+	ASLOG(DCM, ("!!!%s begin,length=%d\n",__FUNCTION__,pduRxData->SduLength));
 
 	if (pduRxData->SduLength == 2) {
 		reqResetType = pduRxData->SduDataPtr[1];
+		ASLOG(DCM, ("!!!%s type=%d\n",__FUNCTION__,reqResetType));
 
 		switch (reqResetType)
 		{
@@ -630,6 +632,7 @@ void DspUdsEcuReset(const PduInfoType *pduRxData, PduIdType txPduId, PduInfoType
 			switch( DcmE_EcuReset(dspUdsEcuResetData.resetType) )
 			{
 			case E_OK:
+				ASLOG(DCM, ("!!!%s OK\n",__FUNCTION__));
 				dspUdsEcuResetData.resetPending = DCM_DSP_RESET_WAIT_TX_CONF;
 				// Create positive response
 				pduTxData->SduDataPtr[1] = reqResetType;

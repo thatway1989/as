@@ -35,7 +35,7 @@
 #include "asdebug.h"
 
 /* DCM debug switch */
-#define AS_LOG_DCM 0
+#define AS_LOG_DCM 1
 #define AS_LOG_DCME 1
 
 #define DECREMENT(timer) { if (timer > 0){timer--;} }
@@ -362,7 +362,6 @@ void DslDsdProcessingDone(PduIdType rxPduIdRef, DsdProcessingDoneResultType resp
 	const Dcm_DslProtocolRowType *protocolRow = NULL;
 	Dcm_DslRunTimeProtocolParametersType *runtime = NULL;
 
-	ASLOG( DCM, ("DslDsdProcessingDone rxPduIdRef=%d\n", rxPduIdRef));
 
 	if (findRxPduIdParentConfigurationLeafs(rxPduIdRef, &protocolRx, &mainConnection, &connection, &protocolRow, &runtime)) {
 	    imask_t state;

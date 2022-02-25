@@ -26,7 +26,7 @@
 #include "MemMap.h"
 #include "asdebug.h"
 
-#define AS_LOG_DCM 0
+#define AS_LOG_DCM 1
 
 typedef struct {
 	const PduInfoType 				*pduRxData;
@@ -88,6 +88,7 @@ static void createAndSendNcr(Dcm_NegativeResponseCodeType responseCode)
 
 static void selectServiceFunction(uint8 sid)
 {
+	ASLOG(DCM, ("!!!%s begin,sid=%02x,%02x\n\n",__FUNCTION__,sid,SID_ECU_RESET));
 	/** @req DCM442.Partially */
 	switch (sid)	 /** @req DCM221 */
 	{
@@ -299,10 +300,12 @@ void DsdMain(void)
 
 void DsdHandleRequest(void)
 {
+	ASLOG(DCM, ("!!!%s begin",__FUNCTION__));
 	Std_ReturnType result;
 	const Dcm_DsdServiceType *sidConfPtr = NULL;
 
 	currentSid = msgData.pduRxData->SduDataPtr[0];	/** @req DCM198 */
+	ASLOG(DCM, ("!!!%s currentSid=%d\n",__FUNCTION__,currentSid));
 	ASMEM(DCM,"REQ",msgData.pduRxData->SduDataPtr,msgData.pduRxData->SduLength);
 	/** @req DCM178 */
 	//lint --e(506, 774)	PC-Lint exception Misra 13.7, 14.1 Allow configuration variables in boolean expression
@@ -390,6 +393,7 @@ void DsdDataConfirmation(PduIdType confirmPduId, NotifResultType result)
 
 void DsdDslDataIndication(const PduInfoType *pduRxData, const Dcm_DsdServiceTableType *protocolSIDTable, Dcm_ProtocolAddrTypeType addrType, PduIdType txPduId, PduInfoType *pduTxData, PduIdType rxContextPduId)
 {
+	ASLOG(DCM, ("!!!Dcm:%s begin\n",__FUNCTION__));
 	msgData.rxPduId = rxContextPduId;
 	msgData.txPduId = txPduId;
 	msgData.pduRxData = pduRxData;

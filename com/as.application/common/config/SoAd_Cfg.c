@@ -27,9 +27,9 @@ static const SoAd_SocketConnectionType SoAd_SocketConnection [SOAD_SOCKET_COUNT]
 {
 	{	/* for DCM */
 		.SocketId = 0,
-		.SocketLocalIpAddress = NULL,
-		.SocketLocalPort = 8989,
-		.SocketProtocol = SOAD_SOCKET_PROT_UDP,
+		.SocketLocalIpAddress = "172.18.0.200",
+		.SocketLocalPort = 13400,
+		.SocketProtocol = SOAD_SOCKET_PROT_TCP,
 		.AutosarConnectorType = SOAD_AUTOSAR_CONNECTOR_DOIP,
 	},
 #ifdef USE_SD

@@ -59,10 +59,10 @@ if('run' in COMMAND_LINE_TARGETS):
         RunCommand('cd %s && %s'%(build,target))
     exit(0)
 
-MODULES = ['ECUM','SCHM','MCU',
+MODULES = ['SG','ECUM','SCHM','MCU',
            'DET','DEM','SHELL',
            'CAN','CANIF','PDUR','COM','COMM','CANTP',
-           'LIN','LINIF','LINTP','LINTPGW',
+#           'LIN','LINIF','LINTP','LINTPGW',
            'DCM','CANNM','CANSM','NM','OSEKNM','XCP',
            'PORT','DIO','EEP','FLS','STMO',
            'EA','FEE','MEMIF','NVM',
@@ -109,8 +109,9 @@ else:
     else:
         MODULES.append('GTK')
 
-    MODULES.append('SG')
-    MODULES += ['RTE_SWC_TELLTALE','RTE_SWC_GAUGE','SG_DEMO_CLUSTER','RTE_SWC_LINAPP']
+MODULES.append('SG')
+#    MODULES += ['RTE_SWC_TELLTALE','RTE_SWC_GAUGE','SG_DEMO_CLUSTER','RTE_SWC_LINAPP']
+MODULES += ['RTE_SWC_TELLTALE','RTE_SWC_GAUGE','SG_DEMO_CLUSTER']
 
 # post special process for asboot release
 if(asenv['RELEASE']=='asboot'):

@@ -37,7 +37,7 @@ else:
     asenv['POSTACTION'].append('%s mkfs TINIX.IMG'%(fatfs))
     asenv['POSTACTION'].append('dd conv=notrunc if=%s of=TINIX.IMG bs=512 count=1'%(str(Glob('boot/boot.bin')[0])))
     asenv['POSTACTION'].append('%s cp %s /loader.bin TINIX.IMG'%(fatfs,str(Glob('boot/loader.bin')[0])))
-    asenv['POSTACTION'].append('objcopy -S %s kernel.bin'%(target))
+    asenv['POSTACTION'].append('objcopy -S build/posix/x86/ascore/%s kernel.bin'%(target))
     asenv['POSTACTION'].append('%s cp kernel.bin /kernel.bin TINIX.IMG'%(fatfs))
 
 objs += Glob('bsp/*.asm.obj')

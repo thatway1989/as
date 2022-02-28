@@ -4,6 +4,8 @@
 
 .sconsign.dblite
 
+*tags
+
 build
 *.pyd
 *.done

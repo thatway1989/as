@@ -50,6 +50,7 @@
 #include "PduR_Dcm.h"
 #include "ComStack_Types.h"
 
+#include "asdebug.h"
 #define AS_LOG_DCM 1
 
 // State variable

@@ -568,7 +568,7 @@ static void socketUdpRead(uint16 sockNr)
 		break;	// SOAD_AUTOSAR_CONNECTOR_PDUR
 #ifdef USE_DOIP
 	case SOAD_AUTOSAR_CONNECTOR_DOIP:
-		ALOG(SOAD, ("!!!soad:%s begin, DoIP_HandleUdpRx\n",__FUNCTION__));
+		ASLOG(SOAD, ("!!!soad:%s begin, DoIP_HandleUdpRx\n",__FUNCTION__));
 		DoIp_HandleUdpRx(sockNr);
 		break;	// SOAD_AUTOSAR_CONNECTOR_DOIP
 #endif
@@ -587,22 +587,22 @@ static void scanSockets(void)
 	for (i = 0; i < SOAD_SOCKET_COUNT; i++) {
 		switch (SocketAdminList[i].SocketState) {
 		case SOCKET_INIT:
-			ALOG(SOAD, ("!!!soad:%s socket %d create\n",__FUNCTION__, i));
+			ASLOG(SOAD, ("!!!soad:%s socket %d create\n",__FUNCTION__, i));
 			socketCreate(i);
 			break;
 
 		case SOCKET_TCP_LISTENING:
-			ALOG(SOAD, ("!!!soad:%s tcp listening\n",__FUNCTION__));
+			ASLOG(SOAD, ("!!!soad:%s tcp listening\n",__FUNCTION__));
 			socketAccept(i);
 			break;
 
 		case SOCKET_TCP_READY:
-			ALOG(SOAD, ("!!!soad:%s tcp id:%d read\n",__FUNCTION__, i));
+			ASLOG(SOAD, ("!!!soad:%s tcp id:%d read\n",__FUNCTION__, i));
 			socketTcpRead(i);
 			break;
 
 		case SOCKET_UDP_READY:
-			ALOG(SOAD, ("!!!soad:%s udp id:%d read\n",__FUNCTION__, i);
+			ASLOG(SOAD, ("!!!soad:%s udp id:%d read\n",__FUNCTION__, i));
 			socketUdpRead(i);
 			break;
 
@@ -630,7 +630,7 @@ static void handleTx()
 /** @req SOAD093 */
 void SoAd_Init(void)
 {
-	ALOG(SOAD, ("!!!soad init SOAD_SOCKET_COUNT=%d\n",SOAD_SOCKET_COUNT));
+	ASLOG(SOAD, ("!!!soad init SOAD_SOCKET_COUNT=%d\n",SOAD_SOCKET_COUNT));
 	sint16 i, j;
 
 	// Initiate the socket administration list

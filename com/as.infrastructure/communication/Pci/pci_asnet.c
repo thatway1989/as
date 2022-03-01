@@ -433,7 +433,7 @@ struct pbuf * low_level_input(void)
 	while(len2 > 0)
 	{
 		pkbuf[pos] = readl(__iobase+REG_DATA);
-		ASLOG(ETH, (" %02x", pkbuf[pos]));
+		ASLOG(ETH, (" %x", pkbuf[pos]));
 		pos ++;
 		len2 --;
 	}

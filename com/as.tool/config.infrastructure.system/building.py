@@ -797,7 +797,7 @@ class Qemu():
         ARCH = Env['ARCH']
         self.arch = Env['arch']
         self.port = self.FindPort()
-        self.params = '-serial tcp:127.0.0.1:%s,server'%(self.port)
+        self.params = '-serial tcp:127.0.0.1:%s,server '%(self.port)
         self.params += '-net nic -net user,hostfwd=tcp::13400-:1234 '
         if('gdb' in COMMAND_LINE_TARGETS):
             self.params += ' -gdb tcp::1234 -S'

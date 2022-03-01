@@ -16,7 +16,7 @@
 #define ETHTRCV_TYPES_H_
 
 #include "Eth_GeneralTypes.h"
-#include "EthTrcv_Cfg.h"
+//#include "EthTrcv_Cfg.h"
 
 typedef enum{
 	ETHTRCV_MODE_DOWN,

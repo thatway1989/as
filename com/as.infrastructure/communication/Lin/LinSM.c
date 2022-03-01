@@ -33,7 +33,7 @@
 #include "ComM_Types.h"
 #include "ComStack_Types.h"
 #include "Com_Types.h"
-#include "ComM_BusSm.h"
+#include "ComM_BusSM.h"
 #if defined(USE_DET)
 #include "Det.h"
 #endif

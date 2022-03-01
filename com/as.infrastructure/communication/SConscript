@@ -36,6 +36,14 @@ if('CANSM' in MODULES):
     objs += Glob('CanSM/*.c')
     asenv.Append(CPPPATH=['%s/CanSM'%(cwd)])
 
+if('ETHSM' in MODULES):
+    objs += Glob('EthSM/src/*.c')
+    asenv.Append(CPPPATH=['%s/EthSM/inc/'%(cwd)])
+    asenv.Append(CPPPATH=['%s/Eth'%(cwd)])
+    asenv.Append(CPPPATH=['%s/TcpIp/inc/'%(cwd)])
+    asenv.Append(CPPPATH=['%s/EthIf'%(cwd)])
+    asenv.Append(CPPPATH=['%s/EthTrcv'%(cwd)])
+
 if('CANTP' in MODULES):
     if('CANTP_MINI' in MODULES):
         objs += Glob('CanTp/CanTpMini.c')

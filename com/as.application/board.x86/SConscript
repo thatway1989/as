@@ -29,11 +29,11 @@ MODULES = ['ECUM','SCHM','MCU','DET',
            'CAN','CANIF','PDUR','COM','COMM','CANTP','CANNM',
            'DCM','CANNM','CANSM','NM','OSEKNM','XCP',
            'SOAD','DOIP','LWIP','FTP',
-		   'ASLOG',
-#		   'SD',
            'ASKAR','PTHREAD','PTHREAD_CLEANUP','PTHREAD_SIGNAL',
            'FATFS','FATFS_DRV','LIBELF','LIBDL','VFS','DEV',
-           'COMMONXML'
+           'COMMONXML',
+		   'ASLOG','ETHSM'
+#		   'SD',
            ]
 
 ARCH='x86'

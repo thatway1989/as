@@ -71,7 +71,7 @@
 #include "Dem.h"
 #endif
 
-#include "ComM_BusSm.h"
+#include "ComM_BusSM.h"
 #include "ComM_Internal.h"
 
 /** @req COMM506  @req COMM353 */

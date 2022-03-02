@@ -626,6 +626,27 @@ static void handleTx()
 
 }
 
+/** @req SOAD193 */
+void SoAd_TcpIp_Init(void)
+{
+	ASLOG(SOAD,("!!!Tcpip init\n"));
+#if defined(USE_SHELL) && !defined(USE_SHELL_SYMTAB)
+	SHELL_AddCmd(&cmdIfconfig);
+#endif
+
+	#ifdef USE_LWIP
+	LwIP_Init();
+	#endif
+	#ifdef USE_UIP
+	/* contiki uip socket is started up by EcuM */
+	#endif
+
+#ifdef USE_SD
+	Sd_Init(NULL);
+#endif
+
+}
+
 
 /** @req SOAD093 */
 void SoAd_Init(void)
@@ -685,7 +706,11 @@ void SoAd_Init(void)
 	ASLOG(SOAD, ("!!!soad:%s DoIp init\n",__FUNCTION__));
 	DoIp_Init();
 #endif
-	TcpIp_Init();
+#ifdef USE_TCPIP
+
+#else
+	SoAd_TcpIp_Init();
+#endif
 
 	ModuleStatus = SOAD_INITIALIZED;
 }
@@ -865,28 +890,6 @@ Std_ReturnType SoAdTp_Transmit(PduIdType SoAdSrcPduId, const PduInfoType* SoAdSr
 	}
 #endif /* USE_PDUR */
 	return returnCode;
-}
-
-
-/** @req SOAD193 */
-void TcpIp_Init(void)
-{
-	ASLOG(SOAD,("!!!Tcpip init\n"));
-#if defined(USE_SHELL) && !defined(USE_SHELL_SYMTAB)
-	SHELL_AddCmd(&cmdIfconfig);
-#endif
-
-	#ifdef USE_LWIP
-	LwIP_Init();
-	#endif
-	#ifdef USE_UIP
-	/* contiki uip socket is started up by EcuM */
-	#endif
-
-#ifdef USE_SD
-	Sd_Init(NULL);
-#endif
-
 }
 
 

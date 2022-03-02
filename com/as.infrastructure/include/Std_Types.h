@@ -46,13 +46,6 @@
 #define LOW_BYTE_FIRST      1U
 #endif
 
-#if !defined(CPU_BYTE_ORDER)
-#if defined(_LITTLE_ENDIAN)
-   #define CPU_BYTE_ORDER    (LOW_BYTE_FIRST)
-#else
-   #define CPU_BYTE_ORDER    (HIGH_BYTE_FIRST)
-#endif
-#endif
 #ifndef MIN
 #define MIN(_x,_y) (((_x) < (_y)) ? (_x) : (_y))
 #endif

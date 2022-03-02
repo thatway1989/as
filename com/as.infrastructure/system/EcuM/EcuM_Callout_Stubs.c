@@ -87,6 +87,9 @@
 #if defined(USE_CANSM)
 #include "CanSM.h"
 #endif
+#if defined(USE_ETHSM)
+#include "EthSM.h"
+#endif
 #if defined(USE_UDPNM)
 #include "UdpNm.h"
 #endif
@@ -380,6 +383,10 @@ void EcuM_AL_DriverInitTwo(const EcuM_ConfigType* ConfigPtr)
 
 #if defined(USE_CANSM)
 	NO_DRIVER(CanSM_Init(ConfigPtr->CanSMConfig));
+#endif
+
+#if defined(USE_ETHSM) 
+    NO_DRIVER(EthSM_Init());    //  Setup Eth SM 
 #endif
 
 #if defined(USE_J1939TP)

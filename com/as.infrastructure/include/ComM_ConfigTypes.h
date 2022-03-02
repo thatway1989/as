@@ -28,7 +28,8 @@ typedef enum {
 	COMM_BUS_TYPE_CAN,
 	COMM_BUS_TYPE_FR,
 	COMM_BUS_TYPE_INTERNAL,
-	COMM_BUS_TYPE_LIN
+	COMM_BUS_TYPE_LIN,
+	COMM_BUS_TYPE_ETH
 } ComM_BusTypeType;
 
 typedef enum {

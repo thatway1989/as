@@ -89,6 +89,7 @@ static const SoAd_PduRouteType SoAd_PduRoute[SOAD_PDU_ROUTE_COUNT] =
 		.DestinationSocketRef = &SoAd_SocketConnection[0],
 		.SourcePduId = PDUR_ID_SOAD_TX,
 	},
+#ifdef USE_SD
 	{
 		.SourceSduLength = 16,
 		.DestinationSocketRef = &SoAd_SocketConnection[1],
@@ -99,6 +100,7 @@ static const SoAd_PduRouteType SoAd_PduRoute[SOAD_PDU_ROUTE_COUNT] =
 		.DestinationSocketRef = &SoAd_SocketConnection[2],
 		.UserTxConfirmationUL = SOAD_UL_SD
 	},
+#endif
 };
 
 static const SoAd_SocketRouteType SoAd_SocketRoute[SOAD_SOCKET_ROUTE_COUNT] =

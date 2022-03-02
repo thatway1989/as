@@ -83,6 +83,10 @@
 #include "LinSM.h"
 #endif
 
+#if defined(USE_ETHSM)
+#include "EthSM.h"
+#endif
+
 /** @req COMM347 */
 #if defined(USE_NM) || defined(COMM_TESTS)
 #include "Nm.h"
@@ -523,6 +527,11 @@ static Std_ReturnType ComM_Internal_PropagateGetCurrentComMode( ComM_UserHandleT
 			status = LinSM_GetCurrentComMode(Channel->BusSMNetworkHandle, &mode);
 			break;
 #endif
+#if defined(USE_ETHSM)
+        case COMM_BUS_TYPE_ETH:
+            status = EthSM_GetCurrentComMode(Channel->BusSMNetworkHandle, &mode); /** @req COMM860 */
+        break;
+#endif
 			default:
 				status = E_NOT_OK;
 				break;
@@ -556,6 +565,11 @@ static Std_ReturnType ComM_Internal_PropagateComMode( const ComM_ChannelType* Ch
 		case COMM_BUS_TYPE_LIN:
 			busSMStatus = LinSM_RequestComMode(ChannelConf->BusSMNetworkHandle, ComMode);
 			break;
+#endif
+#if defined(USE_ETHSM)
+        case COMM_BUS_TYPE_ETH:
+            busSMStatus = EthSM_RequestComMode(ChannelConf->BusSMNetworkHandle, ComMode); /** @req COMM859 */
+            break;
 #endif
 		default:
 			busSMStatus = E_NOT_OK;

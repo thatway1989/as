@@ -55,7 +55,7 @@
 #define ASLOG(level,msg) 									\
 	do {													\
 		if((AS_LOG_##level) >= AS_LOG_DEFAULT) {			\
-			printf("%-8s:",#level);							\
+			printf("%s :",#level);							\
 			printf msg ;									\
 		} 													\
 	}while(0)

@@ -415,7 +415,7 @@ void PciNet_Init(uint32 gw, uint32 netmask, uint8* hwaddr, uint32* mtu)
 #ifdef USE_LWIP
 struct pbuf * low_level_input(void)
 {
-	ASLOG(ETH, ("!!!%s begin\n",__FUNCTION__));
+	//ASLOG(ETH, ("!!!%s begin\n",__FUNCTION__));
 	imask_t irq_state;
 	struct pbuf *p, *q;
 	u16_t len,len2,pos;
@@ -433,11 +433,11 @@ struct pbuf * low_level_input(void)
 	while(len2 > 0)
 	{
 		pkbuf[pos] = readl(__iobase+REG_DATA);
-		ASLOG(ETH, (" %x", pkbuf[pos]));
+		//printf("%2x ", pkbuf[pos]);
 		pos ++;
 		len2 --;
 	}
-	ASLOG(ETH, ("\n"));
+	//printf("\n");
 
 	if(0 == len)
 	{

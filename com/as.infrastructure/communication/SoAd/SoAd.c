@@ -355,7 +355,7 @@ static void socketAccept(uint16 sockNr)
 	int clientFd;
 	uint32 RemoteIpAddress;
 	uint16 RemotePort;
-	ASLOG(SOAD, ("!!!soad:%s begin\n",__FUNCTION__));
+	//ASLOG(SOAD, ("!!!soad:%s begin\n",__FUNCTION__));
 
 	clientFd = SoAd_AcceptImpl(SocketAdminList[sockNr].SocketHandle, &RemoteIpAddress, &RemotePort);
 
@@ -592,7 +592,7 @@ static void scanSockets(void)
 			break;
 
 		case SOCKET_TCP_LISTENING:
-			ASLOG(SOAD, ("!!!soad:%s tcp listening\n",__FUNCTION__));
+			//ASLOG(SOAD, ("!!!soad:%s tcp listening\n",__FUNCTION__));
 			socketAccept(i);
 			break;
 

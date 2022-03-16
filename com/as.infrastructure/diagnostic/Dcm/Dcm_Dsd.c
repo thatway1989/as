@@ -25,6 +25,7 @@
 #include "Dcm_Internal.h"
 #include "MemMap.h"
 #include "asdebug.h"
+#include "Dcm_Cfg.h"
 
 #define AS_LOG_DCM 1
 
@@ -88,7 +89,7 @@ static void createAndSendNcr(Dcm_NegativeResponseCodeType responseCode)
 
 static void selectServiceFunction(uint8 sid)
 {
-	ASLOG(DCM, ("!!!%s begin,sid=%02x,%02x\n\n",__FUNCTION__,sid,SID_ECU_RESET));
+	ASLOG(DCM, ("!!!%s begin,sid=%x\n",__FUNCTION__,sid));
 	/** @req DCM442.Partially */
 	switch (sid)	 /** @req DCM221 */
 	{
@@ -98,7 +99,7 @@ static void selectServiceFunction(uint8 sid)
 		break;
 #endif
 
-#ifdef DCM_USE_SERVICE_ECURESET
+#ifdef DCM_USE_SERVICE_ECU_RESET
 	case SID_ECU_RESET:
 		DspUdsEcuReset(msgData.pduRxData, msgData.txPduId, msgData.pduTxData);
 		break;
@@ -260,6 +261,7 @@ static void selectServiceFunction(uint8 sid)
 
 static boolean lookupSid(uint8 sid, const Dcm_DsdServiceType **sidPtr)
 {
+	ASLOG(DCM, ("!!!%s begin\n",__FUNCTION__));
 	boolean returnStatus = TRUE;
 	const Dcm_DsdServiceType *service = msgData.serviceTable->DsdService;
 
@@ -300,7 +302,7 @@ void DsdMain(void)
 
 void DsdHandleRequest(void)
 {
-	ASLOG(DCM, ("!!!%s begin",__FUNCTION__));
+	ASLOG(DCM, ("!!!%s begin\n",__FUNCTION__));
 	Std_ReturnType result;
 	const Dcm_DsdServiceType *sidConfPtr = NULL;
 
@@ -314,12 +316,14 @@ void DsdHandleRequest(void)
 			// SID found!
 			if (DspCheckSessionLevel(sidConfPtr->DsdSidTabSessionLevelRef)) {		 /** @req DCM211 */
 				if (DspCheckSecurityLevel(sidConfPtr->DsdSidTabSecurityLevelRef)) {	 /** @req DCM217 */
+					ASLOG(DCM, ("!!!%s check session and security end\n",__FUNCTION__));
 					//lint --e(506, 774)	PC-Lint exception Misra 13.7, 14.1 Allow configuration variables in boolean expression
 					if (DCM_REQUEST_INDICATION_ENABLED == STD_ON) {	 /** @req DCM218 */
 						 result = askApplicationForServicePermission(msgData.pduRxData->SduDataPtr, msgData.pduRxData->SduLength);
 					} else {
 						result = E_OK;
 					}
+					ASLOG(DCM, ("!!!%s relult=%d\n",__FUNCTION__,result));
 					//lint --e(506, 774)	PC-Lint exception Misra 13.7, 14.1 Allow configuration variables in boolean expression
 					if (result == E_OK) {
 						// Yes! All conditions met!

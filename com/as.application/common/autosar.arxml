@@ -522,10 +522,10 @@ CPU_CORE_NUMBER="1"
 </Service>
 <Service Comment="*" Name="ECU_RESET" SubFunctionSupported="True">
 <SecurityList Max="TBD">
-<Security Comment="*" Name="EXTDS" />
+<Security Comment="*" Name="DS" />
 </SecurityList>
 <SessionList Max="TBD">
-<Session Comment="*" Name="EXTDS" />
+<Session Comment="*" Name="DS" />
 </SessionList>
 </Service>
 <Service Comment="*" Name="READ_DATA_BY_IDENTIFIER" SubFunctionSupported="False">

@@ -39,7 +39,7 @@
 
 #define DOIP_PROTOCOL_VERSION	2
 
-#define AS_LOG_DOIP  0
+#define AS_LOG_DOIP  1
 #define AS_LOG_DOIPE 2
 
 #define DOIP_PLT_UDP 0x00010000UL
@@ -1056,6 +1056,7 @@ static void associateTargetWithConnectionIndex(uint16 targetIndex, uint16 connec
 
 static void handleDiagnosticMessage(uint16 sockNr, uint32 payloadLength, uint8 *rxBuffer)
 {
+	ASLOG(DOIP, ("!!!DoIP: %s begin!\n",__FUNCTION__));
 #ifdef USE_PDUR
 	LookupSaTaResultType lookupResult;
     BufReq_ReturnType result;
@@ -1080,6 +1081,7 @@ static void handleDiagnosticMessage(uint16 sockNr, uint32 payloadLength, uint8 *
 		}
 
 		lookupResult = lookupSaTa(connectionIndex, sa, ta, &targetIndex);
+		ASLOG(DOIP, ("!!!DoIP: %s lookupResult=%d!\n",__FUNCTION__, lookupResult));
 		if (lookupResult == LOOKUP_SA_TA_OK) {
 			// Send diagnostic message to PduR
 			result = PduR_SoAdTpProvideRxBuffer(SoAd_Config.DoIpTargetAddresses[targetIndex].rxPdu,diagnosticMessageLength,&pduInfo);
@@ -1128,7 +1130,12 @@ static void DoIp_HandleRxInternal(uint16 sockNr, boolean isUDP)
 
 	if (SoAd_BufferGet(SOAD_RX_BUFFER_SIZE, &rxBuffer)) {
 		nBytes = SoAd_RecvIpMessage(sockNr, rxBuffer, SOAD_RX_BUFFER_SIZE, MSG_PEEK);
+		ASLOG(DOIP, ("!!!DoIP recv:"));
 		if (nBytes >= 8) {
+			for(int i=0;i<nBytes;i++)
+				printf(" %2x",rxBuffer[i]);
+			printf("\n");
+
 			ASMEM(DOIP,"RX",rxBuffer,nBytes);
 			/*NOTE: REMOVE WHEN MOVED TO CANOE8.1*/
 			if (((rxBuffer[0] == 1) || (rxBuffer[0] == 2)) && (((uint8)(~rxBuffer[1]) == 1) || ((uint8)(~rxBuffer[1]) == 2))) {

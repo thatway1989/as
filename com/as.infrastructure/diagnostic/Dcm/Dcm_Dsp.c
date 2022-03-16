@@ -486,6 +486,8 @@ boolean DspCheckSessionLevel(Dcm_DspSessionRowType const* const* sessionLevelRef
 	boolean levelFound = FALSE;
 	Dcm_SesCtrlType currentSession;
 	asAssert(sessionLevelRefTable);
+	ASLOG(DCM, ("!!!%s begin\n",__FUNCTION__));
+
 	returnStatus = DslGetSesCtrlType(&currentSession);
 	if (returnStatus == E_OK) {
 		while ( ((*sessionLevelRefTable)->DspSessionLevel != currentSession) && (!(*sessionLevelRefTable)->Arc_EOL) ) {
@@ -508,6 +510,8 @@ boolean DspCheckSecurityLevel(Dcm_DspSecurityRowType const* const* securityLevel
 	boolean levelFound = FALSE;
 	Dcm_SecLevelType currentSecurityLevel;
 	asAssert(securityLevelRefTable);
+	ASLOG(DCM, ("!!!%s begin\n",__FUNCTION__));
+
 	returnStatus = DslGetSecurityLevel(&currentSecurityLevel);
 	if (returnStatus == E_OK) {
 		while ( ((*securityLevelRefTable)->DspSecurityLevel != currentSecurityLevel) && (!(*securityLevelRefTable)->Arc_EOL) ) {
@@ -518,6 +522,7 @@ boolean DspCheckSecurityLevel(Dcm_DspSecurityRowType const* const* securityLevel
 		}
 	}
 
+	ASLOG(DCM, ("!!!%s:levelFound=%s\n",__FUNCTION__ ,(TRUE==levelFound)?"True":"False"));
 	return levelFound;
 }
 
@@ -632,7 +637,7 @@ void DspUdsEcuReset(const PduInfoType *pduRxData, PduIdType txPduId, PduInfoType
 			switch( DcmE_EcuReset(dspUdsEcuResetData.resetType) )
 			{
 			case E_OK:
-				ASLOG(DCM, ("!!!%s OK\n",__FUNCTION__));
+				ASLOG(DCM, ("!!!%s OK!\n\n",__FUNCTION__));
 				dspUdsEcuResetData.resetPending = DCM_DSP_RESET_WAIT_TX_CONF;
 				// Create positive response
 				pduTxData->SduDataPtr[1] = reqResetType;

@@ -427,17 +427,18 @@ struct pbuf * low_level_input(void)
 	/* Obtain the size of the packet and put it into the "len"
 	variable. */
 	len = len2 = readl(__iobase+REG_LENGTH);
+	printf("\n-------------have input data--------------------\n");
 	ASLOG(ETH, ("!!!%s len=%d\n",__FUNCTION__, len));
 
 	pos = 0;
 	while(len2 > 0)
 	{
 		pkbuf[pos] = readl(__iobase+REG_DATA);
-		//printf("%2x ", pkbuf[pos]);
+		printf("%2x ", pkbuf[pos]);
 		pos ++;
 		len2 --;
 	}
-	//printf("\n");
+	printf("\n");
 
 	if(0 == len)
 	{
@@ -484,7 +485,6 @@ err_t low_level_output(struct netif *netif, struct pbuf *p)
 	uint32 pos = 0;
 	imask_t irq_state;
 
-	ASLOG(ETH, ("!!!%s begin\n",__FUNCTION__));
 	(void)netif;
 
 	if(NULL == __iobase) return ERR_ABRT;
@@ -501,12 +501,12 @@ err_t low_level_output(struct netif *netif, struct pbuf *p)
 		time. The size of the data in each pbuf is kept in the ->len
 		variable. */
 		/* send data from(q->payload, q->len); */
-		ASLOG(ETH, ("!!!%s len=%d\n",__FUNCTION__ ,q->len));
+		ASLOG(ETH, ("\n!!!%s len=%d\n",__FUNCTION__ ,q->len));
 		memcpy(bufptr, q->payload, q->len);
 		for(int i=0;i<q->len;i++){
-			ASLOG(ETH, ("%x ",bufptr[i]));
+			printf("%2x ", bufptr[i]);
 		}
-		ASLOG(ETH, ("\n"));
+		printf("\n");
 		bufptr += q->len;
 	}
 	#if ETH_PAD_SIZE

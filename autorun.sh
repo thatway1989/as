@@ -6,6 +6,8 @@
 #########################################################################
 #!/bin/bash
 
+export BOARD=x86
+export RELEASE=ascore
 //rm build -rf
 //scons -c
 scons

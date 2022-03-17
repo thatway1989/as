@@ -434,7 +434,7 @@ struct pbuf * low_level_input(void)
 	while(len2 > 0)
 	{
 		pkbuf[pos] = readl(__iobase+REG_DATA);
-		printf("%2x ", pkbuf[pos]);
+		printf("%02x ",(uint8)(pkbuf[pos]));
 		pos ++;
 		len2 --;
 	}
@@ -504,7 +504,7 @@ err_t low_level_output(struct netif *netif, struct pbuf *p)
 		ASLOG(ETH, ("\n!!!%s len=%d\n",__FUNCTION__ ,q->len));
 		memcpy(bufptr, q->payload, q->len);
 		for(int i=0;i<q->len;i++){
-			printf("%2x ", bufptr[i]);
+			printf("%02x ",(uint8)(bufptr[i]));
 		}
 		printf("\n");
 		bufptr += q->len;

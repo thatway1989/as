@@ -5,6 +5,8 @@
 .sconsign.dblite
 
 *tags
+socket_tool/client
+socket_tool/server
 
 build
 *.pyd

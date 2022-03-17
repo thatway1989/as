@@ -1133,7 +1133,7 @@ static void DoIp_HandleRxInternal(uint16 sockNr, boolean isUDP)
 		ASLOG(DOIP, ("!!!DoIP recv:"));
 		if (nBytes >= 8) {
 			for(int i=0;i<nBytes;i++)
-				printf(" %2x",rxBuffer[i]);
+				printf(" %02x",rxBuffer[i]);
 			printf("\n");
 
 			ASMEM(DOIP,"RX",rxBuffer,nBytes);

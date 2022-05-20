@@ -2,7 +2,9 @@
 
 神奇的是作者是一个中国人，感谢提供这个开源软件的作者！
 
-下面我会提供一系列此源码运行调试解析的文章，来说明完善这套代码。
+下面我会提供一系列此源码运行调试解析的文章，来说明完善这套代码，文章见微信公众号：OS与AUTOSAR研究。
+
+入门文章为：AUTOSAR入门-AS开源代码编译过程详解（https://mp.weixin.qq.com/s?__biz=MzUzMDMwNTg2Nw==&mid=2247483772&idx=1&sn=3808c40c3b4254b916d14ee3377d2879&chksm=fa528758cd250e4e444a3f55ceeee44ae02e997dc4d66ed6e8aac004750986d8f0cb225a533d&token=908117878&lang=zh_CN#rd）
 
 # as
 automotive software and its tool-chain

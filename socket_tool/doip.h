@@ -43,12 +43,19 @@ uint16 IpBase_GetUint16(const uint8 *const BufferPtr, uint32_least Offset);
 
 uint32 IpBase_GetUint32(const uint8 *const BufferPtr, uint32_least Offset);
 
-void DoIP_Util_FillGenHdr(                                                                 /* INTERNAL_NOTE_SBSW_OK */
-  uint16 HdrType,                                                                                                      /* INTERNAL_NOTE_SBSW_DOIP_PARAM_UNDEFINED */
-  uint32 HdrLen,                                                                                                       /* INTERNAL_NOTE_SBSW_DOIP_PARAM_UNDEFINED */
-  uint8* TgtBufferPtr)  ;
+typedef struct {
+	uint8 protoclVersion;
+	uint8 inverseVersion;
+	uint16 dataType;
+	uint32 dataLength;
+	uint8 *data[0];
+} Doip_Message;
+
+void DoIP_Util_FillGenHdr(      /* INTERNAL_NOTE_SBSW_OK */
+  uint16 HdrType,               /* INTERNAL_NOTE_SBSW_DOIP_PARAM_UNDEFINED */
+  uint32 HdrLen,                /* INTERNAL_NOTE_SBSW_DOIP_PARAM_UNDEFINED */
+  Doip_Message* p_doip);
+
 void DoIP_RxTcp_HandleCopyRxDataCopyBody(uint8 *rxHdrBuf) ;
 //extern uint8 TgtBufferPtr[1032];
-
-
 #endif

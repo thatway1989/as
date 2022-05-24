@@ -28,7 +28,8 @@ void DoIP_Util_PutUInt16(uint8 *Buffer, uint32 Offset, uint16 Value)            
 {
   /* ----- Implementation ----------------------------------------------- */
   /* #10 Put value into buffer. */
-  (Buffer)[(Offset)     ] = (uint8)((uint16_least)(Value) >> 8u);                                                      /* SBSW_DOIP_PARAM_VALID_POINTER_WRITE */
+
+  (Buffer)[(Offset)     ] = (uint8)((uint16_least)(Value) >> 8u);                                                        /* SBSW_DOIP_PARAM_VALID_POINTER_WRITE */
   (Buffer)[(Offset) + 1u] = (uint8)((uint16_least)(Value));                                                            /* SBSW_DOIP_PARAM_VALID_POINTER_WRITE */
 } /* DoIP_Util_PutUInt16() */
 
@@ -54,18 +55,18 @@ void DoIP_Util_PutUInt32(uint8 *Buffer, uint32 Offset, uint32 Value)            
 void DoIP_Util_FillGenHdr(                                                                 /* INTERNAL_NOTE_SBSW_OK */
   uint16 HdrType,                                                                                                      /* INTERNAL_NOTE_SBSW_DOIP_PARAM_UNDEFINED */
   uint32 HdrLen,                                                                                                       /* INTERNAL_NOTE_SBSW_DOIP_PARAM_UNDEFINED */
-  uint8* TgtBufferPtr)                                                                 /* INTERNAL_NOTE_SBSW_DOIP_PARAM_VALID_POINTER */
+  Doip_Message* p_doip)                                                                 /* INTERNAL_NOTE_SBSW_DOIP_PARAM_VALID_POINTER */
 {
   /* ----- Implementation ----------------------------------------------- */
   /* #10 Write data to target buffer. */
   /* header version */
-  TgtBufferPtr[0u] = DOIP_PROTOCOL_VERSION_2012;                                                                       /* SBSW_DOIP_PARAM_VALID_POINTER_WRITE */
+  p_doip->protoclVersion = DOIP_PROTOCOL_VERSION_2012;                /* SBSW_DOIP_PARAM_VALID_POINTER_WRITE */
   /* inverse header version */
-  TgtBufferPtr[1u] = (uint8)(~TgtBufferPtr[0u]);                                                                       /* SBSW_DOIP_PARAM_VALID_POINTER_WRITE */
+  p_doip->inverseVersion = (uint8)(~p_doip->protoclVersion);          /* SBSW_DOIP_PARAM_VALID_POINTER_WRITE */
   /* header type */
-  DoIP_Util_PutUInt16(&TgtBufferPtr[2u], 0u, HdrType);                                                                 /* SBSW_DOIP_PARAM_VALID_POINTER_FORWARD */
+  DoIP_Util_PutUInt16((uint8 *)&(p_doip->dataType), 0u, HdrType);     /* SBSW_DOIP_PARAM_VALID_POINTER_FORWARD */  
   /* header length */
-  DoIP_Util_PutUInt32(&TgtBufferPtr[4u], 0u, HdrLen);                                                                  /* SBSW_DOIP_PARAM_VALID_POINTER_FORWARD */
+  DoIP_Util_PutUInt32((uint8 *)&(p_doip->dataLength), 0u, HdrLen);    /* SBSW_DOIP_PARAM_VALID_POINTER_FORWARD */
 } /* DoIP_Util_FillGenHdr() */
 
 

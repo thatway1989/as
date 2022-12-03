@@ -292,6 +292,7 @@ class UISerial(QWidget):
     toHex = lambda self,data: unhexlify(data)
     def __init__(self, parent=None):
         super(QWidget, self).__init__(parent)
+        self.serial = AsSerial()
         self.creGui()
         self.flags = {'opened':False}
         
@@ -389,7 +390,7 @@ class UISerial(QWidget):
 
         self.setLayout(vbox)
 
-        self.serial = AsSerial()
+        #self.serial = AsSerial()
 
     def checkData(self, data):
         if data == '':

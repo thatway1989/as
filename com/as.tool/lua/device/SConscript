@@ -12,6 +12,8 @@ asenv.Append(CPPPATH=[cwd])
 
 objs += Glob('lasdevlib.c')
 
+objs += Glob('lasdev_websock.c')
+
 if('LUA_DEV_RS232' in MODULES):
     objs +=  Glob('lasdev_rs232.c')
 

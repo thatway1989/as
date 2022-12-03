@@ -14,6 +14,7 @@ __lic__ = '''
  * for more details.
  */
  '''
+from tkinter import W
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -26,7 +27,7 @@ import xml.etree.ElementTree as ET
 from pyas.dcm import *
 from pyas.asdev import *
 import traceback,re
-
+import time
 __all__ = ['UISg']
 
 reSgBMP = re.compile(r'SgBMP\{(\d+)\}')
@@ -220,7 +221,6 @@ class UISg(QWidget):
     def __init__(self, parent=None):
         super(QWidget, self).__init__(parent)
         self.vbox = QVBoxLayout()
-
         grid = QGridLayout()
         grid.addWidget(QLabel('load Sg xml file:'),0,0)
         self.leXml= QLineEdit()
@@ -232,16 +232,12 @@ class UISg(QWidget):
         self.leWsj.setDisabled(True)
         grid.addWidget(self.leWsj,1,1)
         self.vbox.addLayout(grid)
-        
         self.aws = aws()
         self.fd = self.aws.server('127.0.0.1',8080)
-
         default_xml = os.path.abspath('%s/../../../release/ascore/SgDesign/virtual_cluster/Sg.xml'%(os.curdir))
-        
         self.sgWidget = SgWidget(default_xml)
         self.vbox.addWidget(self.sgWidget)
         self.setLayout(self.vbox)
-
         self.leXml.setText(default_xml)
 
         self.btnOpenXml.clicked.connect(self.on_btnOpenXml_clicked)

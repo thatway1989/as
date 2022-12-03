@@ -214,7 +214,7 @@ Dio_PortLevelType Dio_ReadChannelGroup(
 	level = level >> channelGroupIdPtr->offset;
 
 #if ( DIO_DEV_ERROR_DETECT == STD_ON )
-	cleanup:
+cleanup:
 #endif
 	return level;
 }

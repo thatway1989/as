@@ -29,7 +29,7 @@ else:
         MKObject(str(src), str(src)[:-4]+'.bin', 
                  'cd %s/boot && nasm -o %s.bin %s'%(cwd,asm[:-4],asm))
 
-    target = 'x86'
+    target = 'build/posix/x86/ascore/x86'
     if(os.name == 'nt'):
         target += '.exe'
     fatfs = '%s/com/as.infrastructure/system/fs/fatfs/fatfs.exe'%(ASROOT)

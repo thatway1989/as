@@ -15,6 +15,7 @@ if('CAN' in MODULES):
     asenv.Append(CPPDEFINES=['CAN_LL_DL=64'])
     if(IsPlatformWSL()):
         asenv.Append(CPPDEFINES='CAN_DEV_NAME=\'"socketwin"\'')
+    asenv.Append(CPPDEFINES='__AS_PY_DEV__')
 
 if('LIN' in MODULES):
     objs += Glob('mcal/Lin.c')

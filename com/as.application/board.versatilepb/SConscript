@@ -30,7 +30,7 @@ if((asenv['MODULES'] != None) and ('RTTHREAD' in asenv['MODULES'])):
 asenv.Append(LINKFLAGS='-static -T %s'%(lds))
 asenv.Append(LINKFLAGS='-Map %s/versatilepb.map'%(BDIR))
 
-MODULES = ['ECUM','SCHM','MCU',
+MODULES = ['SG','ECUM','SCHM','MCU',
            'DET','RINGBUFFER',
            'CAN','CANIF','PDUR','COM','COMM','CANTP','CANNM',
            'DCM','CANNM','CANSM','NM','OSEKNM','XCP',
@@ -41,9 +41,10 @@ MODULES = ['ECUM','SCHM','MCU',
 if(cwd.find('travis') != -1):
     # this is on travis, GUI is not possible as rely on QT to generate pictures to C source code
     pass
-elif(os.getenv('SGAPP') != None):
-    MODULES += ['LCD','GUI','SG','SG_DEMO_WATCH']
+#elif(os.getenv('SGAPP') != None):
+#    MODULES += ['LCD','GUI','SG','SG_DEMO_WATCH']
 
+MODULES += ['LCD','AWS','GUI','SG','STMO','SG_DEMO_CLUSTER','DIO']
 if((asenv['MODULES'] != None) and ('RTTHREAD' in asenv['MODULES'])):
     asenv.Append(CPPDEFINES='RT_HEAP_SIZE=0x800000')
     MODULES += ['LWEXT4']

@@ -30,9 +30,13 @@ index__=0
 class aws():
     def server(self,uri,port):
         global index__,dev__
-        device='websock%d'%(index__)
+        #device='websock%d'%(index__)
+        device='websock'
         option='%s\0%d\0%d'%(uri,port,1)
+        print("aws device: ",device)
+        print("aws option: ",option)
         index__+=1
+        print("aws: ",dev__)
         return dev__.open(device.encode('utf-8'), option.encode('utf-8'))
 
     def client(self,uri,port):

@@ -35,6 +35,13 @@ if('EEP' in MODULES):
 if('FLS' in MODULES):
     objs += Glob('../posix/mcal/Fls.c')
 
+if('DIO' in MODULES):
+    objs += Glob('../posix/mcal/Dio.c')
+
+if('STMO' in MODULES):
+    objs += Glob('../posix/mcal/Stmo.c')
+
+
 if(('LWIP' in MODULES) or ('UIP' in MODULES)):
     if(IsPlatformWindows()):
         asenv.Append(CPPDEFINES='USE_PCAPIF')

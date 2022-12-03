@@ -6,7 +6,7 @@ cwd = GetCurrentDir()
 Import('asenv')
 ASROOT=asenv['ASROOT']
 
-assert(asenv['BOARD'] == 'posix')
+#assert(asenv['BOARD'] == 'posix')
 
 objs = []
 

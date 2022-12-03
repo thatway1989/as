@@ -36,6 +36,7 @@ else:
     asenv.Append(CPPDEFINES=['__AS_PY_CAN__'])
 
 MODULES.append('ANYOS')
+MODULES.append('AWS')
 
 asenv['ARCH'] = 'host'
 

@@ -29,6 +29,7 @@ else:
     MODULES = asenv['MODULES']
 
 MODULES.append('ANYOS')
+MODULES.append('AWS')
 
 asenv['ARCH'] = 'host'
 

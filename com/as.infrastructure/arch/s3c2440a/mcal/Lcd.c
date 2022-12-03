@@ -14,7 +14,7 @@
  */
 /* ============================ [ INCLUDES  ] ====================================================== */
 #include "s3c2440.h"
-//#include "Sg.h"
+#include "Sg.h"
 #include "Lcd.h"
 
 #include "asdebug.h"

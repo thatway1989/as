@@ -59,10 +59,9 @@ if('run' in COMMAND_LINE_TARGETS):
         RunCommand('cd %s && %s'%(build,target))
     exit(0)
 
-MODULES = ['ECUM','SCHM','MCU',
+MODULES = ['SG','ECUM','SCHM','MCU',
            'DET','DEM','SHELL',
            'CAN','CANIF','PDUR','COM','COMM','CANTP',
-           'LIN','LINIF','LINTP','LINTPGW',
            'DCM','CANNM','CANSM','NM','OSEKNM','XCP',
            'PORT','DIO','EEP','FLS','STMO',
            'EA','FEE','MEMIF','NVM',
@@ -72,13 +71,13 @@ MODULES = ['ECUM','SCHM','MCU',
            'TRACE','COMMONXML'
            ]
 
-#MODULES.append('AWS')
+MODULES.append('AWS')
 
 ARCH='posix'
 arch='posix'
 
-MODULES += ['SOAD','DOIP','LWIP','LWIP_POSIX_ARCH']
-
+MODULES += ['SOAD','DIO','DOIP','LWIP','LWIP_POSIX_ARCH']
+MODULES += ['LCD','GUI','SG','STMO','SG_DEMO_CLUSTER','DIO','AWS']
 if(os.getenv('VSOMEIP')=='YES'):
     MODULES += ['VSOMEIP']
 else:
@@ -109,8 +108,8 @@ else:
     else:
         MODULES.append('GTK')
 
-    MODULES.append('SG')
-    MODULES += ['RTE_SWC_TELLTALE','RTE_SWC_GAUGE','SG_DEMO_CLUSTER','RTE_SWC_LINAPP']
+MODULES.append('SG')
+MODULES += ['RTE_SWC_TELLTALE','RTE_SWC_GAUGE','SG_DEMO_CLUSTER']
 
 # post special process for asboot release
 if(asenv['RELEASE']=='asboot'):
@@ -144,6 +143,12 @@ if('CAN' in MODULES):
 
 if(('LIN' in MODULES) or ('LINS' in MODULES)):
     MODULES.extend(['LUA_DEV','LUA_DEV_LIN', 'LUA_DEV_LIN_SOCKET'])
+
+#MODULES.remove('LIN')
+#MODULES.remove('LINS')
+#MODULES.remove('LUA_DEV')
+#MODULES.remove('LUA_DEV_LIN')
+#MODULES.remove('LUA_DEV_LIN_SOCKET')
 
 asenv['ARCH'] = ARCH
 asenv['arch'] = arch

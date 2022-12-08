@@ -134,7 +134,7 @@ class Package(object):
 
         portInterface = autosar.portinterface.SenderReceiverInterface(str(name), isService, adminData=adminData)
         if dataElements is not None:
-            if isinstance(dataElements,collections.Iterable):
+            if isinstance(dataElements,collections.abc.Iterable):
                 for elem in dataElements:
                     dataType=ws.find(elem.typeRef, role='DataType')
                     if dataType is None:

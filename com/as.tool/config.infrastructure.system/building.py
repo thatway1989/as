@@ -929,6 +929,7 @@ $(download)/qemu: $(download)/qemu-$(pkgver).tar.xz
 \t@(cd $(download); tar xf qemu-$(pkgver).tar.xz; ln -fs qemu-$(pkgver) qemu)
 \t@(sed -i "40cint memfd_create(const char *name, unsigned int flags)" $(download)/qemu/util/memfd.c)
 \t@(cd $(prj-dir); BOARD=any ANY=aslib scons; cp build/%s/any/aslib/libaslib.a $(download)/qemu/hw/char/libpyas.a)
+\t@(cd $(download)/qemu/; patch -p1 < $(prj-dir)/com/as.tool/qemu/qemu-build-error.patch)
 \t@(cd $(download)/qemu/hw/char; cp $(prj-dir)/com/as.tool/qemu/hw/char/* .; \
         cat Makefile >> Makefile.objs)
 

@@ -440,7 +440,7 @@ class Port(Element):
         if comspec is not None:
             ws = self.rootWS()
             assert(ws is not None)
-            if isinstance(comspec, collections.Mapping):
+            if isinstance(comspec, collections.abc.Mapping):
                 comspecObj = self.createComSpecFromDict(ws,portInterfaceRef,comspec)
                 if comspecObj is None:
                     raise ValueError('failed to create comspec from comspec data: '+repr(comspec))

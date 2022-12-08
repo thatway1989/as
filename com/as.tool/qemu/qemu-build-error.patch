@@ -1,0 +1,103 @@
+--- a/disas/arm-a64.cc
++++ b/disas/arm-a64.cc
+@@ -17,10 +17,8 @@
+  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+ 
+-extern "C" {
+ #include "qemu/osdep.h"
+ #include "disas/bfd.h"
+-}
+ 
+ #include "vixl/a64/disasm-a64.h"
+ 
+--- a/include/disas/bfd.h
++++ b/include/disas/bfd.h
+@@ -9,6 +9,10 @@
+ #ifndef DISAS_BFD_H
+ #define DISAS_BFD_H
+ 
++#ifdef __cplusplus
++extern "C" {
++#endif
++
+ #include "qemu/fprintf-fn.h"
+ 
+ typedef void *PTR;
+@@ -503,4 +507,8 @@ bfd_vma bfd_getl16 (const bfd_byte *addr);
+ bfd_vma bfd_getb16 (const bfd_byte *addr);
+ typedef bool bfd_boolean;
+ 
++#ifdef __cplusplus
++}
++#endif
++
+ #endif /* DISAS_BFD_H */
+--- a/include/qemu/osdep.h
++++ b/include/qemu/osdep.h
+@@ -27,6 +27,16 @@
+ #ifndef QEMU_OSDEP_H
+ #define QEMU_OSDEP_H
+ 
++#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
++#pragma GCC diagnostic ignored "-Wstringop-truncation"
++#pragma GCC diagnostic ignored "-Waddress-of-packed-member"
++#pragma GCC diagnostic ignored "-Warray-bounds"
++#pragma GCC diagnostic ignored "-Wformat-truncation"
++#ifndef __cplusplus
++#pragma GCC diagnostic ignored "-Wimplicit-function-declaration"
++#pragma GCC diagnostic ignored "-Wnested-externs"
++#endif
++
+ #include "config-host.h"
+ #ifdef NEED_CPU_H
+ #include "config-target.h"
+--- a/include/ui/egl-helpers.h
++++ b/include/ui/egl-helpers.h
+@@ -4,6 +4,7 @@
+ #include <epoxy/gl.h>
+ #include <epoxy/egl.h>
+ #include <gbm.h>
++#include <X11/Xlib.h>
+ 
+ extern EGLDisplay *qemu_egl_display;
+ extern EGLConfig qemu_egl_config;
+--- a/linux-user/syscall.c
++++ b/linux-user/syscall.c
+@@ -41,6 +41,7 @@ int __clone2(int (*fn)(void *), void *child_stack_base,
+              size_t stack_size, int flags, void *arg, ...);
+ #endif
+ #include <sys/socket.h>
++#include <linux/sockios.h>
+ #include <sys/un.h>
+ #include <sys/uio.h>
+ #include <poll.h>
+@@ -256,7 +257,10 @@ static type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5,	\
+ #endif
+ 
+ #ifdef __NR_gettid
+-_syscall0(int, gettid)
++int gettid(void)
++{
++    return syscall(__NR_gettid);
++}
+ #else
+ /* This is a replacement for the host gettid() and must return a host
+    errno. */
+@@ -8152,10 +8156,12 @@ abi_long do_syscall(void *cpu_env, int num, abi_long arg1,
+ #ifdef TARGET_NR_stime /* not on alpha */
+     case TARGET_NR_stime:
+         {
+-            time_t host_time;
+-            if (get_user_sal(host_time, arg1))
+-                goto efault;
+-            ret = get_errno(stime(&host_time));
++            struct timespec ts;
++            ts.tv_nsec = 0;
++            if (get_user_sal(ts.tv_sec, arg1)) {
++                 return -TARGET_EFAULT;
++            }
++            return get_errno(clock_settime(CLOCK_REALTIME, &ts));
+         }
+         break;
+ #endif

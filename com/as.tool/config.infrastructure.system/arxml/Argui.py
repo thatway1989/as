@@ -525,7 +525,7 @@ class ArgModule(QMainWindow):
         assert(isinstance(arobj, ArgObject))
         if(IsArxmlList(arobj.arxml)==False):
             self.frame = QFrame()
-            self.frame.setMinimumWidth(self.width()*3/5)
+            self.frame.setMinimumWidth(int(self.width()*3/5))
             self.grid = QGridLayout()
             self.frame.setLayout(self.grid)
             for Column in range(0,len(arobj.arxml.descriptor.items())):
@@ -575,7 +575,7 @@ class ArgModule(QMainWindow):
                     self.table.setColumnWidth(Column,widths[Column])
             except:
                 pass
-            self.table.setMinimumWidth(self.width()*3/4)
+            self.table.setMinimumWidth(int(self.width()*3/4))
             self.wConfig.setCentralWidget(self.table)
     def creActions(self):
         #  create cActionNumber action

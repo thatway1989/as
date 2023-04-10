@@ -13,7 +13,7 @@ cmd += ' && sed -i "43c #define EXT4_FILEDEV_BSIZE 4096" blockdev/linux/file_dev
 cmd += ' && sed -i "28c -DWIN32=1 \\\\\\\\" Makefile'
 cmd += ' && sed -i "156c /*fflush(stdout);*/ \\\\\\\\" include/ext4_debug.h'
 
-lwext4 = Package('https://github.com/parai/lwext4.git', cmd=cmd)
+lwext4 = Package('https://github.com/autoas/lwext4.git', cmd=cmd)
 
 MKSymlink(lwext4,'%s/lwext4'%(cwd))
 

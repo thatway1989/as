@@ -3,7 +3,7 @@
 神奇的是作者是一个中国人，感谢提供这个开源软件的作者！
 
 下面我会提供一系列此源码运行调试解析的文章，来说明完善这套代码，文章见微信公众号：那路谈OS与SoC嵌入式软件。
-
+![logo](https://github.com/thatway1989/thatway1989.github.io/blob/main/images/logo-gongzhonghao.png)
 入门文章链接为：[AUTOSAR入门-AS开源代码运行环境搭建](https://mp.weixin.qq.com/s/vWkf5rQaqjJ8BclB4wadpg)
 
 # as

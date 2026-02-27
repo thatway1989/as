@@ -4,7 +4,7 @@
 
 下面我会提供一系列此源码运行调试解析的文章，来说明完善这套代码，文章见微信公众号：那路谈OS与SoC嵌入式软件。
 
-入门文章链接为：[AUTOSAR入门-AS开源代码运行环境搭建]（https://mp.weixin.qq.com/s/vWkf5rQaqjJ8BclB4wadpg）
+入门文章链接为：[AUTOSAR入门-AS开源代码运行环境搭建](https://mp.weixin.qq.com/s/vWkf5rQaqjJ8BclB4wadpg)
 
 # as
 automotive software and its tool-chain
